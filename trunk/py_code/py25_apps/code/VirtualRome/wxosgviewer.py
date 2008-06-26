@@ -15,7 +15,7 @@ import osgGA
 import osgViewer
 
 #----------------------------------------------------------------------
-class wxOsgViewer(wx.glcanvas.GLCanvas):
+class Canvas(wx.glcanvas.GLCanvas):
 
     def __init__(self,parent,id):
         style = wx.WANTS_CHARS | wx.FULL_REPAINT_ON_RESIZE 
@@ -141,25 +141,30 @@ class wxOsgViewer(wx.glcanvas.GLCanvas):
         evt.Skip() # importante -- altrimenti il canvas non riceve il focus
 
 #--------------------
-class wxOsgFrame(wx.Frame):
+class Frame(wx.Frame):
     def __init__(self, parent=None, ID=-1, title='pyOSG' ):
-        wx.Frame.__init__(self, parent, ID, title)
-        self.canvas = wxOsgViewer(self,-1)
+        wx.Frame.__init__(self, parent, ID, title, size=wx.Size(800,600))
+        self.canvas = Canvas(self,-1)
 
 #--------------------
-class wxOsgApp(wx.App):
+class App(wx.App):
     def OnInit(self):
-        self.frame = wxOsgFrame()
+        self.frame = Frame()
         self.SetTopWindow(self.frame)
         self.frame.Show(True)
         return True
+    def getFrame(self):
+        return self.frame
+    def getCanvas(self):
+        return self.frame.canvas
+    def getViewer(self):
+        return self.frame.canvas.viewer
 
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    app = wxOsgApp(0)  # importante: creare APP passando 0 
-    frame = app.frame
-    viewer = frame.canvas
+    app = App(0)  # importante: creare APP passando 0 
+    viewer = app.getViewer()
     app.MainLoop()
 
 
