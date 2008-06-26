@@ -151,6 +151,8 @@ class Frame(wx.Frame):
 
 #--------------------
 class App(wx.App):
+    def __init__(self):
+        wx.App.__init__(self,0)
     def OnInit(self):
         self.frame = Frame()
         self.SetTopWindow(self.frame)
@@ -166,7 +168,7 @@ class App(wx.App):
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    app = App(0)  # importante: creare APP passando 0 
+    app = App()  
     viewer = app.getViewer()
     app.MainLoop()
 
