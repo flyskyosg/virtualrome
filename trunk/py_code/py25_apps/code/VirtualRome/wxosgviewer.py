@@ -145,6 +145,9 @@ class Frame(wx.Frame):
     def __init__(self, parent=None, ID=-1, title='pyOSG' ):
         wx.Frame.__init__(self, parent, ID, title, size=wx.Size(800,600))
         self.canvas = Canvas(self,-1)
+    
+    def close(self):
+        self.Close()
 
 #--------------------
 class App(wx.App):
