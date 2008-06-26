@@ -401,8 +401,8 @@ if __name__ == "__main__":
     import wxosgviewer 
     import os
     
-    app = wxosgviewer.wxOsgApp(0)  # importante: creare APP passando 0 
-    viewer = app.frame.canvas.viewer
+    app = wxosgviewer.App(0)  # importante: creare APP passando 0 
+    viewer = app.getViewer()
     
     # locate the DataDir
     dir = os.getenv('DATADIR')
