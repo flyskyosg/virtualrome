@@ -1,8 +1,13 @@
+'''
+wxOsgViewer: osgViewer on a wxPanel
+
+this module also provide a simple wxOsgFrame / wxOsgApp
+useful for testing
+'''
+
 import wx
 import wx.py 
 import wx.glcanvas
-
-import osg_setup
 
 import osg
 import osgDB
@@ -35,6 +40,8 @@ class wxOsgViewer(wx.glcanvas.GLCanvas):
         self.viewer.addEventHandler( osgGA.StateSetManipulator(ss) )
 
         loadedModel = osgDB.readNodeFile("cow.osg")
+        if not loadedModel:
+            print "could not find any cow --- please set the OSG_DATA_PATH"
         self.viewer.setSceneData(loadedModel)
 
         # --- Bindings ---------------------------------
@@ -133,27 +140,26 @@ class wxOsgViewer(wx.glcanvas.GLCanvas):
             pass
         evt.Skip() # importante -- altrimenti il canvas non riceve il focus
 
+#--------------------
+class wxOsgFrame(wx.Frame):
+    def __init__(self, parent=None, ID=-1, title='pyOSG' ):
+        wx.Frame.__init__(self, parent, ID, title)
+        self.canvas = wxOsgViewer(self,-1)
+
+#--------------------
+class wxOsgApp(wx.App):
+    def OnInit(self):
+        self.frame = wxOsgFrame()
+        self.SetTopWindow(self.frame)
+        self.frame.Show(True)
+        return True
 
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    #--------------------
-    class Frame(wx.Frame):
-        def __init__(self, parent=None, ID=-1, title='pyOSG' ):
-            wx.Frame.__init__(self, parent, ID, title)
-            self.canvas = wxOsgViewer(self,-1)
-
-    #--------------------
-    class App(wx.App):
-        def OnInit(self):
-            self.frame = Frame()
-            self.SetTopWindow(self.frame)
-            self.frame.Show(True)
-            return True
-
-    app = App(0)  # importante: creare APP passando 0 
-                  # se si crea la app con 'App()'
-                  # lei si redireziona gli stdin/out 
-                  # e non arriva piu niente allo stany.
+    app = wxOsgApp(0)  # importante: creare APP passando 0 
+    frame = app.frame
+    viewer = frame.canvas
     app.MainLoop()
+
 
