@@ -1,5 +1,5 @@
 import wx
-import wx.py 
+import config
 
             
 
@@ -39,6 +39,7 @@ class Dlg(wx.Dialog):
         self.Bind( wx.EVT_LISTBOX,        self.onSelect, id=self.lb.GetId())  
         self.Bind( wx.EVT_LISTBOX_DCLICK, self.onDClick, id=self.lb.GetId())  
 
+        self.LoadHistory()
 
     def onOk(self,evt):
         self.EndModal(wx.OK)
@@ -57,40 +58,32 @@ class Dlg(wx.Dialog):
     def GetUrl(self):
         return self.url.GetValue()
 
-    def LoadHistory(self, app_name, section):
-        config = wx.FileConfig(app_name)
-        key = section + '/len'
-        len = config.Read(key, "0") 
-        len = int(len)
-        for i in range(0,len):
-            key = section + '/value' + str(i)
-            val = config.Read(key, "") 
-            if val != "":
-                self.lb.Append( val )
+    def LoadHistory(self):
+        c = config.Get()
+        val = c.Read('urlHistory')
+        lst = []
+        try:
+            lst = eval(val)
+        except:
+            pass
+        for i in lst:
+            self.lb.Append( i )
 
-    def SaveHistory(self, app_name, section):
-        num = self.lb.Count
+    def SaveHistory(self):
         values = []
+        num = self.lb.Count
         for i in range(0,num):
             values.append( self.lb.GetString(i) )
-        current = self.GetUrl()
-        if current not in values:
-            values.insert(0, current )
-            num += 1
-        config = wx.FileConfig(app_name)
-        key = section + '/len'
-        config.Write(key, str(num) ) 
-        for i in range(0,num):
-            val = values[i]
-            key = section + '/value' + str(i)
-            config.Write(key, val)
+        c = config.Get()
+        c.Write( 'urlHistory', str(values) )
+        c.Flush()
 
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
 
     #---------------------------------
     class testFrame(wx.Frame):
-        def __init__(self, parent=None, ID=-1, title='config test' ):
+        def __init__(self, parent=None, ID=-1, title='openURL test' ):
             wx.Frame.__init__(self, parent, ID, title)
 
             #-- Menu ---------------------------------------------
@@ -105,22 +98,18 @@ if __name__ == "__main__":
 
         def FileOpenUrl(self, event):
             dlg = Dlg();
-            dlg.LoadHistory( "test_app", "terrain_url_history" )
             ret = dlg.ShowModal()
             if ret == wx.OK:
                 print 'exited with OK'
                 print dlg.GetUrl()
-                dlg.SaveHistory( "test_app", "terrain_url_history" )
+
+                theUrlWasGood = True
+                
+                if theUrlWasGood:
+                    dlg.SaveHistory()
             else:
                 print 'exited with Cancel'
 
-                
-##                url = dlg.GetUrl()
-##                valid = osg.Open(url)
-##                if Valid:
-##                    dlg.StoreHistory()
-##            dlg.delete
-            
     #---------------------------------
     class testApp(wx.App):
         def OnInit(self):
