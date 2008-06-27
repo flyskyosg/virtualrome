@@ -7,8 +7,6 @@ import wx
 import wx.py 
 import wx.glcanvas
 import wx.aui
-import wxosgviewer
-import console
 
 import osg
 import osgDB
@@ -16,7 +14,10 @@ import osgGA
 import osgViewer
 import osgText
 
-#import url_chooser
+import console
+import filehistory
+import url_chooser
+import wxosgviewer
 #import glob
 
 #--------------------------------------------------------------------------
@@ -34,14 +35,16 @@ class Frame(wx.Frame):
     def __init__(self, parent=None, ID=-1, title='pyOSG' ):
         wx.Frame.__init__(self, parent, ID, title)
 
-        #-- Menu ---------------------------------------------
+        #-- Menu and FileHistory------------------------------
         menuBar = wx.MenuBar()
         self.SetMenuBar(menuBar)
 
         m = self.AddMenu('File')
         self.AddMenuItem( m, "Open URL",  self.FileOpenUrl )
         self.AddMenuItem( m, "Open File", self.FileOpen    )
+        m.AppendSeparator()
         self.AddMenuItem( m, "Exit",      self.FileExit    )
+        self.fileHistory = filehistory.FileHistory(self,m)
 
         m = self.AddMenu('View')
         self.AddMenuItem( m, "Console",   self.toggleConsole )
@@ -98,53 +101,67 @@ class Frame(wx.Frame):
         self.Destroy()
 
     def FileOpenUrl(self, event):
-        print 'FileOpenUrl'
-##        dlg = url_chooser.Dlg()
-##        dlg.LoadHistory( "test_app", "url_history" )
-##        ret = dlg.ShowModal()
-##        if ret == wx.OK:
-##            print 'exited with OK'
-##            print dlg.GetUrl()
-##            self.active_switch.LoadStuff(dlg.GetUrl())
-####            name=self.scene.LoadStuff(dlg.GetUrl())
-####            if(name):
-####                self.lb.AppendAndEnsureVisible(name)
-##            
-##            dlg.SaveHistory( "test_app", "url_history" )
-##        else:
-##            print 'exited with Cancel'
+        dlg = url_chooser.Dlg()
+        ret = dlg.ShowModal()
+        if ret == wx.OK:
+            url = dlg.GetUrl()
+            print url
+            good = OpenUrl( url )
+            if good:
+                self.fileHistory.addFile(url)
+        else:
+            print 'canceled'
             
     def FileOpen(self, event):
-        print "file open"
-       
-##        wildcard = "OSG files (*.osg)|*.osg|"     \
-##           "OSG binary  (*.ive)|*.ive|" \
-##           "All files (*.*)|*.*"
-##    
-##        dlg = wx.FileDialog(
-##            self, message="Choose a file",
-##            defaultDir=os.getcwd(), 
-##            defaultFile="",
-##            wildcard=wildcard,
-##            style=wx.OPEN | wx.MULTIPLE | wx.CHANGE_DIR
-##            )
-##
-##        if dlg.ShowModal() == wx.ID_OK:
-##            for path in dlg.GetPaths():
-##                self.active_switch.LoadStuff(path)
-####                name=self.scene.LoadStuff(path)
-####                if(name):
-####                   self.lb.AppendAndEnsureVisible(name)
-##                print "loaded-->" + path
-##                    
-##        dlg.Destroy()
+        wildcard = "OSG files (*.osg)|*.osg|"\
+                   "OSG binary  (*.ive)|*.ive|" \
+                   "All files (*.*)|*.*"
+        
+        # ritrovo l'ultima directory che ho usato
+        c = config.Get()
+        dir = c.Read( 'fileOpenDir', os.getcwd() )
+
+        dlg = wx.FileDialog(
+            self, message="Choose a file",
+            defaultDir= dir, 
+            defaultFile="",
+            wildcard=wildcard,
+            style=wx.OPEN | wx.MULTIPLE | wx.CHANGE_DIR
+            )
+
+        if dlg.ShowModal() == wx.ID_OK:
+            for path in dlg.GetPaths():
+                good = self.OpenFile(path)
+                if good:
+                    # aggiungo il file alla history e salvo la directory
+                    self.fileHistory.addFile(path)
+                    dir = os.path.dirname(path)
+                    c.Write('fileOpenDir',dir)
+        dlg.Destroy()
 
     def toggleConsole(self,event):
-        pass
+        pass # questo lo faccio a casa
         
     def toggleSideBar(self,event):
-        pass
-        
+        pass # questo lo faccio a casa
+
+
+    # add Drag and Drop
+    
+    
+
+    def OpenFile(file):
+        ''' devi definire questa funzione perche e' invocata dalla History 
+            devi ritornarte True se il file e' stato caricato con successo '''
+        print 'OpenFile',file
+        return True
+
+    def OpenUrl(url):
+        ''' devi definire questa funzione perche e' invocata dalla History 
+            devi ritornarte True se il file e' stato caricato con successo '''
+        print 'OpenUrl',file
+        return True
+
 #--------------------------------------------------------------------------
 class App(wx.App):
     def OnInit(self):
