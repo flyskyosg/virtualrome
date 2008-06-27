@@ -29,7 +29,8 @@ class FileHistory(object):
     def __init__(self, win, menu, menuEntryPoint=-2):
         '''
             win  ------------ the window with the Menubar.
-                              she is supposed to have two methods named 'OpenFile(file)' and 'OpenUrl(url)'
+                              she is supposed to have two methods named 'OpenFile(file)' and 'OpenUrl(url)',
+                              
             menu ------------ the win file menu
             menuEntryPoint -- position in the menu where to insert the fileHistoryMenuItems - counting from the last
                               -2 is appropriate when the menu 'File' ends with a separator + the Exit item '''
