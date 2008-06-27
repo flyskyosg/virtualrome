@@ -48,7 +48,7 @@ class FileHistory(object):
 
     def load(self):
 
-        config = wx.FileConfig(self.configfile)
+        config = wx.FileConfig(self.configfile, style=wx.CONFIG_USE_LOCAL_FILE)
         self.files = []
         for i in range(0,self.maxid):
             key = 'file' + str(i)
@@ -66,7 +66,7 @@ class FileHistory(object):
     def save(self):
         ''' devo scrivere tutte le maxid entrate 
             per essere certo di eliminare eventuali entrate non piu valide '''
-        config = wx.FileConfig(self.configfile)
+        config = wx.FileConfig(self.configfile, style=wx.CONFIG_USE_LOCAL_FILE)
         for i in range(0,self.maxid):
             key = 'file' + str(i)
             val = ''
@@ -80,6 +80,7 @@ class FileHistory(object):
             if len(self.urls) > i:
                 val = self.urls[i]
             config.Write(key, val ) 
+        config.Flush()
     
     def addFile(self,filename):
         if filename in self.files:
@@ -94,7 +95,7 @@ class FileHistory(object):
     def addUrl(self,url):
         if url in self.urls:
             self.urls.remove(url)
-        # inserisco in testa
+        # inserisco in testa - i file usati piu di recente vanno per primi
         self.urls.insert(0,url)
         # taglio la lista se e' diventata troppo lunga
         self.urls = self.urls[:self.maxid]
