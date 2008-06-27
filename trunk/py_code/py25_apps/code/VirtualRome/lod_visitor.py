@@ -4,10 +4,68 @@ import osgDB
 import re
 import os
 import sys
+import glob
 
 
 
-class 
+class FindNamePattern(visitorbase.VisitorBase): 
+    ''' trova tutti i nodi che fanno match con una regular expression
+        il sottoalbero che fa match non viene visitato'''
+
+    def __init__(self,match):
+        visitorbase.VisitorBase.__init__(self)
+        self.NodesHash = dict()
+        self.names = dict()
+        if(re.split('.*\((.*)\).*',match).__len__() > 1):
+            #seems that the match is a re containing a submatch like (.*) so use it directly
+            re_string=match
+        else:
+            #seems that the match is not a re containing a submatch like (.*) so use like a simple match, the name estracted is the first part
+            re_string='(.*)'+match+'.*'
+        print "match re-->",re_string,"<--"
+        self.match=re.compile(re_string,re.IGNORECASE)
+
+
+    def visitNode(self, node):
+        '''virtual func to be redefined -- return False to stop visiting this branch'''
+        print "in visitGeneric",node.className(), node.getName(),"num parent",node.getNumParents()
+        name=node.getName()
+        if(name):
+            print "node name--",name
+            #split_list=re.split('(.*)'+self.match+'.*', name)
+            split_list=self.match.split(name)
+            if(split_list.__len__()>1):
+                matched_name=split_list[1]
+                print "matched_name -->",matched_name
+                if(matched_name):
+                    self.NodesHash[node.this.__hex__()]=(matched_name,node)
+                    self.names[matched_name]=node
+                    print "matched name -->" + matched_name + "node -->" + node.this.__hex__() + "<--"
+                    return False
+
+        return True
+
+class SearchMatchInFiles():
+    def __init__(self,path):
+        self.basepath=path
+    def find(self,name):
+        nodes=[]
+        flist=glob.glob(os.path.join(self.basepath,"*"+name+"*"))
+        for f in flist:
+            print "opening -->"+f+"<--"
+            node=osgDB.readNodeFile(f)
+            if(node):
+                #cerco dentro il file un nodo che contenga <name>
+                v = FindNamePattern(".*("+name+").*")
+                node.accept(v)
+                for k in v.NodesHash.keys():
+                    print "found >"+k+"<-->"+v.NodesHash[k][0]+"<--in file",f
+                    nodes.append(v.NodesHash[k][1])
+        return(nodes)
+##            ext=os.path.splitext(f)[1]
+##            if(".osg"
+##            print searching in 
+        
 class ListTexturesVisitor(osg.NodeVisitor): 
     """ListTexturesVisitor -- A NodeVisitor that list texture names."""
     base_class = osg.NodeVisitor
@@ -249,32 +307,79 @@ def build_plod(filename):
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    #"OutputTextureFiles" per file osg
-    #"noTexturesInIVEFile includeImageFileInIVEFile compressImageData" in alternativa per file ive
-    #"inlineExternalReferencesInIVEFile noWriteExternalReferenceFiles" per file ive
+
+    import osgDB
+    import sys
+    import os
+
+    # locate the DataDir
+    dir = os.getenv('DATADIR')
+    if not dir:
+        print 'env-var "DATADIR" not found, exiting'
+        sys.exit()
+    # there are good and bad data :-)
+    dir = dir + 'bad\\'
+
+    # open the test file
+    filename = dir + 'f_pace.osg'
+    node = osgDB.readNodeFile(filename)
+    if not node : 
+        print 'error loading', filename
+        sys.exit()
+
+
+    # test a Visitor Subclass
+    print '------- testing FindNamePattern --------'
+    v = FindNamePattern('(.*)_RIF')
+    node.accept(v)
+
+    # print results
+    s=SearchMatchInFiles(os.path.dirname(filename))
+    print "risultati"
+    for n in v.NodesHash.keys():
+        print ">",n,"<-->",v.NodesHash[n][0],"<--"
+    for name in v.names.keys():
+        print "searching for -->"+name+"<--"
+        listnodes =s.find(name)
+
+    print '------- Done --------'
     
-    p = ListTexturesVisitor()
 
-    #n = osgDB.readNodeFile("D:/models/demo_virtrome/piante/frassino.ive")
-    #n = osgDB.readNodeFile("H:/vrome/models/modelli_tipo/oppidum/oppidum_opt.ive")
-    n = osgDB.readNodeFile("D:/prove/oppidum/oppidum_R2T_nuovo_opt.osg")
-    p.set_base_path("D:/prove/oppidum")
-    #fori#n = osgDB.readNodeFile("H:/vrome/models/_fori/f_nerva.osg")
-    #fori#p.set_base_path("H:/vrome/models/_fori")
-     
 
-    print n.className(), "<- fuori->",n.getName()
-    #n.accept(p.__disown__())
-    n.accept(p)
 
-    p.printimages()
-    sys.exit()
-    p.substimages()
-    print "found ",p.countimages()," images ",p.counttextures()," textures"
-    p.printgeodes()
-    #fori#p.rif_subst('_rif')
-    #fori#osgDB.writeNodeFile_s(n,"H:/vrome/models/_fori/f_nerva_plod.osg","noTexturesInIVEFile useOriginalExternalReferences")
-    p.box_subst("_gen_geode_%d.ive","includeImageFileInIVEFile useOriginalExternalReferences")
-    osgDB.writeNodeFile_s(n,"D:/prove/oppidum/oppidum_R2T_nuovo_plod.osg","noTexturesInIVEFile useOriginalExternalReferences")
-    #osgDB.writeNodeFile(n,"H:/vrome/models/modelli_tipo/oppidum/oppidum_nuovo1.osg",)
-    #osgDB.writeNodeFile_s(n,"H:/vrome/models/modelli_tipo/oppidum/oppidum_nuovo.ive","noTexturesInIVEFile useOriginalExternalReferences")
+
+
+
+
+
+
+
+##    #"OutputTextureFiles" per file osg
+##    #"noTexturesInIVEFile includeImageFileInIVEFile compressImageData" in alternativa per file ive
+##    #"inlineExternalReferencesInIVEFile noWriteExternalReferenceFiles" per file ive
+##    
+##    p = ListTexturesVisitor()
+##
+##    #n = osgDB.readNodeFile("D:/models/demo_virtrome/piante/frassino.ive")
+##    #n = osgDB.readNodeFile("H:/vrome/models/modelli_tipo/oppidum/oppidum_opt.ive")
+##    n = osgDB.readNodeFile("D:/prove/oppidum/oppidum_R2T_nuovo_opt.osg")
+##    p.set_base_path("D:/prove/oppidum")
+##    #fori#n = osgDB.readNodeFile("H:/vrome/models/_fori/f_nerva.osg")
+##    #fori#p.set_base_path("H:/vrome/models/_fori")
+##     
+##
+##    print n.className(), "<- fuori->",n.getName()
+##    #n.accept(p.__disown__())
+##    n.accept(p)
+##
+##    p.printimages()
+##    sys.exit()
+##    p.substimages()
+##    print "found ",p.countimages()," images ",p.counttextures()," textures"
+##    p.printgeodes()
+##    #fori#p.rif_subst('_rif')
+##    #fori#osgDB.writeNodeFile_s(n,"H:/vrome/models/_fori/f_nerva_plod.osg","noTexturesInIVEFile useOriginalExternalReferences")
+##    p.box_subst("_gen_geode_%d.ive","includeImageFileInIVEFile useOriginalExternalReferences")
+##    osgDB.writeNodeFile_s(n,"D:/prove/oppidum/oppidum_R2T_nuovo_plod.osg","noTexturesInIVEFile useOriginalExternalReferences")
+##    #osgDB.writeNodeFile(n,"H:/vrome/models/modelli_tipo/oppidum/oppidum_nuovo1.osg",)
+##    #osgDB.writeNodeFile_s(n,"H:/vrome/models/modelli_tipo/oppidum/oppidum_nuovo.ive","noTexturesInIVEFile useOriginalExternalReferences")
