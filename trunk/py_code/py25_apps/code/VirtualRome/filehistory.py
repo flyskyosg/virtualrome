@@ -24,14 +24,22 @@ class FileHistory(object):
         self.files = {}
         self.urls = {}
 
-##        import __main__
-##        appname = __main__.__file__
-##        appdir = os.path.dirname(appname)
-##        self.configfile = appdir + '\\' + 'config.ini'
-        self.configfile = 'virtualrome'
-##        print self.configfile
-##        if not os.path.exists(self.configfile):
-##            self.save
+        import __main__
+        appname = __main__.__file__
+        appdir = os.path.dirname(appname)
+        self.configfile = appdir + '\\' + 'virtualrome.ini'
+        self.configfile = self.configfile.replace('\\','/')
+        #self.configfile = 'virtualrome'
+        
+        print self.configfile
+        if not os.path.exists(self.configfile):
+            pass
+            #print 'forcing the creation of the config file'
+            #f = open(self.configfile,'w')
+            #f.close()
+            #self.save()
+        
+        self.config = wx.FileConfig(localFilename=self.configfile, style=wx.CONFIG_USE_LOCAL_FILE)
         
         self.firstFileID = wx.ID_HIGHEST 
         self.firstUrlID  = wx.ID_HIGHEST + self.maxid
@@ -47,40 +55,41 @@ class FileHistory(object):
         self.win.Bind(wx.EVT_MENU_RANGE, self.onUrl,  id=self.firstUrlID,  id2=self.firstUrlID+self.maxid)
 
     def load(self):
-
-        config = wx.FileConfig(self.configfile, style=wx.CONFIG_USE_LOCAL_FILE)
+        #config = wx.FileConfig.Get()
+        #config = wx.FileConfig(self.configfile, style=wx.CONFIG_USE_LOCAL_FILE)
         self.files = []
         for i in range(0,self.maxid):
             key = 'file' + str(i)
-            val = config.Read(key, "") 
+            val = self.config.Read(key, "") 
             if val != "":
                 if os.path.exists( val ):
                     self.files.append(val)
         self.urls = []
         for i in range(0,self.maxid):
             key = 'url' + str(i)
-            val = config.Read(key, "") 
+            val = self.config.Read(key, "") 
             if val != "":
                 self.urls.append(val)
 
     def save(self):
         ''' devo scrivere tutte le maxid entrate 
             per essere certo di eliminare eventuali entrate non piu valide '''
-        config = wx.FileConfig(self.configfile, style=wx.CONFIG_USE_LOCAL_FILE)
+        #config = wx.FileConfig(self.configfile, style=wx.CONFIG_USE_LOCAL_FILE)
+        #config = wx.FileConfig.Get()
         for i in range(0,self.maxid):
             key = 'file' + str(i)
             val = ''
             if len(self.files) > i:
                 val = self.files[i]
-            config.Write(key, val ) 
+            self.config.Write(key, val ) 
 
         for i in range(0,self.maxid):
             key = 'urls' + str(i)
             val = ''
             if len(self.urls) > i:
                 val = self.urls[i]
-            config.Write(key, val ) 
-        config.Flush()
+            self.config.Write(key, val ) 
+        self.config.Flush()
     
     def addFile(self,filename):
         if filename in self.files:
@@ -119,28 +128,35 @@ class FileHistory(object):
             self.menu.Delete(mi.GetId())
         self.menuItems = []
 
-        # iserisco sempre in menuEntryPoint --- 
+        # inserisco sempre in menuEntryPoint --- 
+
+        # separator
+        if len(self.files):
+            pos = self.menu.GetMenuItemCount() -2
+            mi = self.menu.InsertSeparator(pos)
+            self.menuItems.append(mi)
+            
+        #files
+        c=0
+        for f in self.files:
+            pos = self.menu.GetMenuItemCount() -2
+            filepath = f
+            filename = os.path.basename(f)
+            mi = self.menu.Insert(pos, self.firstFileID+c, filename, filepath )
+            self.menuItems.append(mi)
+            c+=1
+
         # separator
         pos = self.menuEntryPoint
         if len(self.urls):
+            pos = self.menu.GetMenuItemCount() -2
             mi = self.menu.InsertSeparator(pos)
             self.menuItems.append(mi)
         #urls
         c=0
         for u in self.urls:
+            pos = self.menu.GetMenuItemCount() -2
             mi = self.menu.Insert(pos, self.firstUrlID+c, u, u )
-            self.menuItems.append(mi)
-            c+=1
-        # separator
-        if len(self.files):
-            mi = self.menu.InsertSeparator(pos)
-            self.menuItems.append(mi)
-        #files
-        c=0
-        for f in self.files:
-            filepath = f
-            filename = os.path.basename(f)
-            mi = self.menu.Insert(pos, self.firstFileID+c, filename, filepath )
             self.menuItems.append(mi)
             c+=1
         
@@ -166,8 +182,7 @@ class FileHistory(object):
         except:
             pass
         
-        
-#--------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 if __name__ == "__main__":
 
     #--------------------
@@ -195,7 +210,7 @@ if __name__ == "__main__":
             self.file_history.addFile(file)
     
         def OpenUrl(url):
-            print 'OpenFile',file
+            print 'OpenUrl',file
             # on success do also :
             self.file_history.addUrl(url)
 
@@ -209,25 +224,19 @@ if __name__ == "__main__":
             self.frame.Show(True)
             return True
     
-    
     app = App()
-
+    
     fh = app.frame.file_history
-
-
+    
     import glob
     files = glob.glob('*.py')
-    files.sort()
+    files.sort(reverse=True)
     for f in files:
         fh.addFile(f)
     fh.addUrl('www.abc.com')
     fh.addUrl('www.def.com')
     
-
+    import console
+    f = console.Console(app.frame)
+    
     app.MainLoop()
-
-
-
-    
-    
-    
