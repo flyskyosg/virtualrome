@@ -1,5 +1,17 @@
 '''
 Virtual Rome Main Window
+
+TODO:
+ok - filehistory
+ok - toggle bars
+ok - drag 'n drop
+ok - toolbar
+   - reload
+   - LOG
+
+
+REM
+- puoi chiudere tutto premendo ESC nell'OSG viewer (+ veloce)
 '''
 import os
 import sys
@@ -18,9 +30,25 @@ import console
 import filehistory
 import url_chooser
 import wxosgviewer
-#import glob
+import config
+import glob
 
 #--------------------------------------------------------------------------
+class FileDropListener(wx.FileDropTarget):
+    ''' Drag 'n Drop support
+        puoi aprire un file/s droppandolo sulla finestra
+    '''
+    def __init__(self, win):
+        wx.FileDropTarget.__init__(self)
+        self.win = win
+
+    def OnDropFiles(self, x, y, filenames):
+        self.win.FileDrop(filenames)
+
+#--------------------------------------------------------------------------
+# questa e' la finestra principale
+# dovresti metterci poco piu della creazione della GUI
+# e i metodi per rispondere al menu --- tutto il resto dovrebbe stare in moduli
 class Frame(wx.Frame):
     
     def AddMenu(self,label):
@@ -29,48 +57,60 @@ class Frame(wx.Frame):
         return menu
 
     def AddMenuItem(self,menu,label,callback):
-        item = menu.Append(-1, label, label)
+        item = menu.Append( -1, label, label)
         self.Bind(wx.EVT_MENU, callback, id=item.GetId())
+        return item.GetId()
     
-    def __init__(self, parent=None, ID=-1, title='pyOSG' ):
+    def __init__(self, parent=None, ID=-1, title='Virtual Rome Project -- OSG Processor & Preview' ):
         wx.Frame.__init__(self, parent, ID, title)
 
-        #-- Menu and FileHistory------------------------------
+        #-- StatusBar,Menu,Toolbar and FileHistory---
+        self.CreateStatusBar()
+
         menuBar = wx.MenuBar()
         self.SetMenuBar(menuBar)
 
         m = self.AddMenu('File')
-        self.AddMenuItem( m, "Open URL",  self.FileOpenUrl )
-        self.AddMenuItem( m, "Open File", self.FileOpen    )
+        id_clear    = self.AddMenuItem( m,  "New       \t(clear)",      self.FileClear   )
+        id_openfile = self.AddMenuItem( m,  "Open File \t(append)",     self.FileOpen    )
+        id_openurl  = self.AddMenuItem( m,  "Open URL  \t(append)",     self.FileOpenUrl )
+        id_reload   = self.AddMenuItem( m,  "Reload all ",              self.FileReload  )
         m.AppendSeparator()
-        self.AddMenuItem( m, "Exit",      self.FileExit    )
+        self.AddMenuItem( m, "Exit",  self.FileExit )
+
         self.fileHistory = filehistory.FileHistory(self,m)
 
         m = self.AddMenu('View')
-        self.AddMenuItem( m, "Console",   self.toggleConsole )
-        self.AddMenuItem( m, "SideBar",   self.toggleSideBar )
+        id_console = self.AddMenuItem( m, "toggle console",  self.toggleConsole, )
+        id_sidebar = self.AddMenuItem( m, "toggle sideBar",  self.toggleSideBar, )
 
-        #-- statusBar---------------------------------------------
-        self.CreateStatusBar()
-    
-        #-- shell---------------------------------------------
+        # i bottoni della toolbar chiamano le stesse callback dei corrispondenti comandi di menu
+        tb = self.CreateToolBar()
+        tb.SetToolBitmapSize(wx.Size(16,16))
+        tb.AddTool(id_clear,     wx.Bitmap('pic/new.png')      ,shortHelpString='drop all loaded files')
+        tb.AddTool(id_openfile,  wx.Bitmap('pic/open.png')     ,shortHelpString='open file')
+        tb.AddTool(id_openurl,   wx.Bitmap('pic/open_url.png') ,shortHelpString='open url')
+        tb.AddSeparator()
+        tb.AddTool(id_reload,    wx.Bitmap('pic/reload.png')   ,shortHelpString='reload all')
+        tb.AddSeparator()
+        tb.AddTool(id_console,   wx.Bitmap('pic/console.png')  ,shortHelpString='toggle console')
+        tb.AddTool(id_sidebar,   wx.Bitmap('pic/sidebar.png')  ,shortHelpString='toggle sidebar')
+        tb.Realize()
+
+        #-- Drag 'n Drop support---
+        self.SetDropTarget( FileDropListener(self) )
+        
+        #-- shell------------------
         self.SetSize(wx.Size(800,600))
         self.shell = console.Console(self) 
         
-        # --- Canvas ---------------------------------
+        # --- Canvas --------------
         self.canvas = wxosgviewer.Canvas(self,-1)
         
-        #self.scene = osgscene(self.canvas.viewer)
-        #self.mainsw=osgSwitcher()
-        #self.radiosw=osgSwitcher()
-        #self.radiosw.setname("SWT_1")
-        #self.scene.addcollection(self.radiosw)
-        #self.scene.addcollection(self.mainsw)
-
-        # --- sideBar ---------------------------------
+        # --- sideBar -------------
         self.sideBar = wx.Panel(self,-1)
         
-        # --- sizing using AUI ---------------------------------
+        # --- Layout using AUI ----
         self.SetSize(wx.Size(600,600))
         self._mgr = wx.aui.AuiManager()
         self._mgr.SetManagedWindow(self)
@@ -91,6 +131,18 @@ class Frame(wx.Frame):
         
         self._mgr.Update()
  
+    def toggleConsole(self,event):
+        pi = self._mgr.GetPane(self.shell)
+        if pi.IsOk():
+            pi.Show( not pi.IsShown() )
+            self._mgr.Update()
+
+    def toggleSideBar(self,event):
+        pi = self._mgr.GetPane(self.sideBar)
+        if pi.IsOk():
+            pi.Show( not pi.IsShown() )
+            self._mgr.Update()
+
     def OnClose(self, event):
         self.close()
 
@@ -113,9 +165,10 @@ class Frame(wx.Frame):
             print 'canceled'
             
     def FileOpen(self, event):
-        wildcard = "OSG files (*.osg)|*.osg|"\
+        wildcard = "OSG files   (*.osg;*.ive)|*.osg;*.ive|"\
+                   "OSG ascii   (*.osg)|*.osg|"\
                    "OSG binary  (*.ive)|*.ive|" \
-                   "All files (*.*)|*.*"
+                   "All files   (*.*)|*.*"
         
         # ritrovo l'ultima directory che ho usato
         c = config.Get()
@@ -139,28 +192,39 @@ class Frame(wx.Frame):
                     c.Write('fileOpenDir',dir)
         dlg.Destroy()
 
-    def toggleConsole(self,event):
-        pass # questo lo faccio a casa
-        
-    def toggleSideBar(self,event):
-        pass # questo lo faccio a casa
+    def FileDrop(self,files):
+        for f in files:
+            if self.OpenFile(f): self.fileHistory.addFile(f)
 
 
-    # add Drag and Drop
-    
-    
 
-    def OpenFile(file):
-        ''' devi definire questa funzione perche e' invocata dalla History 
-            devi ritornarte True se il file e' stato caricato con successo '''
+
+
+    #  aggiungi il tuo codice a queste funzioni 
+    #  nelle precedenti non dovresti avere bisogno di entrarci
+
+
+    def OpenFile(self,file):
+        ''' devi definire questa funzione perche e' invocata anche dalla History 
+            devi ritornare True se il file e' stato caricato con successo '''
         print 'OpenFile',file
         return True
 
-    def OpenUrl(url):
-        ''' devi definire questa funzione perche e' invocata dalla History 
-            devi ritornarte True se il file e' stato caricato con successo '''
+    def OpenUrl(self,url):
+        ''' devi definire questa funzione perche e' invocata anche dalla History 
+            devi ritornare True se il file e' stato caricato con successo '''
         print 'OpenUrl',file
         return True
+
+    def FileReload(self,event):
+        ''' ricaricare tutto x vedere eventuali modifiche '''
+        print 'FileReload'
+
+    def FileClear(self,event):
+        ''' scaricare tutto '''
+        print 'FileClear'
+
+
 
 #--------------------------------------------------------------------------
 class App(wx.App):
@@ -174,8 +238,13 @@ class App(wx.App):
 if __name__ == "__main__":
 
     app = App(0)  
+    
+    
+    # shortcut per l'uso nella console
     f = app.frame
     v = app.frame.canvas.viewer
     w = app.frame.canvas.gw
+
+
     app.MainLoop()
 
