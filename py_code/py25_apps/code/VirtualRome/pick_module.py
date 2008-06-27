@@ -398,12 +398,8 @@ class PickHandler(osgGA.GUIEventHandler):
 
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
-    import wxosgviewer 
     import os
-    
-    app = wxosgviewer.App(0)  # importante: creare APP passando 0 
-    viewer = app.getViewer()
-    
+        
     # locate the DataDir
     dir = os.getenv('DATADIR')
     if not dir:
@@ -419,8 +415,22 @@ if __name__ == "__main__":
         print 'error loading', filename
         sys.exit()
     
-    viewer.setSceneData(node)
+    test_wx=False
+    if(test_wx):
+        import wxosgviewer 
+        
+        app = wxosgviewer.App(0)  # importante: creare APP passando 0 
+        viewer = app.getViewer()
+    else:
+    # create a viewer
+        viewer = osgViewer.Viewer()
 
+    # configure
+        viewer.setThreadingModel(osgViewer.Viewer.SingleThreaded)
+        viewer.addEventHandler(osgViewer.WindowSizeHandler())
+        viewer.addEventHandler(osgViewer.StatsHandler())
+    
+    viewer.setSceneData(node)
     hlt=HiLight(highlighter(wireboxed))
     pickhandler1 = PickHandlerBase(hlt)
     
@@ -429,5 +439,8 @@ if __name__ == "__main__":
     
     
     
-    
-    app.MainLoop()
+    if(test_wx):
+        app.MainLoop()
+    else:
+        # loop until done
+        viewer.run()
