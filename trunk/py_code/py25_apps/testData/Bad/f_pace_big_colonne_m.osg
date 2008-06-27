@@ -1,0 +1,661 @@
+MatrixTransform {
+  DataVariance STATIC
+  name "Scene Root"
+  nodeMask 0xff
+  cullingActive TRUE
+  StateSet {
+    UniqueID StateSet_0
+    DataVariance STATIC
+    rendering_hint DEFAULT_BIN
+    renderBinMode INHERIT
+    GL_LIGHTING ON
+  }
+  referenceFrame RELATIVE
+  Matrix {
+    1 0 0 0
+    0 1 0 0
+    0 0 1 0
+    0 0 0 1
+  }
+  num_children 1
+  MatrixTransform {
+    DataVariance STATIC
+    name "f_pace_big_col"
+    nodeMask 0xff
+    cullingActive TRUE
+    referenceFrame RELATIVE
+    Matrix {
+      1 0 0 0
+      0 1 0 0
+      0 0 1 0
+      508.212 136.371 0.624785 1
+    }
+    num_children 16
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col00"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        -6.54132 12.3099 -0.0403594 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Geode {
+          UniqueID Geode_1
+          DataVariance STATIC
+          nodeMask 0xff
+          cullingActive TRUE
+          num_drawables 1
+          Geometry {
+            DataVariance DYNAMIC
+            StateSet {
+              UniqueID StateSet_2
+              DataVariance STATIC
+              rendering_hint TRANSPARENT_BIN
+              renderBinMode USE
+              binNumber 10
+              binName DepthSortedBin
+              GL_CULL_FACE ON
+              GL_LIGHTING ON
+              0xba1 ON
+              GL_BLEND ON
+              Material {
+                DataVariance STATIC
+                ColorMode OFF
+                ambientColor 0.588235 0.588235 0.588235 1
+                diffuseColor 1 1 1 1
+                specularColor 0 0 0 1
+                emissionColor 0 0 0 1
+                shininess 0
+              }
+              BlendFunc {
+                DataVariance STATIC
+                source SRC_ALPHA
+                destination ONE_MINUS_SRC_ALPHA
+              }
+              textureUnit 0 {
+                GL_TEXTURE_2D ON
+                Texture2D {
+                  DataVariance STATIC
+                  file "images\f_colonna_mid.png"
+                  wrap_s CLAMP_TO_EDGE
+                  wrap_t CLAMP_TO_EDGE
+                  wrap_r CLAMP_TO_EDGE
+                  min_filter LINEAR_MIPMAP_LINEAR
+                  mag_filter LINEAR
+                  maxAnisotropy 1
+                  borderColor 0 0 0 0
+                  borderWidth 0
+                  useHardwareMipMapGeneration TRUE
+                  unRefImageDataAfterApply FALSE
+                  internalFormatMode USE_IMAGE_DATA_FORMAT
+                  resizeNonPowerOfTwo TRUE
+                }
+              }
+            }
+            useDisplayList TRUE
+            useVertexBufferObjects FALSE
+            PrimitiveSets 1
+            {
+              DrawArrays TRIANGLES 0 36
+            }
+            VertexArray Vec3Array 36
+            {
+              -1.2401 -1.2401 0.666916
+              -1.2401 1.2401 0.666916
+              1.2401 1.2401 0.666916
+              1.2401 1.2401 0.666916
+              1.2401 -1.2401 0.666916
+              -1.2401 -1.2401 0.666916
+              -1.2401 -1.2401 20.9023
+              1.2401 -1.2401 20.9023
+              1.2401 1.2401 20.9023
+              1.2401 1.2401 20.9023
+              -1.2401 1.2401 20.9023
+              -1.2401 -1.2401 20.9023
+              -1.2401 -1.2401 0.666916
+              1.2401 -1.2401 0.666916
+              1.2401 -1.2401 20.9023
+              1.2401 -1.2401 20.9023
+              -1.2401 -1.2401 20.9023
+              -1.2401 -1.2401 0.666916
+              1.2401 -1.2401 0.666916
+              1.2401 1.2401 0.666916
+              1.2401 1.2401 20.9023
+              1.2401 1.2401 20.9023
+              1.2401 -1.2401 20.9023
+              1.2401 -1.2401 0.666916
+              1.2401 1.2401 0.666916
+              -1.2401 1.2401 0.666916
+              -1.2401 1.2401 20.9023
+              -1.2401 1.2401 20.9023
+              1.2401 1.2401 20.9023
+              1.2401 1.2401 0.666916
+              -1.2401 1.2401 0.666916
+              -1.2401 -1.2401 0.666916
+              -1.2401 -1.2401 20.9023
+              -1.2401 -1.2401 20.9023
+              -1.2401 1.2401 20.9023
+              -1.2401 1.2401 0.666916
+            }
+            NormalBinding PER_VERTEX
+            NormalArray Vec3Array 36
+            {
+              0 -2.40321e-008 -1
+              0 -2.40321e-008 -1
+              0 -2.40321e-008 -1
+              0 -2.40321e-008 -1
+              0 -2.40321e-008 -1
+              0 -2.40321e-008 -1
+              0 0 1
+              0 0 1
+              0 0 1
+              0 0 1
+              0 0 1
+              0 0 1
+              0 -1 -5.89113e-009
+              0 -1 -5.89113e-009
+              0 -1 -5.89113e-009
+              0 -1 -5.89113e-009
+              0 -1 -5.89113e-009
+              0 -1 -5.89113e-009
+              1 0 0
+              1 0 0
+              1 0 0
+              1 0 0
+              1 0 0
+              1 0 0
+              0 1 5.89113e-009
+              0 1 5.89113e-009
+              0 1 5.89113e-009
+              0 1 5.89113e-009
+              0 1 5.89113e-009
+              0 1 5.89113e-009
+              -1 0 0
+              -1 0 0
+              -1 0 0
+              -1 0 0
+              -1 0 0
+              -1 0 0
+            }
+            TexCoordArray 0 Vec2Array 36
+            {
+              1 0
+              1 1
+              0 1
+              0 1
+              0 0
+              1 0
+              0 0
+              1 0
+              1 1
+              1 1
+              0 1
+              0 0
+              0 0
+              1 0
+              1 1
+              1 1
+              0 1
+              0 0
+              0 0
+              1 0
+              1 1
+              1 1
+              0 1
+              0 0
+              0 0
+              1 0
+              1 1
+              1 1
+              0 1
+              0 0
+              0 0
+              1 0
+              1 1
+              1 1
+              0 1
+              0 0
+            }
+          }
+        }
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col01"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        -6.54132 7.38397 -0.0403594 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col02"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        -6.54132 2.46765 -0.0403594 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col03"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        -6.54132 -2.49677 -0.0403594 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col04"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        -6.54132 -7.39325 -0.0403594 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col05"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        -6.54132 -12.2893 -0.0403594 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col06"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        -6.54132 -16.9332 -0.0403594 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col07"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        -6.54132 16.9331 -0.0403594 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col08"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        6.54138 -16.9332 -0.0403603 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col09"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        6.54138 -12.2893 -0.0403603 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col10"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        6.54138 -7.39325 -0.0403603 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col11"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        6.54138 -2.49677 -0.0403603 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col12"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        6.54138 2.46765 -0.0403603 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col13"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        6.54138 7.38397 -0.0403603 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col14"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        6.54138 12.3099 -0.0403603 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+    MatrixTransform {
+      DataVariance STATIC
+      name "f_pace_big_col15"
+      nodeMask 0xff
+      cullingActive TRUE
+      referenceFrame RELATIVE
+      Matrix {
+        0.865951 0 0 0
+        0 0.865951 0 0
+        0 0 0.865951 0
+        6.54138 16.9331 -0.0403603 1
+      }
+      num_children 1
+      MatrixTransform {
+        DataVariance STATIC
+        nodeMask 0xff
+        cullingActive TRUE
+        referenceFrame RELATIVE
+        Matrix {
+          1 0 0 0
+          0 1 0 0
+          0 0 1 0
+          0 0 -0.666024 1
+        }
+        num_children 1
+        Use Geode_1
+      }
+    }
+  }
+}
