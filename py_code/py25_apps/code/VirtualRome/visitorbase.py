@@ -1,8 +1,11 @@
 import osg
+
 #--------------------------------------------------------------------------
 class VisitorBase(osg.NodeVisitor): 
-    ''' visita uno scenegraph, entrando in tutti i nodi, nei drawable, e negli stateset.
-        ogni nodo e' visitato una volta sola '''
+    ''' visit each node in a osg-scenegraph.
+        takes care to visit each node just one time.
+        for each node found the virtual method visitNode is invoked
+    '''
 
     def __init__(self):
         osg.NodeVisitor.__init__(self,osg.NodeVisitor.TRAVERSE_ALL_CHILDREN)
@@ -16,6 +19,31 @@ class VisitorBase(osg.NodeVisitor):
             self.visited[id] = 1
             return False
 
+    def apply(self, node):
+        if self.alreadyVisited( node ):
+            return # cosi non visita neanche il sottoalbero
+
+        proceed = self.visitNode(node)
+        if proceed:
+            osg.NodeVisitor.traverse(self, node)
+    
+    def visitNode(self, node):
+        '''virtual func to be redefined -- return False to stop visiting this branch'''
+        print node.className(), node.getName(),"num parent",node.getNumParents()
+        return True
+
+#--------------------------------------------------------------------------
+class Visitor(VisitorBase): 
+    ''' 
+    Extend VisitorBase by visiting also the Drawables and the StateSet.
+    For each MatrixTransform,Geode,Drawable,Stateset,Generic-Node(all the rest)
+    a particular virtual method is invoked
+    '''
+
+    def __init__(self):
+        VisitorBase.__init__(self)
+        self.visited = {}  
+        
     def apply(self, node):
 
         if self.alreadyVisited( node ):
@@ -45,7 +73,7 @@ class VisitorBase(osg.NodeVisitor):
                             self.visitStateSet(ss)
 
         else:
-            proceed = self.visitGeneric(node)
+            proceed = self.visitNode(node)
         
         # visit Node StateSet
         ss = node.getStateSet()
@@ -62,11 +90,6 @@ class VisitorBase(osg.NodeVisitor):
         return True
         
     def visitGeode(self, node):
-        '''virtual func to be redefined -- return False to stop visiting this branch'''
-        print node.className(), node.getName(),"num parent",node.getNumParents()
-        return True
-
-    def visitGeneric(self, node):
         '''virtual func to be redefined -- return False to stop visiting this branch'''
         print node.className(), node.getName(),"num parent",node.getNumParents()
         return True
