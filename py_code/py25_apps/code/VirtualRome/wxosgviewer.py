@@ -31,7 +31,7 @@ class Canvas(wx.glcanvas.GLCanvas):
 
         self.gw = None
         self.gw = self.viewer.setUpViewerAsEmbeddedInWindow(0,0,800,600)
-        print self.gw
+        #print self.gw
 
         self.viewer.setThreadingModel(osgViewer.ViewerBase.SingleThreaded)
         self.viewer.setCameraManipulator(osgGA.TrackballManipulator())
