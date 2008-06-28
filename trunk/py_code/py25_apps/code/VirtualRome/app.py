@@ -6,19 +6,25 @@ ok - filehistory
 ok - toggle bars
 ok - drag 'n drop
 ok - toolbar
-   - reload
-   - LOG
+ok - reload
+ok - LOG
+   - GUI per GIGI
+
 
 
 REM
 - puoi chiudere tutto premendo ESC nell'OSG viewer (+ veloce)
 '''
+
+
+
 import os
 import sys
 import wx
 import wx.py 
 import wx.glcanvas
 import wx.aui
+import wx.lib.flatnotebook as fnb
 
 import osg
 import osgDB
@@ -32,6 +38,20 @@ import url_chooser
 import wxosgviewer
 import config
 import glob
+
+# ----------------------------------------------------
+class appStdio:
+    ''' usando questa, le print vanno nel LOG,
+        ma allora non vanno nello Stany,
+        vedi piu avanti come accenderlo o no'''
+    def __init__(self,TextCtrl):    
+        self.out = TextCtrl
+    
+    def write(self,string):
+        self.out.WriteText(string)
+
+# mettilo a False per mandare le Print nello Stany
+redirect_stdio = True
 
 #--------------------------------------------------------------------------
 class FileDropListener(wx.FileDropTarget):
@@ -76,7 +96,7 @@ class Frame(wx.Frame):
         id_openurl  = self.AddMenuItem( m,  "Open URL  \t(append)",     self.FileOpenUrl )
         id_reload   = self.AddMenuItem( m,  "Reload all ",              self.FileReload  )
         m.AppendSeparator()
-        self.AddMenuItem( m, "Exit",  self.FileExit )
+        self.AddMenuItem( m, "Exit \tESC",  self.FileExit )
 
         self.fileHistory = filehistory.FileHistory(self,m)
 
@@ -100,15 +120,27 @@ class Frame(wx.Frame):
         #-- Drag 'n Drop support---
         self.SetDropTarget( FileDropListener(self) )
         
-        #-- shell------------------
-        self.SetSize(wx.Size(800,600))
-        self.shell = console.Console(self) 
+        #-- shell e Log ------------------
+        # nb1 == contenitore 'tabbed' 
+        fnb_style = fnb.FNB_BOTTOM | fnb.FNB_NO_X_BUTTON | fnb.FNB_ALLOW_FOREIGN_DND
+        self.nb1 = fnb.FlatNotebook(self, -1, style = fnb_style )
         
+        self.shell = console.Console(self.nb1) 
+        self.nb1.AddPage(self.shell,'shell')
+
+        global redirect_stdio
+        if redirect_stdio:
+            self.log = wx.TextCtrl(self.nb1,-1, style=wx.NO_BORDER | wx.TE_MULTILINE)        
+            self.ch  = appStdio( self.log )
+            sys.stdout = self.ch 
+            sys.stderr = self.ch 
+            self.nb1.AddPage(self.log,  'log'  )
+
         # --- Canvas --------------
         self.canvas = wxosgviewer.Canvas(self,-1)
         
         # --- sideBar -------------
-        self.sideBar = wx.Panel(self,-1)
+        self.sidebar = wx.Panel(self,-1)
         
         # --- Layout using AUI ----
         self.SetSize(wx.Size(600,600))
@@ -121,24 +153,26 @@ class Frame(wx.Frame):
                                               
         self._mgr.AddPane(self.canvas, wx.aui.AuiPaneInfo().Name("CenterPane").CenterPane())
 
-        self._mgr.AddPane(self.shell, wx.aui.AuiPaneInfo().CaptionVisible(True).
-                        Name("shell").Caption("shell").Bottom().
-                        BestSize(wx.Size(200,200)).MinSize(wx.Size(20,10)))
- 
-        self._mgr.AddPane(self.sideBar, wx.aui.AuiPaneInfo().CaptionVisible(True).
+        self._mgr.AddPane(self.sidebar, wx.aui.AuiPaneInfo().CaptionVisible(True).
                         Name("sidebar").Caption("sidebar").Right().
-                        BestSize(wx.Size(200,200)).MinSize(wx.Size(20,10)))
-        
+                        BestSize(wx.Size(200,200)).MinSize(wx.Size(20,10)).Layer(1))
+
+        self._mgr.AddPane(self.nb1, wx.aui.AuiPaneInfo().CaptionVisible(True).
+                        Name("shell").Caption("shell and log").Bottom().
+                        BestSize(wx.Size(200,200)).MinSize(wx.Size(20,10)).Layer(0))
+ 
+        self.SetSize(wx.Size(800,600))
         self._mgr.Update()
  
+
     def toggleConsole(self,event):
-        pi = self._mgr.GetPane(self.shell)
+        pi = self._mgr.GetPane(self.nb1)
         if pi.IsOk():
             pi.Show( not pi.IsShown() )
             self._mgr.Update()
 
     def toggleSideBar(self,event):
-        pi = self._mgr.GetPane(self.sideBar)
+        pi = self._mgr.GetPane(self.sidebar)
         if pi.IsOk():
             pi.Show( not pi.IsShown() )
             self._mgr.Update()
@@ -212,7 +246,7 @@ class Frame(wx.Frame):
 
     def OpenUrl(self,url):
         ''' devi definire questa funzione perche e' invocata anche dalla History 
-            devi ritornare True se il file e' stato caricato con successo '''
+            devi ritornare True se la url e' stata caricata con successo '''
         print 'OpenUrl',file
         return True
 
@@ -245,6 +279,21 @@ if __name__ == "__main__":
     v = app.frame.canvas.viewer
     w = app.frame.canvas.gw
 
+    print '''Novita:
+- nel Menu File hai la fileHistory, e la urlHistory"
+- le History sono scritte in VirtualRome.ini, se lo cancelli si ricrea
+- nella History dovrebbero andarci solo file e url 'buone' (sta a te)
+- il Dialogo FileOpen si ricorda la directory dell'ultimo file aperto
+- puoi aprire uno o piu file facendo Drag'n Drop
+
+- ho pensato che potresti fare che OpenFile e OpenURL 'aggiungono' alla scena
+- e con File/New resetti la scena .... 
+  ti mancherebbe il supporto per scaricare singoli pezzi, ma e' gia qualcosa
+- ed ho predisposto per una funzione 'reload' che aggiorna tutti i file caricati
+
+- ho aggiunto la Toolbar
+- ho aggiunto il LOG --- per mandare messaggi subliminali ai modellatori
+'''
 
     app.MainLoop()
 

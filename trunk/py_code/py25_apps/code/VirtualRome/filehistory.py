@@ -149,7 +149,7 @@ class FileHistory(object):
         if id<0: return 
         if id>=len( self.files): return 
         file = self.files[id]
-        print 'onFile',file
+        #print 'onFile',file
         try:
             self.win.OpenFile(file)
         except:
@@ -160,7 +160,7 @@ class FileHistory(object):
         if id<0: return 
         if id>=len( self.urls): return 
         url = self.urls[id]
-        print 'onUrl',url
+        #print 'onUrl',url
         try:
             self.win.OpenUrl(url)
         except:
