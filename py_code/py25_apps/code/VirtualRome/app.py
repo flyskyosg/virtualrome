@@ -24,6 +24,7 @@ import wx.py
 import wx.glcanvas
 import wx.aui
 import wx.lib.flatnotebook as fnb
+import glob
 
 import osg
 import osgDB
@@ -36,7 +37,7 @@ import filehistory
 import url_chooser
 import wxosgviewer
 import config
-import glob
+import tree
 
 # ----------------------------------------------------
 class appStdio:
@@ -100,8 +101,9 @@ class Frame(wx.Frame):
         self.fileHistory = filehistory.FileHistory(self,m)
 
         m = self.AddMenu('View')
-        id_console = self.AddMenuItem( m, "toggle console",  self.toggleConsole, )
-        id_sidebar = self.AddMenuItem( m, "toggle sideBar",  self.toggleSideBar, )
+        id_console = self.AddMenuItem( m, "toggle console/log panel",      self.toggleConsole, )
+        id_tree    = self.AddMenuItem( m, "toggle tree panel",             self.toggleTree, )
+        id_gui     = self.AddMenuItem( m, "toggle object property panel",  self.toggleGui, )
 
         # i bottoni della toolbar chiamano le stesse callback dei corrispondenti comandi di menu
         tb = self.CreateToolBar()
@@ -112,8 +114,9 @@ class Frame(wx.Frame):
         tb.AddSeparator()
         tb.AddTool(id_reload,    wx.Bitmap('pic/reload.png')   ,shortHelpString='reload all')
         tb.AddSeparator()
-        tb.AddTool(id_console,   wx.Bitmap('pic/console.png')  ,shortHelpString='toggle console')
-        tb.AddTool(id_sidebar,   wx.Bitmap('pic/sidebar.png')  ,shortHelpString='toggle sidebar')
+        tb.AddTool(id_console,   wx.Bitmap('pic/console.png')  ,shortHelpString='toggle console/log panel')
+        tb.AddTool(id_tree,      wx.Bitmap('pic/tree.png')     ,shortHelpString='toggle tree panel')
+        tb.AddTool(id_gui,       wx.Bitmap('pic/gui.png')      ,shortHelpString='toggle object property panel')
         tb.Realize()
 
         #-- Drag 'n Drop support---
@@ -139,7 +142,10 @@ class Frame(wx.Frame):
         self.canvas = wxosgviewer.Canvas(self,-1)
         
         # --- sideBar -------------
-        self.sidebar = wx.Panel(self,-1)
+        self.tree = tree.Tree(self,-1)
+        tree.fillTreeTest(self.tree)
+        
+        self.gui = wx.Panel(self,-1)
         
         # --- Layout using AUI ----
         self.SetSize(wx.Size(600,600))
@@ -152,9 +158,13 @@ class Frame(wx.Frame):
                                               
         self._mgr.AddPane(self.canvas, wx.aui.AuiPaneInfo().Name("CenterPane").CenterPane())
 
-        self._mgr.AddPane(self.sidebar, wx.aui.AuiPaneInfo().CaptionVisible(True).
-                        Name("sidebar").Caption("sidebar").Right().
-                        BestSize(wx.Size(200,200)).MinSize(wx.Size(20,10)).Layer(1))
+        self._mgr.AddPane(self.tree, wx.aui.AuiPaneInfo().
+                        Name("tree").Caption("Tree").Right().
+                        BestSize(wx.Size(350,100)).MinSize(wx.Size(350,100)).Layer(1))
+
+        self._mgr.AddPane(self.gui, wx.aui.AuiPaneInfo().
+                        Name("gui").Caption("Selected Object Property").Right().
+                        BestSize(wx.Size(100,100)).MinSize(wx.Size(100,100)).Layer(1))
 
         self._mgr.AddPane(self.nb1, wx.aui.AuiPaneInfo().CaptionVisible(True).
                         Name("shell").Caption("shell and log").Bottom().
@@ -170,11 +180,18 @@ class Frame(wx.Frame):
             pi.Show( not pi.IsShown() )
             self._mgr.Update()
 
-    def toggleSideBar(self,event):
-        pi = self._mgr.GetPane(self.sidebar)
+    def toggleTree(self,event):
+        pi = self._mgr.GetPane(self.tree)
         if pi.IsOk():
             pi.Show( not pi.IsShown() )
             self._mgr.Update()
+
+    def toggleGui(self,event):
+        pi = self._mgr.GetPane(self.gui)
+        if pi.IsOk():
+            pi.Show( not pi.IsShown() )
+            self._mgr.Update()
+
 
     def OnClose(self, event):
         self.close()
