@@ -5,7 +5,7 @@ import wx
 
 #-----------------------------------------------------------------------------
 
-class appTreeBase( wx.Panel ) :
+class TreeBase( wx.Panel ) :
     ''' classe impestata da usare a scatola chiusa '''
     
     
@@ -192,10 +192,10 @@ class appTreeBase( wx.Panel ) :
 
 #-----------------------------------------------------------------------------
 # questa classe te la puoi customizzare coem ti serve
-class appTree( appTreeBase ) :
+class Tree( TreeBase ) :
     def __init__(self, parent=None, id=-1, observer=None ):
         """ chiama OnSelect sull'oggetto Observer """
-        appTreeBase.__init__(self, parent,id, observer)
+        TreeBase.__init__(self, parent,id, observer)
         
         # inizializzati la ImageList con le icone che ti servono
         # le icone saranno poi riferite per indice
@@ -217,40 +217,45 @@ class appTree( appTreeBase ) :
 
     def AddNode(self, parent, node, label="", icon=0  ):
         ''' ridefinendola puoi applicare automaticamente l'icona, scegliere nome e parent'''
-        appTreeBase.AddNode(self, parent, node, icon, label )
+        TreeBase.AddNode(self, parent, node, icon, label )
         
     def ReparentNode(self, new_parent, node ):
         ''' e' interessante ridefinirla se sai estrarre il nuovo parent implicitamente'''
-        appTreeBase.ReparentNode(self, new_parent, node )
+        TreeBase.ReparentNode(self, new_parent, node )
     
     def RenameNode(self, node, new_label ):
         ''' e' interessante ridefinirla se sai estrarre il nuovo nome implicitamente'''
-        appTreeBase.RenameNode(self, node, new_label  )
+        TreeBase.RenameNode(self, node, new_label  )
 
 #-----------------------------------------------------------------------------
+
+def fillTreeTest(tree):
+    tree.AddRoot(1,'testing tree icons')
+    tree.AddNode(1,2, 'settings')
+    tree.AddNode(2,3, 'set1',         2)
+    tree.AddNode(2,4, 'set2',         2)
+
+    tree.AddNode(1,5, 'loaded files')
+    tree.AddNode(5,6, 'file',         1)
+    tree.AddNode(5,7, 'file',         1)
+
+    tree.AddNode(1,8, 'scenegraph')
+    tree.AddNode(8,9, 'transform',    4)
+    tree.AddNode(8,10,'geode',        5)
+    tree.AddNode(8,11,'geometry',     6)
+    tree.AddNode(8,12,'drawable',     7)
+    tree.AddNode(8,13,'property',     8)
+    tree.AddNode(8,14,'stateset',     9)
+    tree.AddNode(8,15,'object',      10)
+
 
 class App(wx.App):
     def OnInit(self):        
         self.Frame = wx.Frame(None,-1,'TreeTest')
-        tree = appTree(self.Frame,-1)
-        tree.AddRoot(1,'azz')
-        tree.AddNode(1,2, 'settings')
-        tree.AddNode(2,3, 'set1',         2)
-        tree.AddNode(2,4, 'set2',         2)
+        tree = Tree(self.Frame,-1)
 
-        tree.AddNode(1,5, 'loaded files')
-        tree.AddNode(5,6, 'file',         1)
-        tree.AddNode(5,7, 'file',         1)
-
-        tree.AddNode(1,8, 'scenegraph')
-        tree.AddNode(8,9, 'transform',    4)
-        tree.AddNode(8,10,'geode',        5)
-        tree.AddNode(8,11,'geometry',     6)
-        tree.AddNode(8,12,'drawable',     7)
-        tree.AddNode(8,13,'property',     8)
-        tree.AddNode(8,14,'stateset',     9)
-        tree.AddNode(8,15,'object',      10)
-
+        fillTreeTest(tree)
+        
         self.SetTopWindow(self.Frame)
         self.Frame.Show() 
         return True
