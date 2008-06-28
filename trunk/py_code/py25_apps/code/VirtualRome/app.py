@@ -17,7 +17,6 @@ REM
 '''
 
 
-
 import os
 import sys
 import wx
@@ -43,7 +42,7 @@ import glob
 class appStdio:
     ''' usando questa, le print vanno nel LOG,
         ma allora non vanno nello Stany,
-        vedi piu avanti come accenderlo o no'''
+        puoi accenderlo o spegnerlo con redirect_stdio '''
     def __init__(self,TextCtrl):    
         self.out = TextCtrl
     
