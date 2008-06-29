@@ -37,7 +37,7 @@ import filehistory
 import url_chooser
 import wxosgviewer
 import config
-import tree
+import custom_tree
 
 # ----------------------------------------------------
 class appStdio:
@@ -141,10 +141,8 @@ class Frame(wx.Frame):
         # --- Canvas --------------
         self.canvas = wxosgviewer.Canvas(self,-1)
         
-        # --- sideBar -------------
-        self.tree = tree.Tree(self,-1)
-        tree.fillTreeTest(self.tree)
-        
+        # --- tree e gui-----------
+        self.tree = custom_tree.CustomTree(self,-1,self)
         self.gui = wx.Panel(self,-1)
         
         # --- Layout using AUI ----
@@ -258,6 +256,13 @@ class Frame(wx.Frame):
         ''' devi definire questa funzione perche e' invocata anche dalla History 
             devi ritornare True se il file e' stato caricato con successo '''
         print 'OpenFile',file
+        
+        node = osgDB.readNodeFile(file)
+        if not node : 
+            print 'error loading', file
+            return False
+        self.tree.ReadSceneGraph(node)
+        self.canvas.viewer.setSceneData(node)
         return True
 
     def OpenUrl(self,url):
@@ -274,6 +279,10 @@ class Frame(wx.Frame):
         ''' scaricare tutto '''
         print 'FileClear'
 
+    def OnSelect(self,obj):
+        ''' qualcosa e' stato sleezionato nel tree
+            puo essere un file, un settings, una root, o un nodo '''
+        print 'OnSelect', obj
 
 
 #--------------------------------------------------------------------------
@@ -283,6 +292,20 @@ class App(wx.App):
         self.SetTopWindow(self.frame)
         self.frame.Show(True)
         return True
+
+#--------------------------------------------------------------------------
+def defaultFilename():
+    # locate the DataDir
+    dir = os.getenv('DATADIR')
+    if not dir:
+        print 'env-var "DATADIR" not found, exiting'
+        sys.exit()
+    # there are good and bad data :-)
+    dir = dir + 'bad\\'
+
+    # open the test file
+    filename = dir + 'f_pace.osg'
+    return filename
 
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -309,7 +332,18 @@ if __name__ == "__main__":
 
 - ho aggiunto la Toolbar
 - ho aggiunto il LOG --- per mandare messaggi subliminali ai modellatori
+
+
+- ho predisposto un Tree 
+  che possa ospitare Files,Settings e lo SceneGraph
+
+- ho fatto un Visitor che riempie l'albero
+
+- devo ancora fare le GUI.
+  Le gui le dovrai creare in risposta alla OnSelect
+  
 '''
+    f.OpenFile( defaultFilename() )
 
     app.MainLoop()
 
