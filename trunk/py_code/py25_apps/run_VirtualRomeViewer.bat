@@ -1,7 +1,8 @@
 call prepare_env.bat
+cd code\VirtualRome
 
-Python.exe   %DIR%\code\VirtualRome\app.py
+Python.exe app.py
 
-
+rem pause
 
 
