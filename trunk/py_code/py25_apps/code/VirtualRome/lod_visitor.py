@@ -1,10 +1,10 @@
-import visitorbase
 import osg
 import osgDB
 import re
 import os
 import sys
 import glob
+import visitorbase
 
 
 
@@ -28,7 +28,7 @@ class FindNamePattern(visitorbase.VisitorBase):
 
     def visitNode(self, node):
         '''virtual func to be redefined -- return False to stop visiting this branch'''
-        print "in visitGeneric",node.className(), node.getName(),"num parent",node.getNumParents()
+##        print "in visitGeneric",node.className(), node.getName(),"num parent",node.getNumParents()
         name=node.getName()
         if(name):
             print "node name--",name
@@ -36,36 +36,59 @@ class FindNamePattern(visitorbase.VisitorBase):
             split_list=self.match.split(name)
             if(split_list.__len__()>1):
                 matched_name=split_list[1]
-                print "matched_name -->",matched_name
+##                print "matched_name -->",matched_name
                 if(matched_name):
                     self.NodesHash[node.this.__hex__()]=(matched_name,node)
-                    self.names[matched_name]=node
-                    print "matched name -->" + matched_name + "node -->" + node.this.__hex__() + "<--"
+                    if(self.names.has_key(matched_name)):
+                        print "WARNING!!!  nodes >"+node.this.__hex__()+"<and>"+self.names[matched_name].this.__hex__()+"<match same name->"+matched_name
+                        self.names[matched_name].append(node)
+                    else:
+                        self.names[matched_name]=[node]
+##                    print "matched name -->" + matched_name + "node -->" + node.this.__hex__() + "<--"
                     return False
 
         return True
 
 class SearchMatchInFiles():
-    def __init__(self,path):
+    def __init__(self,path,optimizer=None):
         self.basepath=path
+        self.optim=optimizer
     def find(self,name):
         nodes=[]
-        flist=glob.glob(os.path.join(self.basepath,"*"+name+"*"))
+        flist=glob.glob(os.path.join(self.basepath,"*"+name+".*"))
         for f in flist:
             print "opening -->"+f+"<--"
             node=osgDB.readNodeFile(f)
             if(node):
-                #cerco dentro il file un nodo che contenga <name>
-                v = FindNamePattern(".*("+name+").*")
+                if(self.optim):
+                    self.optim.optimize(node,osgUtil.Optimizer.FLATTEN_STATIC_TRANSFORMS)
+                #cerco dentro il file un nodo che finisca con <name>
+                v = FindNamePattern(".*("+name+")\s*$")
                 node.accept(v)
                 for k in v.NodesHash.keys():
                     print "found >"+k+"<-->"+v.NodesHash[k][0]+"<--in file",f
                     nodes.append(v.NodesHash[k][1])
         return(nodes)
-##            ext=os.path.splitext(f)[1]
-##            if(".osg"
-##            print searching in 
-        
+
+
+#--------------------------------------------------------------------------
+##def makeLOD(low_node,hi_node,boundscale=4.0):
+##    bs=low_node.getBound()
+##    switch_dist=bs._radius * boundscale
+##    print "bound: ",bs.center().x(),bs.center().y(),bs.center().z(),bs._radius
+##    ##osgDB.writeNodeFile(g,filename)
+##    lod=osg.LOD()
+##    lod.setCenter(bs.center())
+##    lod.addChild(low_node)
+##    lod.addChild(hi_node)
+##    lod.setRange(0,switch_dist,100000000.0)
+##    lod.setRange(1,0.0,switch_dist)
+##    lod.thisown=False
+##    return lod
+
+
+
+
 class ListTexturesVisitor(osg.NodeVisitor): 
     """ListTexturesVisitor -- A NodeVisitor that list texture names."""
     base_class = osg.NodeVisitor
@@ -311,6 +334,7 @@ if __name__ == "__main__":
     import osgDB
     import sys
     import os
+    from utility import *
 
     # locate the DataDir
     dir = os.getenv('DATADIR')
@@ -326,7 +350,9 @@ if __name__ == "__main__":
     if not node : 
         print 'error loading', filename
         sys.exit()
-
+    if(node):
+        optim=osgUtil.Optimizer()
+        optim.optimize(node,osgUtil.Optimizer.FLATTEN_STATIC_TRANSFORMS)
 
     # test a Visitor Subclass
     print '------- testing FindNamePattern --------'
@@ -336,18 +362,58 @@ if __name__ == "__main__":
     # print results
     s=SearchMatchInFiles(os.path.dirname(filename))
     print "risultati"
+    
     for n in v.NodesHash.keys():
         print ">",n,"<-->",v.NodesHash[n][0],"<--"
     for name in v.names.keys():
         print "searching for -->"+name+"<--"
         listnodes =s.find(name)
+        if(listnodes.__len__() == 1):
+            for nlow in v.names[name]:
+                #replace_with_LOD(nlow,make_group(listnodes[0]))
+                replace_with_LOD(nlow,listnodes[0])
+        else:
+            if(listnodes.__len__() > 1):
+                #multiple match: invoke user
+                print "WARNING!!!! found multiple matches for >"+name+"<-"
+            else:
+                #no match: do nothing
+                print "WARNING!!!! no matches found for >"+name+"<-"
 
     print '------- Done --------'
     
 
 
 
+    test_wx=False
+    if(test_wx):
+        import wxosgviewer 
+        
+        app = wxosgviewer.App(0)  # importante: creare APP passando 0 
+        viewer = app.getViewer()
+    else:
+    # create a viewer
+        viewer = osgViewer.Viewer()
 
+    # configure
+        viewer.setThreadingModel(osgViewer.Viewer.SingleThreaded)
+        viewer.addEventHandler(osgViewer.WindowSizeHandler())
+        viewer.addEventHandler(osgViewer.StatsHandler())
+    
+    viewer.setSceneData(node)
+##    hlt=HiLight(highlighter(wireboxed))
+##    pickhandler1 = PickHandlerBase(hlt)
+##    
+##    viewer.addEventHandler(pickhandler1.__disown__());
+
+    
+    
+    
+    if(test_wx):
+        app.MainLoop()
+    else:
+        # loop until done
+        viewer.run()
 
 
 
