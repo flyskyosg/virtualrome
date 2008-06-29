@@ -1,3 +1,11 @@
+'''
+xGIGI -- questo l'ho mandato su per sbaglio 
+puoi buttarlo
+'''
+
+
+
+
 """
 NOTA:
  obj.__methods__ restituisce i metodi dell'oggetto
