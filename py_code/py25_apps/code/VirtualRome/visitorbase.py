@@ -3,15 +3,18 @@ import osg
 #--------------------------------------------------------------------------
 class VisitorBase(osg.NodeVisitor): 
     ''' visit each node in a osg-scenegraph.
-        takes care to visit each node just one time.
+        takes care to visit each node just one time (unless visitAllInstances is True).
         for each node found the virtual method visitNode is invoked
     '''
 
-    def __init__(self):
+    def __init__(self, visitAllInstances=False):
         osg.NodeVisitor.__init__(self,osg.NodeVisitor.TRAVERSE_ALL_CHILDREN)
         self.visited = {}  
+        self.visitAllInstances = visitAllInstances
         
     def alreadyVisited(self,node):
+        if self.visitAllInstances:
+            return False
         id = str(node.this)
         if self.visited.has_key(id):
             return True
@@ -40,8 +43,8 @@ class Visitor(VisitorBase):
     a particular virtual method is invoked
     '''
 
-    def __init__(self):
-        VisitorBase.__init__(self)
+    def __init__(self,visitAllInstances=False):
+        VisitorBase.__init__(self,visitAllInstances)
         self.visited = {}  
         
     def apply(self, node):
@@ -70,7 +73,7 @@ class Visitor(VisitorBase):
                     ss = drawable.getStateSet()
                     if ss:
                         if not self.alreadyVisited( ss ):
-                            self.visitStateSet(ss)
+                            self.visitStateSet(ss,drawable)
 
         else:
             proceed = self.visitNode(node)
@@ -79,7 +82,7 @@ class Visitor(VisitorBase):
         ss = node.getStateSet()
         if ss:
             if not self.alreadyVisited( ss ):
-                self.visitStateSet(ss)
+                self.visitStateSet(ss,node)
         
         if proceed:
             osg.NodeVisitor.traverse(self, node)
@@ -98,10 +101,9 @@ class Visitor(VisitorBase):
         '''virtual func to be redefined'''
         print geode.className(), geode.getName(),"num parent",geode.getNumParents()
 
-    def visitStateSet(self,ss):
+    def visitStateSet(self,ss,parent):
         '''virtual func to be redefined  --- node can be a node or a drawable '''
         print ss.className(), ss.getName(),"num parent",ss.getNumParents()
-
 
 #--------------------------------------------------------------------------
 # VisitorBase Test and  subclassing Example 
