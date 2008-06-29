@@ -8,9 +8,7 @@ ok - drag 'n drop
 ok - toolbar
 ok - reload
 ok - LOG
-   - GUI per GIGI
-
-
+ok - GUI (da finire)
 
 REM
 - puoi chiudere tutto premendo ESC nell'OSG viewer (+ veloce)
@@ -38,6 +36,7 @@ import url_chooser
 import wxosgviewer
 import config
 import custom_tree
+import gui_support
 
 # ----------------------------------------------------
 class appStdio:
@@ -51,7 +50,7 @@ class appStdio:
         self.out.WriteText(string)
 
 # mettilo a False per mandare le Print nello Stany
-redirect_stdio = True
+redirect_stdio = False
 
 #--------------------------------------------------------------------------
 class FileDropListener(wx.FileDropTarget):
@@ -143,7 +142,7 @@ class Frame(wx.Frame):
         
         # --- tree e gui-----------
         self.tree = custom_tree.CustomTree(self,-1,self)
-        self.gui = wx.Panel(self,-1)
+        self.gui = gui_support.GuiHolder(self)
         
         # --- Layout using AUI ----
         self.SetSize(wx.Size(600,600))
@@ -282,7 +281,12 @@ class Frame(wx.Frame):
     def OnSelect(self,obj):
         ''' qualcosa e' stato sleezionato nel tree
             puo essere un file, un settings, una root, o un nodo '''
+
         print 'OnSelect', obj
+        # dai l'oggetto selezionato al GuiHolder, lui sa cosa fare :-)
+        self.gui.SetObj(obj)
+        # dopo self.gui.SetObj(obj) chiama sempre questo
+        self._mgr.Update()
 
 
 #--------------------------------------------------------------------------
@@ -318,7 +322,7 @@ if __name__ == "__main__":
     v = app.frame.canvas.viewer
     w = app.frame.canvas.gw
 
-    print '''Novita:
+    text = '''Novita:
 - nel Menu File hai la fileHistory, e la urlHistory"
 - le History sono scritte in VirtualRome.ini, se lo cancelli si ricrea
 - nella History dovrebbero andarci solo file e url 'buone' (sta a te)
@@ -339,11 +343,34 @@ if __name__ == "__main__":
 
 - ho fatto un Visitor che riempie l'albero
 
-- devo ancora fare le GUI.
-  Le gui le dovrai creare in risposta alla OnSelect
-  
+
+- ho fatto un primo supporto alle GUI -- vedi il modulo gui_support
+
+- ho messo un primo supporto al display delle GUI in risposta alla Selezione
+
+- faremo di meglio quando torno
+
 '''
-    f.OpenFile( defaultFilename() )
+    #print text
+
+
+    filename = defaultFilename()
+    f.OpenFile( filename )
+    
+    # modulo di esempio
+    #quando lo selezioni la sua interfaccia viene creata
+    import example_module
+    settings1 = example_module.TestObject()
+    f.tree.AddSettings(settings1,'camera settings')
+
+    # altro modulo di esempio
+    settings2 = gui_support.TestObject()
+    f.tree.AddSettings(settings2,'stupid settings')
+
+    # altro modulo di esempio
+    fileObj = example_module.TestFileObject(filename)
+    f.tree.AddFile(fileObj,filename)
 
     app.MainLoop()
+
 
