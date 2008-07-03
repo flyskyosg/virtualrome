@@ -3,6 +3,7 @@ wxOsgViewer: osgViewer on a wxPanel
 
 this module also provide a simple wxOsgFrame / wxOsgApp
 useful for testing
+From Silvano Imboden --- CINECA 
 '''
 
 import wx
@@ -41,7 +42,7 @@ class Canvas(wx.glcanvas.GLCanvas):
 
         loadedModel = osgDB.readNodeFile("cow.osg")
         if not loadedModel:
-            print "could not find any cow --- please set the OSG_DATA_PATH"
+            print "could not find any cow --- please set the OSG_FILE_PATH env var"
         self.viewer.setSceneData(loadedModel)
 
         # --- Bindings ---------------------------------
@@ -54,35 +55,35 @@ class Canvas(wx.glcanvas.GLCanvas):
         self.Bind(wx.EVT_MOUSE_EVENTS,      self.onMouse)
 
     def onTimer(self,e):
-        # chiama indirettamente la Paint
+        # it inderectly calls  Paint
         self.Refresh()
 
     def onEraseBackground(self, evt):
-        # non cancelliamo lo sfondo
+        # no background clear
         pass
 
     def onPaint(self, evt):
-        # questo e' obbligatorio nella OnPaint
+        # this is mandatory in OnPaint
         dc = wx.PaintDC(self)
 
-        # se non abbimo il contesto OpenGL, qualcosa e' andato molto male
+        # if  OpenGL contest is missing, something really bad happened
         if (self.GetContext() == 0 ) :
             print 'no context'
             return
 
-        # OpenGL.MakeCurrent -- lo facciamo noi per OSG
+        # OpenGL.MakeCurrent -- equivalent, we do for OSG
         self.SetCurrent()
         
-        # il Realize va posticipato dopo MakeCurrent -- che va fatto dopo il primo Show
+        #  Realize must be done AFTER MakeCurrent -- after the first Show
         if not self.viewer.isRealized(): 
             self.viewer.addEventHandler(osgViewer.StatsHandler())
             #self.viewer.realize()
             print "viewer realized"
             
-        # disegna un Frame
+        # draw a Frame
         self.viewer.frame()
         
-        # anche questo lo facciamo noi per OSG
+        # even this we do for  OSG
         self.SwapBuffers()
 
     def onSize(self, evt):
@@ -92,7 +93,7 @@ class Canvas(wx.glcanvas.GLCanvas):
         if self.gw.valid():
             self.gw.resized( 0, 0, w, h);
             self.gw.getEventQueue().windowResize(0, 0, w, h )
-        evt.Skip() # lasciare che venga servito -- importante
+        evt.Skip() # let it be handled -- IMPORTANT
 
     def onKeyDown(self, evt):
         key = evt.GetKeyCode()
@@ -138,7 +139,7 @@ class Canvas(wx.glcanvas.GLCanvas):
         elif (evt.Dragging()):
             self.gw.getEventQueue().mouseMotion(x,y)
             pass
-        evt.Skip() # importante -- altrimenti il canvas non riceve il focus
+        evt.Skip() # IMPORTANT -- otherwise  canvas does not get focus
 
 #--------------------
 class Frame(wx.Frame):
