@@ -100,7 +100,6 @@ class CustomTree( TreeBase ) :
         # compongo la label
         cls = node.className()
         label = cls +' '+ node.getName()
-        
         # trovo l'icona
         icon = self.iObject
         if self.osgIcon.has_key(cls):
@@ -108,6 +107,14 @@ class CustomTree( TreeBase ) :
         
         # inserisco
         TreeBase.AddNode(self, parent, node, icon, label )
+##        if(parent):
+##            if(parent != self.scenegraphRoot):
+##                if((parent.getName()!="") and (parent != self.scenegraphRoot)):
+##                    print "collapsing parent of -->",node.getName()
+##                    self._tree.CollapseAllChildren(self.nodeToItem[parent])
+
+    def  CollapseAllChildren(self,node):
+        self._tree.CollapseAllChildren(self.nodeToItem[node])
         
     def getNodePointer(self,node):
         ''' str(node.this) non va bene 
