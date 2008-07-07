@@ -66,6 +66,7 @@ class TestObject(object):
     def ResetCamera(self):
         self.pos = (10,10,10)
         self.eye = (0,0,0)
+        print "sono in resetcamera"
         # qui dovresti provocare una Select-Myself
         # cosi l'interfaccia viene rigenerata con i valori aggiornati
 

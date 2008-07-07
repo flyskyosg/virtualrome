@@ -99,7 +99,7 @@ class Visitor(VisitorBase):
 
     def visitDrawable(self,drawable,geode):
         '''virtual func to be redefined'''
-        print geode.className(), geode.getName(),"num parent",geode.getNumParents()
+        print drawable.className(), drawable.getName(),"num parent",geode.getNumParents()
 
     def visitStateSet(self,ss,parent):
         '''virtual func to be redefined  --- node can be a node or a drawable '''

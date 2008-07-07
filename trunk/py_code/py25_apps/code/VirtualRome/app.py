@@ -38,6 +38,8 @@ import config
 import custom_tree
 import gui_support
 
+import scene_manager
+
 # ----------------------------------------------------
 class appStdio:
     ''' usando questa, le print vanno nel LOG,
@@ -255,13 +257,19 @@ class Frame(wx.Frame):
         ''' devi definire questa funzione perche e' invocata anche dalla History 
             devi ritornare True se il file e' stato caricato con successo '''
         print 'OpenFile',file
-        
-        node = osgDB.readNodeFile(file)
-        if not node : 
+        if(not dir(self).__contains__('osg_app')):
+            self.osg_app=scene_manager.app(self.canvas.viewer)
+        fileObj=self.osg_app.LoadStuff(file)    
+        if(fileObj):
+            print 'loaded->', file, "<-name->",fileObj.key
+            f.tree.AddFile(fileObj,fileObj.key)
+            f.tree.ReadSceneGraph(self.osg_app.root)
+            f.tree.CollapseAllChildren(f.tree.scenegraphRoot)
+        else:
             print 'error loading', file
             return False
-        self.tree.ReadSceneGraph(node)
-        self.canvas.viewer.setSceneData(node)
+
+
         return True
 
     def OpenUrl(self,url):
@@ -354,8 +362,8 @@ if __name__ == "__main__":
     #print text
 
 
-    filename = defaultFilename()
-    f.OpenFile( filename )
+##    filename = defaultFilename()
+##    f.OpenFile( filename )
     
     # modulo di esempio
     #quando lo selezioni la sua interfaccia viene creata
@@ -368,9 +376,8 @@ if __name__ == "__main__":
     f.tree.AddSettings(settings2,'stupid settings')
 
     # altro modulo di esempio
-    fileObj = example_module.TestFileObject(filename)
-    f.tree.AddFile(fileObj,filename)
+##    fileObj = example_module.TestFileObject(filename)
 
     app.MainLoop()
 
-
+#frame.tree.selectnode(obj)
