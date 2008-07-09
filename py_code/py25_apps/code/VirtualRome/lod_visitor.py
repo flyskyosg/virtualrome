@@ -55,11 +55,14 @@ class SearchMatchInFiles():
         self.basepath=path
         self.optim=optimizer
         self.open_files=dict()
-    def find(self,name):
+    def find(self,name,flist=[]):
         nodes=[]
-        #cerco un file che finisca con <name>.qualcosa(osg,ive)
-#        flist=glob.glob(os.path.join(self.basepath,"*"+name+".*"))
-        flist=glob.glob(os.path.join(self.basepath,"f_pace_hi.osg"))
+        if(flist.__len__()==0):
+            #cerco un file che finisca con <name>.qualcosa(osg,ive)
+            flist=glob.glob(os.path.join(self.basepath,"*"+name+".*"))
+            
+#        flist=glob.glob(os.path.join(self.basepath,"f_pace_mi.osg"))
+#       flist=glob.glob(os.path.join(self.basepath,"f_pace_col*.osg"))
         for f in flist:
             print "opening -->"+f+"<--"
             if(self.open_files.has_key(f)):
@@ -98,7 +101,7 @@ if __name__ == "__main__":
     dir = dir + 'bad2\\'
 
     # open the test file
-    filename = dir + 'f_pace_mi.osg'
+    filename = dir + 'f_pace_low.osg'
     node = osgDB.readNodeFile(filename)
     if not node : 
         print 'error loading', filename
@@ -109,18 +112,19 @@ if __name__ == "__main__":
 
     # test a Visitor Subclass
     print '------- testing FindNamePattern --------'
-    v = FindNamePattern('(.*)_RIF')
+    #v = FindNamePattern('(.*)_mi_RIF')
+    v = FindNamePattern('(.*)(?:_low?|_mid?|_hig?h?)_RIF')
     node.accept(v)
 
     # print results
-    s=SearchMatchInFiles(os.path.dirname(filename))
+    s=SearchMatchInFiles(os.path.dirname(filename),optim)
     print "risultati"
     
     for n in v.NodesHash.keys():
         print ">",n,"<-->",v.NodesHash[n][0],"<--"
     for name in v.names.keys():
         print "searching for -->"+name+"<--"
-        listnodes =s.find(name)
+        listnodes =s.find(name,glob.glob(os.path.join(os.path.dirname(filename),"f_pace_mi.osg")))
         if(listnodes.__len__() == 1):
             for nlow in v.names[name]:
                 #replace_with_LOD(nlow,make_group(listnodes[0]))
