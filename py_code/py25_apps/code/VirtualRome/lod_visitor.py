@@ -82,7 +82,42 @@ class SearchMatchInFiles():
                     nodes.append(v.NodesHash[k][1])
         return(nodes)
 
+class LodSubst():
+    def __init__(self):
+        self.optimize_flags=osgUtil.Optimizer.FLATTEN_STATIC_TRANSFORMS
+        self.optim=osgUtil.Optimizer()
+        self.basepath=""
+        self.open_files=dict()
+        self.file_globs=dict()
+        self.names_rex=dict()
+        
+    def LoadFile(self,fname):
+        if(os.path.exists(fname)):
+            f=os.path.abspath(fname)
+        else:
+            if(os.path.exists(os.path.join(self.basepath,fname))):
+                f=os.path.join(self.basepath,fname)
+            else:
+                print "WARNING!!!! file -->",fname,"<- not found"
+                return None
+        if(self.basepath==""):
+            self.basepath=os.path.basename(os.path.abspath(f))
+        else:
+            if(self.basepath != os.path.basename(os.path.abspath(f))):
+                print "WARNING!!! loading ->",f," outside of basepath ->",self.basepath
+                
+            
+        if(self.open_files.has_key(f)):
+            node=self.open_files[f]
+        else:
+            node=osgDB.readNodeFile(f)
+            if(node):
+                if(self.optim):
+                    self.optim.optimize(node,self.optimize_flags)
+                self.open_files[f]=node
+        return node
 
+        
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
 
@@ -139,11 +174,8 @@ if __name__ == "__main__":
                 #no match: do nothing
                 print "WARNING!!!! no matches found for >"+name+"<-"
 
-    print '------- Done --------'
+    print '------- Done __ 1 --------'
     
-
-
-
     test_wx=False
     if(test_wx):
         import wxosgviewer 
@@ -166,6 +198,7 @@ if __name__ == "__main__":
 ##    viewer.addEventHandler(pickhandler1.__disown__());
 
     
+
     
     
     if(test_wx):
