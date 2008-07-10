@@ -1,7 +1,7 @@
 MatrixTransform {
   DataVariance STATIC
   name "Scene Root"
-  nodeMask 0xff
+  nodeMask 0xffffffff
   cullingActive TRUE
   StateSet {
     UniqueID StateSet_0
@@ -21,34 +21,34 @@ MatrixTransform {
   MatrixTransform {
     DataVariance STATIC
     name "f_pace_col_c_low"
-    nodeMask 0xff
+    nodeMask 0xffffffff
     cullingActive TRUE
     referenceFrame RELATIVE
     Matrix {
       -0.24607 79.6516 -3.16256e-021 0
       -79.6516 -0.24607 3.43629e-014 0
       3.82216e-014 1.18085e-016 88.5967 0
-      501.829 153.682 0.728453 1
+      0 0 0 1
     }
     num_children 1
     MatrixTransform {
       DataVariance STATIC
       name "f_pace_col_c_low-OFFSET"
-      nodeMask 0xff
+      nodeMask 0xffffffff
       cullingActive TRUE
       referenceFrame RELATIVE
       Matrix {
         1 -1.71291e-038 -2.39151e-026 0
         -2.74963e-038 1 0 0
         3.79979e-026 -5.29396e-023 1 0
-        0 0 0.172231 1
+        -8.37383e-009 2.58704e-011 0.172231 1
       }
       num_children 1
       Geode {
         UniqueID Geode_1
         DataVariance STATIC
         name "f_pace_col_c_low-GEODE"
-        nodeMask 0xff
+        nodeMask 0xffffffff
         cullingActive TRUE
         num_drawables 2
         Geometry {
@@ -57,11 +57,14 @@ MatrixTransform {
           StateSet {
             UniqueID StateSet_2
             DataVariance STATIC
-            rendering_hint DEFAULT_BIN
-            renderBinMode INHERIT
+            rendering_hint TRANSPARENT_BIN
+            renderBinMode USE
+            binNumber 10
+            binName DepthSortedBin
             GL_CULL_FACE ON
             GL_LIGHTING ON
             0xba1 ON
+            GL_BLEND ON
             Material {
               DataVariance STATIC
               ColorMode OFF
@@ -70,6 +73,11 @@ MatrixTransform {
               specularColor 0 0 0 1
               emissionColor 0 0 0 1
               shininess 0
+            }
+            BlendFunc {
+              DataVariance STATIC
+              source SRC_ALPHA
+              destination ONE_MINUS_SRC_ALPHA
             }
             textureUnit 0 {
               GL_TEXTURE_2D ON
@@ -86,7 +94,7 @@ MatrixTransform {
                 borderWidth 0
                 useHardwareMipMapGeneration TRUE
                 unRefImageDataAfterApply FALSE
-                internalFormatMode USE_IMAGE_DATA_FORMAT
+                internalFormatMode USE_S3TC_DXT5_COMPRESSION
                 resizeNonPowerOfTwo TRUE
               }
             }
@@ -420,11 +428,14 @@ MatrixTransform {
           StateSet {
             UniqueID StateSet_3
             DataVariance STATIC
-            rendering_hint DEFAULT_BIN
-            renderBinMode INHERIT
+            rendering_hint TRANSPARENT_BIN
+            renderBinMode USE
+            binNumber 10
+            binName DepthSortedBin
             GL_CULL_FACE ON
             GL_LIGHTING ON
             0xba1 ON
+            GL_BLEND ON
             Material {
               DataVariance STATIC
               ColorMode OFF
@@ -433,6 +444,11 @@ MatrixTransform {
               specularColor 0 0 0 1
               emissionColor 0 0 0 1
               shininess 0
+            }
+            BlendFunc {
+              DataVariance STATIC
+              source SRC_ALPHA
+              destination ONE_MINUS_SRC_ALPHA
             }
             textureUnit 0 {
               GL_TEXTURE_2D ON
@@ -449,7 +465,7 @@ MatrixTransform {
                 borderWidth 0
                 useHardwareMipMapGeneration TRUE
                 unRefImageDataAfterApply FALSE
-                internalFormatMode USE_IMAGE_DATA_FORMAT
+                internalFormatMode USE_S3TC_DXT5_COMPRESSION
                 resizeNonPowerOfTwo TRUE
               }
             }
@@ -567,34 +583,34 @@ MatrixTransform {
   MatrixTransform {
     DataVariance STATIC
     name "f_pace_col_c_mi"
-    nodeMask 0xff
+    nodeMask 0xffffffff
     cullingActive TRUE
     referenceFrame RELATIVE
     Matrix {
       2.40701 2.52345 1.56178e-007 0
       -6.44125e-007 -1.07741e-007 3.56765 0
       2.52345 -2.407 4.08679e-007 0
-      501.812 153.691 0.710315 1
+      0 0 0 1
     }
     num_children 1
     MatrixTransform {
       DataVariance STATIC
       name "f_pace_col_c_mi-OFFSET"
-      nodeMask 0xff
+      nodeMask 0xffffffff
       cullingActive TRUE
       referenceFrame RELATIVE
       Matrix {
         1 0 2.98023e-008 0
         0 1 0 0
         -2.98023e-008 0 1 0
-        0 2.21426 0 1
+        -7.25075e-008 2.21426 4.64379e-007 1
       }
       num_children 1
       Geode {
         UniqueID Geode_4
         DataVariance STATIC
         name "f_pace_col_c_mi-GEODE"
-        nodeMask 0xff
+        nodeMask 0xffffffff
         cullingActive TRUE
         num_drawables 2
         Geometry {
@@ -603,11 +619,14 @@ MatrixTransform {
           StateSet {
             UniqueID StateSet_5
             DataVariance STATIC
-            rendering_hint DEFAULT_BIN
-            renderBinMode INHERIT
+            rendering_hint TRANSPARENT_BIN
+            renderBinMode USE
+            binNumber 10
+            binName DepthSortedBin
             GL_CULL_FACE ON
             GL_LIGHTING ON
             0xba1 ON
+            GL_BLEND ON
             Material {
               DataVariance STATIC
               ColorMode OFF
@@ -616,6 +635,11 @@ MatrixTransform {
               specularColor 0 0 0 1
               emissionColor 0 0 0 1
               shininess 0
+            }
+            BlendFunc {
+              DataVariance STATIC
+              source SRC_ALPHA
+              destination ONE_MINUS_SRC_ALPHA
             }
             textureUnit 0 {
               GL_TEXTURE_2D ON
@@ -632,7 +656,7 @@ MatrixTransform {
                 borderWidth 0
                 useHardwareMipMapGeneration TRUE
                 unRefImageDataAfterApply FALSE
-                internalFormatMode USE_IMAGE_DATA_FORMAT
+                internalFormatMode USE_S3TC_DXT5_COMPRESSION
                 resizeNonPowerOfTwo TRUE
               }
             }
@@ -1317,11 +1341,14 @@ MatrixTransform {
           StateSet {
             UniqueID StateSet_6
             DataVariance STATIC
-            rendering_hint DEFAULT_BIN
-            renderBinMode INHERIT
+            rendering_hint TRANSPARENT_BIN
+            renderBinMode USE
+            binNumber 10
+            binName DepthSortedBin
             GL_CULL_FACE ON
             GL_LIGHTING ON
             0xba1 ON
+            GL_BLEND ON
             Material {
               DataVariance STATIC
               ColorMode OFF
@@ -1330,6 +1357,11 @@ MatrixTransform {
               specularColor 0 0 0 1
               emissionColor 0 0 0 1
               shininess 0
+            }
+            BlendFunc {
+              DataVariance STATIC
+              source SRC_ALPHA
+              destination ONE_MINUS_SRC_ALPHA
             }
             textureUnit 0 {
               GL_TEXTURE_2D ON
@@ -1346,7 +1378,7 @@ MatrixTransform {
                 borderWidth 0
                 useHardwareMipMapGeneration TRUE
                 unRefImageDataAfterApply FALSE
-                internalFormatMode USE_IMAGE_DATA_FORMAT
+                internalFormatMode USE_S3TC_DXT5_COMPRESSION
                 resizeNonPowerOfTwo TRUE
               }
             }
@@ -1464,34 +1496,34 @@ MatrixTransform {
   MatrixTransform {
     DataVariance STATIC
     name "f_pace_col_c_hi"
-    nodeMask 0xff
+    nodeMask 0xffffffff
     cullingActive TRUE
     referenceFrame RELATIVE
     Matrix {
       0.923853 -3.11396 0 0
       -1.48124e-006 -4.23212e-007 3.55016 0
       -3.11396 -0.923853 -1.54882e-006 0
-      501.82 153.678 0.715705 1
+      0 0 0 1
     }
     num_children 1
     MatrixTransform {
       DataVariance STATIC
       name "f_pace_col_c_hi-OFFSET"
-      nodeMask 0xff
+      nodeMask 0xffffffff
       cullingActive TRUE
       referenceFrame RELATIVE
       Matrix {
         1 0 0 0
         -4.44089e-015 1 2.84217e-014 0
         -2.98023e-008 -2.84217e-014 1 0
-        0 2.2126 0 1
+        3.6408e-008 2.2126 -6.60739e-007 1
       }
       num_children 1
       Geode {
         UniqueID Geode_7
         DataVariance STATIC
         name "f_pace_col_c_hi-GEODE"
-        nodeMask 0xff
+        nodeMask 0xffffffff
         cullingActive TRUE
         num_drawables 3
         Geometry {
@@ -1500,11 +1532,14 @@ MatrixTransform {
           StateSet {
             UniqueID StateSet_8
             DataVariance STATIC
-            rendering_hint DEFAULT_BIN
-            renderBinMode INHERIT
+            rendering_hint TRANSPARENT_BIN
+            renderBinMode USE
+            binNumber 10
+            binName DepthSortedBin
             GL_CULL_FACE ON
             GL_LIGHTING ON
             0xba1 ON
+            GL_BLEND ON
             Material {
               DataVariance STATIC
               ColorMode OFF
@@ -1513,6 +1548,11 @@ MatrixTransform {
               specularColor 0 0 0 1
               emissionColor 0 0 0 1
               shininess 0
+            }
+            BlendFunc {
+              DataVariance STATIC
+              source SRC_ALPHA
+              destination ONE_MINUS_SRC_ALPHA
             }
             textureUnit 0 {
               GL_TEXTURE_2D ON
@@ -1529,7 +1569,7 @@ MatrixTransform {
                 borderWidth 0
                 useHardwareMipMapGeneration TRUE
                 unRefImageDataAfterApply FALSE
-                internalFormatMode USE_IMAGE_DATA_FORMAT
+                internalFormatMode USE_S3TC_DXT5_COMPRESSION
                 resizeNonPowerOfTwo TRUE
               }
             }
@@ -7173,11 +7213,14 @@ MatrixTransform {
           StateSet {
             UniqueID StateSet_9
             DataVariance STATIC
-            rendering_hint DEFAULT_BIN
-            renderBinMode INHERIT
+            rendering_hint TRANSPARENT_BIN
+            renderBinMode USE
+            binNumber 10
+            binName DepthSortedBin
             GL_CULL_FACE ON
             GL_LIGHTING ON
             0xba1 ON
+            GL_BLEND ON
             Material {
               DataVariance STATIC
               ColorMode OFF
@@ -7186,6 +7229,11 @@ MatrixTransform {
               specularColor 0 0 0 1
               emissionColor 0 0 0 1
               shininess 0
+            }
+            BlendFunc {
+              DataVariance STATIC
+              source SRC_ALPHA
+              destination ONE_MINUS_SRC_ALPHA
             }
             textureUnit 0 {
               GL_TEXTURE_2D ON
@@ -7202,7 +7250,7 @@ MatrixTransform {
                 borderWidth 0
                 useHardwareMipMapGeneration TRUE
                 unRefImageDataAfterApply FALSE
-                internalFormatMode USE_IMAGE_DATA_FORMAT
+                internalFormatMode USE_S3TC_DXT5_COMPRESSION
                 resizeNonPowerOfTwo TRUE
               }
             }
@@ -32502,11 +32550,14 @@ MatrixTransform {
           StateSet {
             UniqueID StateSet_10
             DataVariance STATIC
-            rendering_hint DEFAULT_BIN
-            renderBinMode INHERIT
+            rendering_hint TRANSPARENT_BIN
+            renderBinMode USE
+            binNumber 10
+            binName DepthSortedBin
             GL_CULL_FACE ON
             GL_LIGHTING ON
             0xba1 ON
+            GL_BLEND ON
             Material {
               DataVariance STATIC
               ColorMode OFF
@@ -32515,6 +32566,11 @@ MatrixTransform {
               specularColor 0 0 0 1
               emissionColor 0 0 0 1
               shininess 0
+            }
+            BlendFunc {
+              DataVariance STATIC
+              source SRC_ALPHA
+              destination ONE_MINUS_SRC_ALPHA
             }
             textureUnit 0 {
               GL_TEXTURE_2D ON
@@ -32531,7 +32587,7 @@ MatrixTransform {
                 borderWidth 0
                 useHardwareMipMapGeneration TRUE
                 unRefImageDataAfterApply FALSE
-                internalFormatMode USE_IMAGE_DATA_FORMAT
+                internalFormatMode USE_S3TC_DXT5_COMPRESSION
                 resizeNonPowerOfTwo TRUE
               }
             }
