@@ -25,9 +25,9 @@ MatrixTransform {
     cullingActive TRUE
     referenceFrame RELATIVE
     Matrix {
-      -0.24607 79.6516 -3.16256e-021 0
-      -79.6516 -0.24607 3.43629e-014 0
-      3.82216e-014 1.18085e-016 88.5967 0
+      1 0 0 0
+      0 1 0 0
+      0 0 1 0
       0 0 0 1
     }
     num_children 1
@@ -38,10 +38,10 @@ MatrixTransform {
       cullingActive TRUE
       referenceFrame RELATIVE
       Matrix {
-        1 -1.71291e-038 -2.39151e-026 0
-        -2.74963e-038 1 0 0
-        3.79979e-026 -5.29396e-023 1 0
-        -8.37383e-009 2.58704e-011 0.172231 1
+        -0.24607 79.6516 -3.16256e-021 0
+        -79.6516 -0.24607 3.43629e-014 0
+        3.82216e-014 1.18085e-016 88.5967 0
+        -6.40272e-014 -6.66995e-007 15.2591 1
       }
       num_children 1
       Geode {
@@ -587,9 +587,9 @@ MatrixTransform {
     cullingActive TRUE
     referenceFrame RELATIVE
     Matrix {
-      2.40701 2.52345 1.56178e-007 0
-      -6.44125e-007 -1.07741e-007 3.56765 0
-      2.52345 -2.407 4.08679e-007 0
+      1 0 0 0
+      0 1 0 0
+      0 0 1 0
       0 0 0 1
     }
     num_children 1
@@ -600,10 +600,10 @@ MatrixTransform {
       cullingActive TRUE
       referenceFrame RELATIVE
       Matrix {
-        1 0 2.98023e-008 0
-        0 1 0 0
-        -2.98023e-008 0 1 0
-        -7.25075e-008 2.21426 4.64379e-007 1
+        2.407 2.52345 2.88085e-007 0
+        -5.33458e-007 -3.10108e-008 3.56765 0
+        2.52345 -2.407 4.35797e-007 0
+        -4.28947e-007 -1.5393e-006 7.8997 1
       }
       num_children 1
       Geode {
@@ -1500,9 +1500,9 @@ MatrixTransform {
     cullingActive TRUE
     referenceFrame RELATIVE
     Matrix {
-      0.923853 -3.11396 0 0
-      -1.48124e-006 -4.23212e-007 3.55016 0
-      -3.11396 -0.923853 -1.54882e-006 0
+      1 0 0 0
+      0 1 0 0
+      0 0 1 0
       0 0 0 1
     }
     num_children 1
@@ -1513,10 +1513,10 @@ MatrixTransform {
       cullingActive TRUE
       referenceFrame RELATIVE
       Matrix {
-        1 0 0 0
-        -4.44089e-015 1 2.84217e-014 0
-        -2.98023e-008 -2.84217e-014 1 0
-        3.6408e-008 2.2126 -6.60739e-007 1
+        0.923853 -3.11396 0 0
+        -1.48124e-006 -4.23212e-007 3.55016 0
+        -3.11396 -0.923853 -1.54882e-006 0
+        -1.18625e-006 -4.39347e-007 7.85508 1
       }
       num_children 1
       Geode {
