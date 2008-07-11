@@ -107,11 +107,6 @@ class CustomTree( TreeBase ) :
         
         # inserisco
         TreeBase.AddNode(self, parent, node, icon, label )
-##        if(parent):
-##            if(parent != self.scenegraphRoot):
-##                if((parent.getName()!="") and (parent != self.scenegraphRoot)):
-##                    print "collapsing parent of -->",node.getName()
-##                    self._tree.CollapseAllChildren(self.nodeToItem[parent])
 
     def  CollapseAllChildren(self,node):
         self._tree.CollapseAllChildren(self.nodeToItem[node])
@@ -133,9 +128,12 @@ class CustomTree( TreeBase ) :
         TreeBase.Select(self,node)
 
     def ReadSceneGraph(self,root):
+        self.Freeze() # congela l'update del widget
         self.ClearSceneGraph()
         v = FillTreeVisitor(self)
         root.accept(v)
+        self.Select(root)
+        self.Thaw() # scongela
 
     def ClearSceneGraph(self):
         self.RemoveNode(self.scenegraphRoot)

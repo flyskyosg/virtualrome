@@ -184,10 +184,16 @@ class TreeBase( wx.Panel ) :
             except AttributeError:
                 pass
 
+    def getSelection(self):
+        if self.sel is None:
+            return None
+        return self._tree.GetPyData( self.sel)
+
     def Select(self,node):
         if self.NodeExist(node): 
             item = self.nodeToItem[node]
             self._tree.SelectItem(item)
+            self._tree.EnsureVisible(item) # SIL - 11-lug-08 - added
 
 
 #-----------------------------------------------------------------------------
