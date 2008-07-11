@@ -9,7 +9,7 @@ class app(osgSceneCollection):
         osgSceneCollection.__init__(self,viewer)
         self.mainsw=osgSwitcher()
         #activate the default optimization at load
-        self.mainsw.optimize()
+        #self.mainsw.optimize()
         self.mainsw.setname("MainDataSwitch")
         self.addcollection(self.mainsw)
 

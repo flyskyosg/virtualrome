@@ -45,7 +45,7 @@ class FindNamePattern(VisitorBase):
                         self.names[matched_name].append(node)
                     else:
                         self.names[matched_name]=[node]
-                    print "matched name -->" + matched_name + "<-node -->" + node.this.__hex__() + "<--"
+                    #print "matched name -->" + matched_name + "<-node -->" + node.this.__hex__() + "<--"
                     return False
 
         return True
@@ -90,8 +90,9 @@ class LodSubst():
         self.open_files=dict()
         self.file_globs=dict()
         self.names_rex=dict()
+        self.debug=True
         
-    def LoadFile(self,fname):
+    def LoadFile(self,fname,do_optimize=True):
         if(os.path.exists(fname)):
             f=os.path.abspath(fname)
         else:
@@ -112,10 +113,24 @@ class LodSubst():
         else:
             node=osgDB.readNodeFile(f)
             if(node):
-                if(self.optim):
-                    self.optim.optimize(node,self.optimize_flags)
+                if(do_optimize):
+                    if(self.optim):
+                        self.optim.optimize(node,self.optimize_flags)
                 self.open_files[f]=node
         return node
+
+    def SearchRif(self,node,pattern='(.*)_RIF'):
+        #match rif low,mid or hi: 
+        #pattern='(.*)(?:_low?|_mid?|_hig?h?)_RIF'
+        #match rif instance geodes: 
+        #pattern='(.*)(?:_low?|_mid?|_hig?h?)_RIF[0-9]?[0-9]?-GEODE'
+        v = FindNamePattern(pattern)
+        node.accept(v)
+        if(self.debug):
+            for n in v.NodesHash.keys():
+                print ">",n,"<-->",v.NodesHash[n][0],"<--"
+        return v.names
+    
 
         
 #--------------------------------------------------------------------------
@@ -133,48 +148,58 @@ if __name__ == "__main__":
         print 'env-var "DATADIR" not found, exiting'
         sys.exit()
     # there are good and bad data :-)
-    dir = dir + 'bad2\\'
+    dir = dir + 'bad\\'
 
     # open the test file
-    filename = dir + 'f_pace_low.osg'
+    filename = dir + 'f_pace_mi_SIL.osg'
     node = osgDB.readNodeFile(filename)
     if not node : 
         print 'error loading', filename
         sys.exit()
-    if(node):
-        optim=osgUtil.Optimizer()
-        optim.optimize(node,osgUtil.Optimizer.FLATTEN_STATIC_TRANSFORMS)
+#    if(node):
+#        optim=osgUtil.Optimizer()
+#        optim.optimize(node,osgUtil.Optimizer.FLATTEN_STATIC_TRANSFORMS)
 
     # test a Visitor Subclass
     print '------- testing FindNamePattern --------'
     #v = FindNamePattern('(.*)_mi_RIF')
-    v = FindNamePattern('(.*)(?:_low?|_mid?|_hig?h?)_RIF')
+#    v = FindNamePattern('(.*)(?:_low?|_mid?|_hig?h?)_RIF[0-9]?[0-9]?-GEODE')
+    v = FindNamePattern('(.*_c_low[0-9]+)$')
     node.accept(v)
 
     # print results
-    s=SearchMatchInFiles(os.path.dirname(filename),optim)
+##    s=SearchMatchInFiles(os.path.dirname(filename),None)
     print "risultati"
+
+    sostituto=osgDB.readNodeFile(dir+"f_pace_col_c_mi.osg")
+    if(sostituto):
+        print "--------------------OK---------------------"
     
     for n in v.NodesHash.keys():
         print ">",n,"<-->",v.NodesHash[n][0],"<--"
     for name in v.names.keys():
         print "searching for -->"+name+"<--"
-        listnodes =s.find(name,glob.glob(os.path.join(os.path.dirname(filename),"f_pace_mi.osg")))
-        if(listnodes.__len__() == 1):
-            for nlow in v.names[name]:
-                #replace_with_LOD(nlow,make_group(listnodes[0]))
-                replace_with_LOD(nlow,listnodes[0])
-        else:
-            if(listnodes.__len__() > 1):
-                #multiple match: invoke user
-                print "WARNING!!!! found multiple matches for >"+name+"<-"
-                for nn in listnodes:
-                    print "MULTMATCH-->",nn.getName()
-            else:
-                #no match: do nothing
-                print "WARNING!!!! no matches found for >"+name+"<-"
+        for nlow in v.names[name]:
+            nlow.addChild(sostituto)
+
+##        listnodes =s.find(name,glob.glob(os.path.join(os.path.dirname(filename),"f_pace_col_c*.osg")))
+##        if(listnodes.__len__() == 1):
+##            for nlow in v.names[name]:
+##                #replace_with_LOD(nlow,make_group(listnodes[0]))
+##                replace_with_LOD(nlow,listnodes[0])
+##        else:
+##            if(listnodes.__len__() > 1):
+##                #multiple match: invoke user
+##                print "WARNING!!!! found multiple matches for >"+name+"<-"
+##                for nn in listnodes:
+##                    print "MULTMATCH-->",nn.getName()
+##            else:
+##                #no match: do nothing
+##                print "WARNING!!!! no matches found for >"+name+"<-"
 
     print '------- Done __ 1 --------'
+    osgDB.writeNodeFile_s(node, dir + 'out_lod.osg',"noTexturesInIVEFile useOriginalExternalReferences")
+    osgDB.writeNodeFile_s(node, dir + 'out_lod.obj',"")
     
     test_wx=False
     if(test_wx):
