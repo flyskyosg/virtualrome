@@ -5,6 +5,9 @@
 import os
 import wx
 import  wx.lib.scrolledpanel as scrolled
+import wx.propgrid as wxpg
+import wx.stc
+import osg
         
 #---------------------------------------------------------------------------
 class Gui(scrolled.ScrolledPanel):
@@ -189,7 +192,48 @@ class Gui(scrolled.ScrolledPanel):
         self.r += 1
 
 #---------------------------------------------------------------------------
+class MatrixTransformGui(wx.Panel):
+    def __init__(self, parent, obj):
+        wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS|wx.NO_BORDER)
+        self.parent = parent
+        self.obj = obj
+        #self.SetBackgroundColour(wx.RED)
 
+        self.pg = pg = wxpg.PropertyGrid(self, style=wxpg.PG_SPLITTER_AUTO_CENTER|wxpg.PG_AUTO_SORT)
+        pg.SetExtraStyle(wxpg.PG_EX_HELP_AS_TOOLTIPS)
+
+        #pg.Append( wxpg.PropertyCategory("1 - Basic Properties") )
+        #pg.Append( wxpg.StringProperty("String",value="Some Text") )
+        #pg.Append( wxpg.IntProperty("Int",value=100) )
+        #pg.Append( wxpg.FloatProperty("Float",value=100.0) )
+        #pg.Append( wxpg.BoolProperty("Bool",value=True) )
+
+##        d = {}
+##        d['position'] = 1
+##        d['position'] = '100,100,100'
+##        d['rotation'] = '1,0,0 -- 90'
+##        d['scale'] = '1,1,1'
+##        #pg.SetPropertyValues(d)
+##        #pg.AutoFill(d)
+##        pg._AutoFillMany(None,d)
+
+        p = osg.Vec3()
+        s = osg.Vec3()
+        r = osg.Quat()
+        q = osg.Quat()
+        obj.getMatrix().decompose(p,r,s,q)
+
+        pg.Append( wxpg.PropertyCategory("MatrixTransform") )        
+        pg.Append( wxpg.StringProperty( "position", value= str(p)  ))
+        pg.Append( wxpg.StringProperty( "rotation", value= str(r)  ))
+        pg.Append( wxpg.StringProperty( "scale",    value= str(s)  ))
+        
+        topsizer = wx.BoxSizer(wx.VERTICAL)
+        topsizer.Add(pg,1,wx.EXPAND)
+        self.SetSizer(topsizer)
+        topsizer.SetSizeHints(self)
+        
+#---------------------------------------------------------------------------
 class GuiHolder(wx.Panel):
     ''' contenitore per Gui '''
     def __init__(self, parent):
@@ -216,16 +260,14 @@ class GuiHolder(wx.Panel):
         if hasattr(Obj,'MakeGui'):
             self.gui = Obj.MakeGui(self)
             sz.Add(self.gui,1,wx.EXPAND)
-        else:
-            pass
-            # vedi se e' un oggetto OSG
-            # e se si crei una GUI corrispondente 
-            # --- 
-            # dovresti avere una Classe con un metodo MakeGui 
-            # per ogni tipo di nodo OSG
-            # 
-            # ma non ho tempo di farlo .... :-(
-        
+        # se l'oggetto e' un nodo OSG 
+        # so io quali Gui devo Creare
+        elif hasattr(Obj,'className'):
+            cls = Obj.className()
+            if cls == 'MatrixTransform':
+                self.gui = MatrixTransformGui(self,Obj)
+                sz.Add(self.gui,1,wx.EXPAND)
+
         #4) lascia perdere 
         self.Fit()
         self.gui.Fit()
@@ -275,11 +317,14 @@ class TestObject(object):
 
 #---------------------------------------------------------------------------
 
+import osg
+
 class App(wx.App):
     def OnInit(self):
         f = wx.Frame(None)
         
-        o = TestObject()
+        #o = TestObject()
+        o = osg.MatrixTransform()
 
         g = GuiHolder(f)
         g.SetObj(o)
