@@ -7,7 +7,7 @@ echo %CD%
 
 REM -------- setup ENV --------
 rem set PYTHONPATH=%DIR%\python25\Lib\site-packages\
-set PYTHONPATH=%DIR%\pyPackages\osg
+set PYTHONPATH=%DIR%\pyPackages\osg;%DIR%\code\common
 
 set PATH=
 set PATH=%PATH%;%DIR%\python25

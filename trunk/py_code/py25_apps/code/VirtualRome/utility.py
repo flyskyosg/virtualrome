@@ -102,7 +102,7 @@ def getparents(node):
     return parents
  
 #--------------------------------------------------------------------------
-def makeLOD(low_node,hi_node,boundscale=4.0):
+def makeLOD(low_node,hi_node,boundscale=20.0):
     bs=low_node.getBound()
     switch_dist=bs._radius * boundscale
     print "bound: ",bs.center().x(),bs.center().y(),bs.center().z(),bs._radius
@@ -116,7 +116,7 @@ def makeLOD(low_node,hi_node,boundscale=4.0):
     lod.thisown=False
     return lod
 
-def replace_with_LOD(nlow,nhi):
+def replace_with_LOD(nlow,nhi,boundscale=20.0):
     print "replacing node>"+nlow.this.__hex__()+"< with lod"
     parents=getparents(nlow)
     lod=makeLOD(nlow,nhi)
