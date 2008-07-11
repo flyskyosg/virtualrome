@@ -264,7 +264,7 @@ class Frame(wx.Frame):
             print 'loaded->', file, "<-name->",fileObj.key
             f.tree.AddFile(fileObj,fileObj.key)
             f.tree.ReadSceneGraph(self.osg_app.root)
-            #f.tree.CollapseAllChildren(f.tree.scenegraphRoot)
+            f.tree.CollapseAllChildren(f.tree.scenegraphRoot)
         else:
             print 'error loading', file
             return False
