@@ -330,38 +330,6 @@ if __name__ == "__main__":
     v = app.frame.canvas.viewer
     w = app.frame.canvas.gw
 
-    text = '''Novita:
-- nel Menu File hai la fileHistory, e la urlHistory"
-- le History sono scritte in VirtualRome.ini, se lo cancelli si ricrea
-- nella History dovrebbero andarci solo file e url 'buone' (sta a te)
-- il Dialogo FileOpen si ricorda la directory dell'ultimo file aperto
-- puoi aprire uno o piu file facendo Drag'n Drop
-
-- ho pensato che potresti fare che OpenFile e OpenURL 'aggiungono' alla scena
-- e con File/New resetti la scena .... 
-  ti mancherebbe il supporto per scaricare singoli pezzi, ma e' gia qualcosa
-- ed ho predisposto per una funzione 'reload' che aggiorna tutti i file caricati
-
-- ho aggiunto la Toolbar
-- ho aggiunto il LOG --- per mandare messaggi subliminali ai modellatori
-
-
-- ho predisposto un Tree 
-  che possa ospitare Files,Settings e lo SceneGraph
-
-- ho fatto un Visitor che riempie l'albero
-
-
-- ho fatto un primo supporto alle GUI -- vedi il modulo gui_support
-
-- ho messo un primo supporto al display delle GUI in risposta alla Selezione
-
-- faremo di meglio quando torno
-
-'''
-    #print text
-
-
 ##    filename = defaultFilename()
 ##    f.OpenFile( filename )
     
