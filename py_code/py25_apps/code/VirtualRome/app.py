@@ -291,6 +291,8 @@ class Frame(wx.Frame):
             puo essere un file, un settings, una root, o un nodo '''
 
         print 'OnSelect', obj
+        global selected_obj
+        selected_obj=obj
         # dai l'oggetto selezionato al GuiHolder, lui sa cosa fare :-)
         self.gui.SetObj(obj)
         # dopo self.gui.SetObj(obj) chiama sempre questo
