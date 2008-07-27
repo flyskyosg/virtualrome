@@ -46,6 +46,13 @@ MODELLAZIONE
  - Ma mi servono davvero tre livelli ?
    - il mid potrebbe essere l'HI con le tex ridotte
 
+----------------------------------------------------------
+ - PROGETTO
+   - fare una Interfaccia che agevoli nella scrittura dei file di definizione
+   - indicare i file osg, il programma lista tutti gli oggetti
+   - per ogni oggetto indicare da chi dipende - scegliendolo con dei combo
+   
+   
 
  
 

@@ -32,13 +32,17 @@ process_def
 - il tutto e' implementato con una classe solo per poterlo re-istanziare
   ed evitare variabili globali
 
+ 
+
+
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
-TODO: processing delle istanze
-      fine tuning delle distanze di switch dei lod
-------------------------------------------------------------------------------
+TODO: 
+    ok - processing delle istanze
+    - fine tuning delle distanze di switch dei lod
+----+--------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -56,16 +60,16 @@ class FindByName(VisitorBase):
     def __init__(self, name ):
         VisitorBase.__init__(self)
         self.results = []
-        if name[-1] == '*':
-            name.replace('*','.*')
-            name = '^' + name
-        else:
-            name = '^' + name + '$'
+
+        name = name.replace('*','.*')
+        name = '^'+name+'$'
         self.rex = re.compile(name)
 
     def visitNode(self, node):
         if self.rex.match( node.getName() ):
-            self.results.append( node.asGroup() )
+            g = node.asGroup() # provo a convertirlo a gruppo -- ma i geodi non si castano
+            if not g: g=node
+            self.results.append( node )
             return False # skip the sub-tree
         return True
     
@@ -161,7 +165,7 @@ class ProcessDef(object):
             if line[0] == '#': continue
             
             try:
-                f1,n1,f2,n2 = line.split()
+                cmd, f1,n1,f2,n2 = line.split()
             except:
                 print 'Errore di sintassi: linea num.', linenum, line
                 continue
@@ -180,9 +184,16 @@ class ProcessDef(object):
                 continue
 
             # l'asterisco puo comparire solo nei chiamati, non nei chiamanti
-            if n2[-1] == '*':
-                print "non si puo usare l'asterisco nei chiamanti: linea num.", linenum, line
-                continue
+            if cmd == 'connect':
+                if n2.find('*') != -1:
+                    print "non si puo usare l'asterisco nei chiamanti: linea num.", linenum, line
+                    continue
+            elif cmd == 'connect2':
+                if n1.find('*') != -1:
+                    print "non si puo usare l'asterisco nel chiamato: linea num.", linenum, line
+                    continue
+            else:
+                print 'comando non riconosciuto:',cmd,'i comandi validi sono connect e connect2'
             
             self.hier[parent].append(son)
             if not self.hier.has_key(son):
@@ -310,6 +321,7 @@ class ProcessDef(object):
             print 'MakeHierarchy error: -', name, '- nome non trovato nella gerarchia'
             return
         
+        
         if self.hier[name] == []:  # e' una foglia
             print 'LEV='+str(lev)+' LEAF: ' + name
             nodes = self.osgNodes[name]
@@ -317,7 +329,16 @@ class ProcessDef(object):
             self.SaveNode(n,name)
             return
         
-        else: # nodo interno -- faccio il PLod
+        elif name.find('*') != -1: # nodo interno multiplo -- fare il plod sulle istanze
+            print 'LEV='+str(lev)+' INST: ' + name
+            nodes = self.osgNodes[name]
+            child = self.hier[name][0]
+            n  = self.MakeInstanceReplacer( name, nodes, child, lev  )
+            self.SaveNode(n,name)
+            
+            self.MakeHierarchy( child, lev+1 )
+        
+        else: # nodo interno -- faccio il PLod semplice
             print 'LEV='+str(lev)+' PLOD: ' + name
             node = self.osgNodes[name][0] # livello di dettaglio basso
             children = self.hier[name]    # livello/i alto
@@ -343,22 +364,74 @@ class ProcessDef(object):
         plod = osg.PagedLOD()
         plod.setRangeMode( osg.LOD.PIXEL_SIZE_ON_SCREEN )
 
-        range = [50,150,300,100000]
-        r1 = 0
-        r2 = range[lev]
+        lod_range = [50,150,300,100000]
 
-        plod.addChild( node, r1, r2 )  
+        plod.addChild( node, 0, lod_range[lev] )  
         
         for c in children:
             c = c.replace('*','')
-            plod.addChild( self.fake_node, range[lev], 100000, c + self.ext )
+            plod.addChild( self.fake_node, lod_range[lev], 10000000, c + self.ext )
         
         return plod
 
     #----------------------
+    def MakeInstanceReplacer( self, name, nodes, child, lev ):
+        ''' 
+        nel MakePLod metto un plod SOPRA il nodo passato (che sarebbe il dettaglio basso)
+        e poi faccio i collegamenti ai children (che sono i livelli alti)
+        
+        Qui ho un solo child (il livello alto)
+        ma il livello basso e' puntato da tanti nodi (nodes)
+        che puntano tutti allo stesso Geode.
+        Il PLOD va inserito sopra il GEODE e sotto i nodes. 
+        
+        e poi devo stare attento che la pagina non venga sovrascritta.
+        (Non viene sovrascritta -- perche non e' piu una foglia)
+        '''
+
+        lod_range = [50,150,300,100000]
+
+        root = osg.Group()
+        for n in nodes:
+            root.addChild(n)
+        
+        # cerco il geode da sostituire
+        geode = name.split('@')[1] + '-GEODE'
+        finder = FindByName(geode)
+        root.accept(finder)
+        if not len( finder.results ):
+            print "MakeInstanceReplacer: non sono riuscito a trovare il Geode:", geode, ":-("
+        #elif len( finder.results ) > 1:
+        #    print "MakeInstanceReplacer: ho tovato piu di un Geode :", geode, ":-( ????"
+        else:
+            # mah - gestiamo anche il caso di piu geodi .... puo succedere in max ...
+            for geode in finder.results:
+            
+                # registro tutti i suoi padri
+                parent_list = []
+                for i in range(0, geode.getNumParents() ):
+                    parent_list.append( geode.getParent(i) )
+                
+                self.garbage.addChild(geode) # non vorrei che muore se il ref-count gli va a zero
+                
+                # faccio il plod
+                plod = osg.PagedLOD()
+                plod.setRangeMode( osg.LOD.PIXEL_SIZE_ON_SCREEN )
+
+                plod.addChild( geode,          0,               lod_range[lev]                     )
+                plod.addChild( self.fake_node, lod_range[lev],  10000000,          child + self.ext  )
+                
+                # sostituisco il plod al geode
+                for p in parent_list:
+                    p.removeChild( geode )
+                    p.addChild(plod)
+            
+        return root 
+
+    #----------------------
     def SaveNode( self, node, name):
         
-        if name[-1] == "*": name = name[:-1]
+        name = name.replace('*','')
         filename = self.ive_path + name + self.ext
         osgDB.writeNodeFile( node, filename )
         
@@ -402,4 +475,8 @@ if __name__ == "__main__":
     # test ProcessDef
     definition = dir + "f_pace\\f_pace.definition"
     p = ProcessDef(definition)
+    print '--------------------------'
+    print 'now open', p.GetIveRoot()
+    
+    
 
