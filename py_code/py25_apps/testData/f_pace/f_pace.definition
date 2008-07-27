@@ -4,71 +4,71 @@
 # le righe vuote sono ignorate
 
 
-#--------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------
 # Gerarchia:
 #
 # Ogni nodo e' specificato da: nome-file nome-modello.
-# Per ogni nodo visibile indicare da chi sara' chiamato.
+# Per ogni nodo visibile indicare da chi sara' chiamato, e quando deve switchare (vedi scree-size).
 # Per i nodi iniziali indicare come chiamante 'root'.
 # Il nome del chiamato puo' finire con l'asterisco.
 # Ogni chiamato deve comparire una volta sola, il chiamante puo comparire piu volte.
 # Ogni Nodo chiamante deve prima essere stato inserito come Chiamato
+# scree-size e' la dimensione in pixel a schermo, superata la quale si spegne il nodo chiamante e si accende il nodo chiamato
 #
-#        file e nome oggetto chiamato                         file e nome oggetto chiamante 
-#--------------------------------------------------------------------------------------------------------
-connect  f_pace_low   f_pace_muro_low                         f_pace_low   root
-connect  f_pace_low   f_pace_pavimento_low                    f_pace_low   root
-connect  f_pace_low   f_pace_tempio_low                       f_pace_low   root
-connect  f_pace_low   f_pace_tempio_tetto_low                 f_pace_low   root
-connect  f_pace_low   f_pace_architrave_a_low                 f_pace_low   root
-connect  f_pace_low   f_pace_portico_low                      f_pace_low   root
-connect  f_pace_low   f_pace_col                              f_pace_low   root
+#-------------------------------------------------------------------------------------------------------------------
+#comando  file e nome oggetto chiamato                         file e nome oggetto chiamante         screen-size
+#-------------------------------------------------------------------------------------------------------------------
+connect  f_pace_low   f_pace_muro_low                         f_pace_low   root                         50
+connect  f_pace_low   f_pace_pavimento_low                    f_pace_low   root                         50      
+connect  f_pace_low   f_pace_tempio_low                       f_pace_low   root                         50
+connect  f_pace_low   f_pace_tempio_tetto_low                 f_pace_low   root                         50
+connect  f_pace_low   f_pace_architrave_a_low                 f_pace_low   root                         50
+connect  f_pace_low   f_pace_portico_low                      f_pace_low   root                         50
+connect  f_pace_low   f_pace_col                              f_pace_low   root                         50
 
-connect  f_pace_mid   f_pace_muro_mid                         f_pace_low   f_pace_muro_low 
-connect  f_pace_mid   f_pace_pavimento_mid                    f_pace_low   f_pace_pavimento_low 
-connect  f_pace_mid   f_pace_pavimento_decorazioni_mid        f_pace_low   f_pace_pavimento_low 
-connect  f_pace_mid   f_pace_tempio_mid                       f_pace_low   f_pace_tempio_low 
-connect  f_pace_mid   f_pace_tempio_tetto_mid                 f_pace_low   f_pace_tempio_tetto_low 
-connect  f_pace_mid   f_pace_timpano_mid                      f_pace_low   f_pace_tempio_low 
-connect  f_pace_mid   f_pace_architrave_a_mid                 f_pace_low   f_pace_architrave_a_low 
-connect  f_pace_mid   f_pace_portico_tetto_mid                f_pace_low   f_pace_portico_low 
-connect  f_pace_mid   f_pace_portico_architrave_mid           f_pace_low   f_pace_portico_low 
+connect  f_pace_mid   f_pace_muro_mid                         f_pace_low   f_pace_muro_low              150
+connect  f_pace_mid   f_pace_pavimento_mid                    f_pace_low   f_pace_pavimento_low         150
+connect  f_pace_mid   f_pace_pavimento_decorazioni_mid        f_pace_low   f_pace_pavimento_low         150
+connect  f_pace_mid   f_pace_tempio_mid                       f_pace_low   f_pace_tempio_low            150
+connect  f_pace_mid   f_pace_tempio_tetto_mid                 f_pace_low   f_pace_tempio_tetto_low      150
+connect  f_pace_mid   f_pace_timpano_mid                      f_pace_low   f_pace_tempio_low            150
+connect  f_pace_mid   f_pace_architrave_a_mid                 f_pace_low   f_pace_architrave_a_low      150
+connect  f_pace_mid   f_pace_portico_tetto_mid                f_pace_low   f_pace_portico_low           150
+connect  f_pace_mid   f_pace_portico_architrave_mid           f_pace_low   f_pace_portico_low           150     
 
-connect  f_pace_hi    f_pace_muro_hi                          f_pace_mid   f_pace_muro_mid
-connect  f_pace_hi    h_f_pace_pavimento                      f_pace_mid   f_pace_pavimento_mid
-connect  f_pace_hi    f_pace_pavimento_decorazioni_altare     f_pace_mid   f_pace_pavimento_decorazioni_mid 
-connect  f_pace_hi    f_pace_pavimento_decorazioni_basi*      f_pace_mid   f_pace_pavimento_decorazioni_mid 
-connect  f_pace_hi    f_pace_pavimento_decorazioni_fontane*   f_pace_mid   f_pace_pavimento_decorazioni_mid 
-connect  f_pace_hi    f_pace_pavimento_decorazioni_siepe*     f_pace_mid   f_pace_pavimento_decorazioni_mid 
+connect  f_pace_hi    f_pace_muro_hi                          f_pace_mid   f_pace_muro_mid                      300
+connect  f_pace_hi    h_f_pace_pavimento                      f_pace_mid   f_pace_pavimento_mid                 300
+connect  f_pace_hi    f_pace_pavimento_decorazioni_altare     f_pace_mid   f_pace_pavimento_decorazioni_mid     300
+connect  f_pace_hi    f_pace_pavimento_decorazioni_basi*      f_pace_mid   f_pace_pavimento_decorazioni_mid     300
+connect  f_pace_hi    f_pace_pavimento_decorazioni_fontane*   f_pace_mid   f_pace_pavimento_decorazioni_mid     300
+connect  f_pace_hi    f_pace_pavimento_decorazioni_siepe*     f_pace_mid   f_pace_pavimento_decorazioni_mid     300
  
-connect  f_pace_hi    f_pace_pavimento_gradinata              f_pace_mid   f_pace_pavimento_decorazioni_mid 
-connect  f_pace_hi    f_pace_tempio_hi                        f_pace_mid   f_pace_tempio_mid 
-connect  f_pace_hi    f_pace_tempio_finestre*                 f_pace_mid   f_pace_tempio_mid 
-connect  f_pace_hi    f_pace_tempio_sfondo                    f_pace_mid   f_pace_tempio_mid 
-connect  f_pace_hi    f_pace_tempio_front                     f_pace_mid   f_pace_tempio_mid 
-connect  f_pace_hi    f_pace_tempio_sottotetto                f_pace_mid   f_pace_tempio_mid 
-connect  f_pace_hi    f_pace_tempio_tetto_colmo               f_pace_mid   f_pace_tempio_tetto_mid 
-connect  f_pace_hi    h_f_pace_tempio_tetto                   f_pace_mid   f_pace_tempio_tetto_mid
-connect  f_pace_hi    f_pace_timpano_hi                       f_pace_mid   f_pace_timpano_mid 
-connect  f_pace_hi    f_pace_architrave_a_hi                  f_pace_mid   f_pace_architrave_a_mid 
-connect  f_pace_hi    f_pace_portico_tetto_hi                 f_pace_mid   f_pace_portico_tetto_mid 
-connect  f_pace_hi    h_f_pace_portico_cordolo                f_pace_low   f_pace_portico_low
-connect  f_pace_hi    f_pace_portico_architrave_hi            f_pace_mid   f_pace_portico_architrave_mid 
-connect  f_pace_hi    f_pace_portico_sottotetto               f_pace_mid   f_pace_portico_tetto_mid 
-connect  f_pace_hi    f_pace_portico_cornice                  f_pace_mid   f_pace_portico_tetto_mid 
+connect  f_pace_hi    f_pace_pavimento_gradinata              f_pace_mid   f_pace_pavimento_decorazioni_mid     300
+connect  f_pace_hi    f_pace_tempio_hi                        f_pace_mid   f_pace_tempio_mid                    300
+connect  f_pace_hi    f_pace_tempio_finestre*                 f_pace_mid   f_pace_tempio_mid                    300
+connect  f_pace_hi    f_pace_tempio_sfondo                    f_pace_mid   f_pace_tempio_mid                    300
+connect  f_pace_hi    f_pace_tempio_front                     f_pace_mid   f_pace_tempio_mid                    300
+connect  f_pace_hi    f_pace_tempio_sottotetto                f_pace_mid   f_pace_tempio_mid                    300
+connect  f_pace_hi    f_pace_tempio_tetto_colmo               f_pace_mid   f_pace_tempio_tetto_mid              300
+connect  f_pace_hi    h_f_pace_tempio_tetto                   f_pace_mid   f_pace_tempio_tetto_mid              300
+connect  f_pace_hi    f_pace_timpano_hi                       f_pace_mid   f_pace_timpano_mid                   300
+connect  f_pace_hi    f_pace_architrave_a_hi                  f_pace_mid   f_pace_architrave_a_mid              300
+connect  f_pace_hi    f_pace_portico_tetto_hi                 f_pace_mid   f_pace_portico_tetto_mid             300
+connect  f_pace_hi    h_f_pace_portico_cordolo                f_pace_low   f_pace_portico_low                   300
+connect  f_pace_hi    f_pace_portico_architrave_hi            f_pace_mid   f_pace_portico_architrave_mid        300
+connect  f_pace_hi    f_pace_portico_sottotetto               f_pace_mid   f_pace_portico_tetto_mid             300
+connect  f_pace_hi    f_pace_portico_cornice                  f_pace_mid   f_pace_portico_tetto_mid             300
 
-# i poligoni f_pace_col di f_pace_low.max chiamano le istanze delle colonne in f_pace_mid
-connect  f_pace_mid   f_pace_col*                             f_pace_low   f_pace_col
+#leggasi: i poligoni f_pace_col di f_pace_low.max chiamano le istanze delle colonne in f_pace_mid                       
+connect  f_pace_mid   f_pace_col*                             f_pace_low   f_pace_col                           200
 
-#--------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------
 # Connessione degli oggetti istanziati: (connect2)
+# si puo' mettere un asterisco solo nel nome del chiamante, e non nel chiamato (il contrario della connect)
 #
-# si puo' mettere un asterisco solo nel nome del chiamante, e non nel chiamato
-#
-#
-#                  file e nome oggetto chiamato               file e nome oggetto chiamante    
-#--------------------------------------------------------------------------------------------------------
+#comando     file e nome oggetto chiamato               file e nome oggetto chiamante                    screen-size
+#-------------------------------------------------------------------------------------------------------------------
 
-connect2  f_pace_colonna  f_pace_colonna_hi                  f_pace_mid   f_pace_col*
+connect2  f_pace_colonna  f_pace_colonna_hi                  f_pace_mid   f_pace_col*                           300
 
-# ogni istanza di f_pace_col* in f_pace_mid.max chiama la colonna_hi in f_pace_colonne.max
+# leggasi: ogni istanza di f_pace_col* in f_pace_mid.max chiama la colonna_hi in f_pace_colonne.max
