@@ -1,0 +1,32 @@
+ 
+
+ -  Ridurre tutte le texture piu grandi di 512 a 512 !!!!
+
+ -----------------------------------------------------------
+
+ - Esportare ciascun File MAX in un OSG con lo stesso nome
+ 
+ - usare le impostazioni come nella fig. 'impostazioni_esportazione.jpg'
+   ovvero esportando le texture (che crea il folder images).
+   
+ - Le texture vanno salvate in formato png.
+   il Compress Format deve essere a 'USE_IMAGE_DATA'
+   
+ -----------------------------------------------------------
+ 
+   
+ - Fatto questo
+   Preparare un file xxx.definition
+   come quello in ../../testData/f_pace.definition
+   
+ - aprire il file xxx.definition con il programma 'Fori'    
+ 
+ - verificare visualmente che tutto e' a posto
+ 
+ - la gerarchia dei file IVE e' automaticamente salvata nel folder IVE
+ 
+ 
+ 
+ 
+ 
+ 
