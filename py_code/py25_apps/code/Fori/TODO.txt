@@ -15,25 +15,26 @@
      ok - Devo pre-processare gli OSG in modo da 
           - convertire le PNG in DDS dxt1c flipped
           - sostituire png con DDS
+----------------------------------------------------------
+ - COLONNE (ok)
+	 - sistemato il max
+	 - esteso la sintassi delle definizioni per trattare le istanze
 	
 ----------------------------------------------------------
-- integrare ProcessRif nell' applicazione  (adesso lo faccio)
+- fine tuning dei LOD-SWITCH (ok)
+	- inserito un parametro apposito
+
+----------------------------------------------------------
+----------------------------------------------------------
+----------------------------------------------------------
+
+- integrare ProcessRif nell' applicazione  (domattina)
 	- load/drop, reload, new
-	- path ??? 
 	- refresh nel Tree
-----------------------------------------------------------
-COLONNE !!!!
- - fare i segnaposto
- - trattare i segnaposto
- - chiedersi perche sono diversi !!
-----------------------------------------------------------
-- fine tuning dei LOD-SWITCH
-----------------------------------------------------------
 
+----------------------------------------------------------
 - annidamento definizioni
-  bah --- forse e' facile
-
-
+  	bah, dopo
 ----------------------------------------------------------
 MODELLAZIONE
  - ridurre f_pace_portico_architrave
@@ -45,7 +46,6 @@ MODELLAZIONE
 ----------------------------------------------------------
  - Ma mi servono davvero tre livelli ?
    - il mid potrebbe essere l'HI con le tex ridotte
-
 ----------------------------------------------------------
  - PROGETTO
    - fare una Interfaccia che agevoli nella scrittura dei file di definizione
