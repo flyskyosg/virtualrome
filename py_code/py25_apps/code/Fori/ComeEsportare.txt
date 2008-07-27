@@ -13,7 +13,6 @@
    il Compress Format deve essere a 'USE_IMAGE_DATA'
    
  -----------------------------------------------------------
- 
    
  - Fatto questo
    Preparare un file xxx.definition
@@ -25,6 +24,10 @@
  
  - la gerarchia dei file IVE e' automaticamente salvata nel folder IVE
  
+ - verificare la dimensione delle pagine IVE - dovrebbero essere < 300k
+   eventualmente agire sulla dimensione delle texture
+ 
+ -----------------------------------------------------------
  
  
  
