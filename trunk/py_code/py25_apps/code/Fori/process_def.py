@@ -1,7 +1,11 @@
 '''
 process_def
 
-- Legge un file di definizione es: 'path'/f_pace.def
+
+
+- Legge un file di definizione es: 'path'/f_pace.definition
+    (vedere testData/f_pace.definition per la sintassi )
+
 - si suppone che i file osg siano in path
 - si suppone che le texture siano in path/images e siano in png
 - l'output verra salvato in path/IVE
@@ -32,19 +36,16 @@ process_def
 - il tutto e' implementato con una classe solo per poterlo re-istanziare
   ed evitare variabili globali
 
- 
+------------------------------------------------------------------------------
+ultime feature aggiunte:
+    ok - processing delle istanze (vedi connect2 nel file di definizione)
+    ok - fine tuning delle distanze di switch dei lod
 
-
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-TODO: 
-    ok - processing delle istanze
-    - fine tuning delle distanze di switch dei lod
-----+--------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
+-------------------------------------------------------------------------
+TODO:
+    collegare piu file di definizioni in cascata
+        bah - per adesso si puo' mergiare i file di definizione
+        poi scovero' il modo di farlo
 ------------------------------------------------------------------------------
 '''
 import os
@@ -108,7 +109,7 @@ class ProcessDef(object):
         
         self.osgFiles = {}  # nome-file-osg -> root-del-file
         self.osgNodes = {}  # nome-modello-osg -> root-del-modello-osg
-        
+        self.activate_size = {} # nome-modello -> pixel-size soglia di accensione
 
         self.garbage = osg.Group() # attacco qui tutti i nodi temporanei
                                   # per ritardare il messaggio di memory leak
@@ -165,7 +166,7 @@ class ProcessDef(object):
             if line[0] == '#': continue
             
             try:
-                cmd, f1,n1,f2,n2 = line.split()
+                cmd, f1,n1,f2,n2, size = line.split()
             except:
                 print 'Errore di sintassi: linea num.', linenum, line
                 continue
@@ -173,10 +174,13 @@ class ProcessDef(object):
             parent = f2+'@'+n2
             son    = f1+'@'+n1
             
+            self.activate_size[son]=int(size)
+            
             # riconosco e ricordo la root
             if n2 == 'root' and not self.hier.has_key(parent):
                 self.root = parent
                 self.hier[parent] = []
+                self.activate_size[parent]=0
 
             # questo grantisce che l'albero e' tutto connesso
             if not self.hier.has_key(parent) :
@@ -364,13 +368,17 @@ class ProcessDef(object):
         plod = osg.PagedLOD()
         plod.setRangeMode( osg.LOD.PIXEL_SIZE_ON_SCREEN )
 
-        lod_range = [50,150,300,100000]
-
-        plod.addChild( node, 0, lod_range[lev] )  
+        ##lod_range = [50,150,300,100000]
+        ##plod.addChild( node, 0, lod_range[lev] )  
+        
+        sz = self.activate_size[children[0]]
+        plod.addChild( node, 0, sz )  
         
         for c in children:
+            sz = self.activate_size[c]
             c = c.replace('*','')
-            plod.addChild( self.fake_node, lod_range[lev], 10000000, c + self.ext )
+            ##plod.addChild( self.fake_node, lod_range[lev], 10000000, c + self.ext )
+            plod.addChild( self.fake_node, sz, 10000000, c + self.ext )
         
         return plod
 
@@ -389,7 +397,7 @@ class ProcessDef(object):
         (Non viene sovrascritta -- perche non e' piu una foglia)
         '''
 
-        lod_range = [50,150,300,100000]
+        ##lod_range = [50,150,300,100000]
 
         root = osg.Group()
         for n in nodes:
@@ -418,8 +426,11 @@ class ProcessDef(object):
                 plod = osg.PagedLOD()
                 plod.setRangeMode( osg.LOD.PIXEL_SIZE_ON_SCREEN )
 
-                plod.addChild( geode,          0,               lod_range[lev]                     )
-                plod.addChild( self.fake_node, lod_range[lev],  10000000,          child + self.ext  )
+                ##plod.addChild( geode,          0,               lod_range[lev]                     )
+                ##plod.addChild( self.fake_node, lod_range[lev],  10000000,          child + self.ext  )
+                sz = self.activate_size[child]
+                plod.addChild( geode,          0,  sz                           )
+                plod.addChild( self.fake_node, sz, 10000000,  child + self.ext  )
                 
                 # sostituisco il plod al geode
                 for p in parent_list:
