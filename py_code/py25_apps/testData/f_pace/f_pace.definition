@@ -1,0 +1,49 @@
+# Gerarchia/Dipendenze di f_pace
+# 
+# le righe con iniziano con '#' sono commenti - e sono ignorate
+# le righe vuote sono ignorate
+
+#------------------------------------------------------------------------------------
+#  file e nome oggetto chiamato                       file e nome oggetto chiamante 
+#------------------------------------------------------------------------------------
+
+ f_pace_low   f_pace_muro_low                         f_pace_low   root
+ f_pace_low   f_pace_pavimento_low                    f_pace_low   root
+ f_pace_low   f_pace_tempio_low                       f_pace_low   root
+ f_pace_low   f_pace_tempio_tetto_low                 f_pace_low   root
+ f_pace_low   f_pace_architrave_a_low                 f_pace_low   root
+ f_pace_low   f_pace_portico_low                      f_pace_low   root
+
+ f_pace_mid   f_pace_muro_mid                         f_pace_low   f_pace_muro_low 
+ f_pace_mid   f_pace_pavimento_mid                    f_pace_low   f_pace_pavimento_low 
+ f_pace_mid   f_pace_pavimento_decorazioni_mid        f_pace_low   f_pace_pavimento_low 
+ f_pace_mid   f_pace_tempio_mid                       f_pace_low   f_pace_tempio_low 
+ f_pace_mid   f_pace_tempio_tetto_mid                 f_pace_low   f_pace_tempio_tetto_low 
+ f_pace_mid   f_pace_timpano_mid                      f_pace_low   f_pace_tempio_low 
+ f_pace_mid   f_pace_architrave_a_mid                 f_pace_low   f_pace_architrave_a_low 
+ f_pace_mid   f_pace_portico_tetto_mid                f_pace_low   f_pace_portico_low 
+ f_pace_mid   f_pace_portico_architrave_mid           f_pace_low   f_pace_portico_low 
+
+ f_pace_hi    f_pace_muro_hi                          f_pace_mid   f_pace_muro_mid
+ f_pace_hi    h_f_pace_pavimento                      f_pace_mid   f_pace_pavimento_mid
+ f_pace_hi    f_pace_pavimento_decorazioni_altare     f_pace_mid   f_pace_pavimento_decorazioni_mid 
+ f_pace_hi    f_pace_pavimento_decorazioni_basi*      f_pace_mid   f_pace_pavimento_decorazioni_mid 
+ f_pace_hi    f_pace_pavimento_decorazioni_fontane*   f_pace_mid   f_pace_pavimento_decorazioni_mid 
+ f_pace_hi    f_pace_pavimento_decorazioni_siepe*     f_pace_mid   f_pace_pavimento_decorazioni_mid 
+ 
+ f_pace_hi    f_pace_pavimento_gradinata              f_pace_mid   f_pace_pavimento_decorazioni_mid 
+ f_pace_hi    f_pace_tempio_hi                        f_pace_mid   f_pace_tempio_mid 
+ f_pace_hi    f_pace_tempio_finestre*                 f_pace_mid   f_pace_tempio_mid 
+ f_pace_hi    f_pace_tempio_sfondo                    f_pace_mid   f_pace_tempio_mid 
+ f_pace_hi    f_pace_tempio_front                     f_pace_mid   f_pace_tempio_mid 
+ f_pace_hi    f_pace_tempio_sottotetto                f_pace_mid   f_pace_tempio_mid 
+ f_pace_hi    f_pace_tempio_tetto_colmo               f_pace_mid   f_pace_tempio_tetto_mid 
+ f_pace_hi    h_f_pace_tempio_tetto                   f_pace_mid   f_pace_tempio_tetto_mid
+ f_pace_hi    f_pace_timpano_hi                       f_pace_mid   f_pace_timpano_mid 
+ f_pace_hi    f_pace_architrave_a_hi                  f_pace_mid   f_pace_architrave_a_mid 
+ f_pace_hi    f_pace_portico_tetto_hi                 f_pace_mid   f_pace_portico_tetto_mid 
+ f_pace_hi    h_f_pace_portico_cordolo                f_pace_low   f_pace_portico_low
+ f_pace_hi    f_pace_portico_architrave_hi            f_pace_mid   f_pace_portico_architrave_mid 
+ f_pace_hi    f_pace_portico_sottotetto               f_pace_mid   f_pace_portico_tetto_mid 
+ f_pace_hi    f_pace_portico_cornice                  f_pace_mid   f_pace_portico_tetto_mid 
+
