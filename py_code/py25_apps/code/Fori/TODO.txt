@@ -1,0 +1,53 @@
+----------------------------------------------------------
+- trattamento TEX (ok)
+
+	- le TEX 1k x 1k vanno ridimensionate a 512x512 da subito (devono farlo loro)
+	
+	- dall'exporter devo mettere SaveTextureImages a ON
+	  altrimenti rischio di trovarmi dentro le immagini con i path (anche se non sono sicuro)
+	  e poi cosi le texture hanno tutte lo stesso formato
+	  
+	- pero'cosi facendo non posso esportare in DDS (poss salvare in jpg, tga, png, tga)
+          - allora salviamo in png
+          - e in texture compression mettere: IMAGE_DATA_FORMAT
+            (con altri setup, quando si passa in ive, osg le ripistola le immagini)
+            
+     ok - Devo pre-processare gli OSG in modo da 
+          - convertire le PNG in DDS dxt1c flipped
+          - sostituire png con DDS
+	
+----------------------------------------------------------
+- integrare ProcessRif nell' applicazione  (adesso lo faccio)
+	- load/drop, reload, new
+	- path ??? 
+	- refresh nel Tree
+----------------------------------------------------------
+COLONNE !!!!
+ - fare i segnaposto
+ - trattare i segnaposto
+ - chiedersi perche sono diversi !!
+----------------------------------------------------------
+- fine tuning dei LOD-SWITCH
+----------------------------------------------------------
+
+- annidamento definizioni
+  bah --- forse e' facile
+
+
+----------------------------------------------------------
+MODELLAZIONE
+ - ridurre f_pace_portico_architrave
+ - ridurre f_pace_portico_cornice
+----------------------------------------------------------
+ - LE VASCHE
+----------------------------------------------------------
+ - tex_muro_sopra ???? -- e' tutta nera
+----------------------------------------------------------
+ - Ma mi servono davvero tre livelli ?
+   - il mid potrebbe essere l'HI con le tex ridotte
+
+
+ 
+
+
+ 
