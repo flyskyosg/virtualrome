@@ -26,11 +26,7 @@ import wxosgviewer
 import config
 import custom_tree
 import gui_support
-
-#import scene_manager
-
-import process_instances
-from process_instances import ProcessInstances
+import process_def
 
 # ----------------------------------------------------
 class appStdio:
@@ -73,7 +69,7 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_MENU, callback, id=item.GetId())
         return item.GetId()
     
-    def __init__(self, parent=None, ID=-1, title='Virtual Rome Project -- OSG Processor & Preview' ):
+    def __init__(self, parent=None, ID=-1, title='Fori Processor and Viewer' ):
         wx.Frame.__init__(self, parent, ID, title)
 
         self.LastOpenedFile = ''
@@ -84,16 +80,18 @@ class Frame(wx.Frame):
         self.SetMenuBar(menuBar)
 
         m = self.AddMenu('File')
-        id_clear    = self.AddMenuItem( m,  "New       \t(clear)",      self.FileClear   )
-        id_openfile = self.AddMenuItem( m,  "Open File \t(append)",     self.FileOpen    )
-        id_openurl  = self.AddMenuItem( m,  "Open URL  \t(append)",     self.FileOpenUrl )
-        id_reload   = self.AddMenuItem( m,  "Reload all ",              self.FileReload  )
+        id_clear    = self.AddMenuItem( m,  "New       \t",     self.FileClear   )
+        id_openfile = self.AddMenuItem( m,  "Open File \t",     self.FileOpen    )
+        id_openurl  = self.AddMenuItem( m,  "Open URL  \t",     self.FileOpenUrl )
+        id_reload   = self.AddMenuItem( m,  "Reload      ",     self.FileReload  )
         m.AppendSeparator()
         self.AddMenuItem( m, "Exit \tESC",  self.FileExit )
 
         self.fileHistory = filehistory.FileHistory(self,m)
 
         m = self.AddMenu('View')
+        id_refreshTree = self.AddMenuItem( m, "refresh tree",                  self.refreshTree, )
+        m.AppendSeparator()
         id_console = self.AddMenuItem( m, "toggle console/log panel",      self.toggleConsole, )
         id_tree    = self.AddMenuItem( m, "toggle tree panel",             self.toggleTree, )
         id_gui     = self.AddMenuItem( m, "toggle object property panel",  self.toggleGui, )
@@ -187,6 +185,8 @@ class Frame(wx.Frame):
             pi.Show( not pi.IsShown() )
             self._mgr.Update()
 
+    def ResetCamera(self):
+        self.canvas.ResetCamera()
 
     def OnClose(self, event):
         self.close()
@@ -266,7 +266,7 @@ class Frame(wx.Frame):
         ''' qualcosa e' stato sleezionato nel tree
             puo essere un file, un settings, una root, o un nodo '''
 
-        print 'OnSelect', obj
+        #print 'OnSelect', obj
         # dai l'oggetto selezionato al GuiHolder, lui sa cosa fare :-)
         self.gui.SetObj(obj)
         # dopo self.gui.SetObj(obj) chiama sempre questo
@@ -276,25 +276,32 @@ class Frame(wx.Frame):
         ''' devi definire questa funzione perche e' invocata anche dalla History 
             devi ritornare True se il file e' stato caricato con successo '''
 
-        print 'OpenFile',file
-        
-        LoadedModel = osgDB.readNodeFile(file)
-        print 'done loading', file
-        if LoadedModel:
-            process_instances.ModelsDir = osgDB.getFilePath(file) + '\\'
-            node = ProcessInstances( LoadedModel )
-            self.root.removeChild( self.canvas.cow )
-            self.root.addChild(node)
-            #self.canvas.viewer.setSceneData(self.root)
-            self.tree.ReadSceneGraph(self.root)
-            
-            self.LastOpenedFile = file
-            return True
+        name = os.path.basename(file)
+        ext  = name.split('.')[1]
+        ext = ext.upper()
+
+        print 'Loading:', file, ext
+
+        if ext == "DEFINITION":
+            p = process_def.ProcessDef(file)
+            LoadedModel = osgDB.readNodeFile( p.GetIveRoot() )
         else:
+            LoadedModel = osgDB.readNodeFile(file)
+
+        if not LoadedModel:
+            print 'Loading failed'
             return False
-        
+
+        self.root.removeChildren( 0 , self.root.getNumChildren() )
+        self.root.addChild(LoadedModel)
+        self.tree.ReadSceneGraph(self.root)
+        self.ResetCamera()
+        self.LastOpenedFile = file
+        print 'Loading terminated'
         return True
 
+    def refreshTree(self, event):
+        self.tree.ReadSceneGraph(self.root)
 
 #--------------------------------------------------------------------------
 class App(wx.App):
@@ -309,10 +316,16 @@ if __name__ == "__main__":
 
     app = App(0)  
     
+    
+    
     # shortcut per l'uso nella console
     f = app.frame
     v = app.frame.canvas.viewer
     w = app.frame.canvas.gw
+    
+    # basta mucche
+    teapot = testdata.dir + 'teapot.ive'
+    f.OpenFile( teapot )
 
 ##    dir = testdata.dir + 'sil\\'
 ##    file = dir + 'istanze.osg'
