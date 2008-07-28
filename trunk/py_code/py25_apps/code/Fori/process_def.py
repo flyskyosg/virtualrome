@@ -46,6 +46,9 @@ TODO:
     collegare piu file di definizioni in cascata
         bah - per adesso si puo' mergiare i file di definizione
         poi scovero' il modo di farlo
+-------------------------------------------------------------------------
+FUTURO:
+    creazione assistita del def.file
 ------------------------------------------------------------------------------
 '''
 import os
@@ -478,10 +481,8 @@ class ProcessDef(object):
 if __name__ == "__main__":
     
     # DataDir
-    dir = os.getenv('DATADIR')
-    if not dir:
-        print 'env-var "DATADIR" not found, exiting'
-        sys.exit()
+    import testdata
+    dir = testdata.dir
 
     # test ProcessDef
     definition = dir + "f_pace\\f_pace.definition"
