@@ -18,7 +18,7 @@ import osgGA
 import osgViewer
 import osgText
 
-import globs
+import testdata
 import console
 import filehistory
 import url_chooser
@@ -314,7 +314,7 @@ if __name__ == "__main__":
     v = app.frame.canvas.viewer
     w = app.frame.canvas.gw
 
-##    dir = globs.DataDir() + 'sil\\'
+##    dir = testdata.dir + 'sil\\'
 ##    file = dir + 'istanze.osg'
 ##    root = osgDB.readNodeFile( file )
 ##    if not root :
