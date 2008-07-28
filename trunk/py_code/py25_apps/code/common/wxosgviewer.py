@@ -34,8 +34,10 @@ class Canvas(wx.glcanvas.GLCanvas):
         self.gw = self.viewer.setUpViewerAsEmbeddedInWindow(0,0,800,600)
         #print self.gw
 
+        self.manipulator = osgGA.TrackballManipulator()
+        
         self.viewer.setThreadingModel(osgViewer.ViewerBase.SingleThreaded)
-        self.viewer.setCameraManipulator(osgGA.TrackballManipulator())
+        self.viewer.setCameraManipulator(self.manipulator)
 
         ss = self.viewer.getCamera().getOrCreateStateSet()
         self.viewer.addEventHandler( osgGA.StateSetManipulator(ss) )
@@ -146,6 +148,9 @@ class Canvas(wx.glcanvas.GLCanvas):
             self.gw.getEventQueue().mouseMotion(x,y)
             pass
         evt.Skip() # IMPORTANT -- otherwise  canvas does not get focus
+    
+    def ResetCamera(self):
+        self.manipulator.home(0)
 
 #--------------------
 class Frame(wx.Frame):
