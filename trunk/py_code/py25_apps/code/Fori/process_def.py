@@ -124,6 +124,7 @@ class ProcessDef(object):
         self.ReadDefinition()  # legge def_file, crea hier, carica  le chiavi di osgFile e osgNodes
         self.OpenAllFiles()    # carica i valori di osgFiles
         self.OpenAllModels()   # carica i valori di osgNodes
+        print 'creazione pagine'
         self.MakeHierarchy(self.root, 0 )
         
     #----------------------
@@ -323,7 +324,7 @@ class ProcessDef(object):
     #----------------------
     def MakeHierarchy(self, name, lev ):
         ''' attraversa riscorsivamente la gerarchia e crea le pagine IVE corrispondenti '''
-
+        
         if not self.hier.has_key(name):
             print 'MakeHierarchy error: -', name, '- nome non trovato nella gerarchia'
             return
