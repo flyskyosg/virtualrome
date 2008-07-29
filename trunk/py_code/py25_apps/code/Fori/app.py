@@ -294,7 +294,7 @@ class Frame(wx.Frame):
 
         self.root.removeChildren( 0 , self.root.getNumChildren() )
         self.root.addChild(LoadedModel)
-        self.tree.ReadSceneGraph(self.root)
+        #self.tree.ReadSceneGraph(self.root)
         self.ResetCamera()
         self.LastOpenedFile = file
         print 'Loading terminated'
