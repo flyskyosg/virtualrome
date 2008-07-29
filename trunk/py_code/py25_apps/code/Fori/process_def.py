@@ -227,7 +227,10 @@ class ProcessDef(object):
         import __main__
         appfile = __main__.__file__
         appdir = os.path.dirname(appfile)
-        nvdxt = appdir + '\\nvdxt.exe'
+        #nvdxt = 'D:\\Dev\\py25_apps\\code\\Fori\\nvdxt.exe'
+        #nvdxt = appdir + '\\nvdxt.exe'
+        #nvdxt = '\\nvdxt.exe'
+        #nvdxt = 'nvdxt.exe'
         
         print 'processing delle texture'
         png_list = glob.glob( self.img_path + '*.png')
@@ -241,7 +244,9 @@ class ProcessDef(object):
                 if dds_mtime >= png_mtime:
                     continue # dds is up-to-date
             
-            cmd = nvdxt +' -file ' + png_file + ' -outfile ' + dds_file + ' -dxt1c -flip'
+            #cmd = nvdxt +' -file "' + png_file + '" -outfile "' + dds_file + '" -dxt1c -flip'
+            cmd = 'nvdxt -file "' + png_file + '" -outfile "' + dds_file + '" -dxt1c -flip'
+            print cmd
             print '------- converting ' + name + ' to DDS -------'
             # l'output del programma viene comunque mandato su stdout 
             os.system(cmd)        
@@ -372,16 +377,12 @@ class ProcessDef(object):
         plod = osg.PagedLOD()
         plod.setRangeMode( osg.LOD.PIXEL_SIZE_ON_SCREEN )
 
-        ##lod_range = [50,150,300,100000]
-        ##plod.addChild( node, 0, lod_range[lev] )  
-        
         sz = self.activate_size[children[0]]
         plod.addChild( node, 0, sz )  
         
         for c in children:
             sz = self.activate_size[c]
             c = c.replace('*','')
-            ##plod.addChild( self.fake_node, lod_range[lev], 10000000, c + self.ext )
             plod.addChild( self.fake_node, sz, 10000000, c + self.ext )
         
         return plod
