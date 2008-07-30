@@ -427,44 +427,51 @@ class ProcessDef(object):
 
         ##lod_range = [50,150,300,100000]
 
+
         root = osg.Group()
         for n in nodes:
             root.addChild(n)
         
-        # cerco il geode da sostituire
-        geode = name.split('@')[1] + '-GEODE'
-        finder = FindByName(geode)
-        root.accept(finder)
-        if not len( finder.results ):
-            print "MakeInstanceReplacer: non sono riuscito a trovare il Geode:", geode, ":-("
-        #elif len( finder.results ) > 1:
-        #    print "MakeInstanceReplacer: ho tovato piu di un Geode :", geode, ":-( ????"
-        else:
-            # mah - gestiamo anche il caso di piu geodi .... puo succedere in max ...
-            for geode in finder.results:
-            
-                # registro tutti i suoi padri
-                parent_list = []
-                for i in range(0, geode.getNumParents() ):
-                    parent_list.append( geode.getParent(i) )
-                
-                self.garbage.addChild(geode) # non vorrei che muore se il ref-count gli va a zero
-                
-                # faccio il plod
-                plod = osg.PagedLOD()
-                plod.setRangeMode( osg.LOD.PIXEL_SIZE_ON_SCREEN )
+        try:
 
-                ##plod.addChild( geode,          0,               lod_range[lev]                     )
-                ##plod.addChild( self.fake_node, lod_range[lev],  10000000,          child + self.ext  )
-                sz = self.activate_size[child]
-                plod.addChild( geode,          0,  sz                           )
-                plod.addChild( self.fake_node, sz, 10000000,  child + self.ext  )
+
+            # cerco il geode da sostituire
+            geode = name.split('@')[1] + '-GEODE'
+            finder = FindByName(geode)
+            root.accept(finder)
+            if not len( finder.results ):
+                print "MakeInstanceReplacer: non sono riuscito a trovare il Geode:", geode, ":-("
+            #elif len( finder.results ) > 1:
+            #    print "MakeInstanceReplacer: ho tovato piu di un Geode :", geode, ":-( ????"
+            else:
+                # mah - gestiamo anche il caso di piu geodi .... puo succedere in max ...
+                for geode in finder.results:
                 
-                # sostituisco il plod al geode
-                for p in parent_list:
-                    p.removeChild( geode )
-                    p.addChild(plod)
-            
+                    # registro tutti i suoi padri
+                    parent_list = []
+                    for i in range(0, geode.getNumParents() ):
+                        parent_list.append( geode.getParent(i) )
+                    
+                    self.garbage.addChild(geode) # non vorrei che muore se il ref-count gli va a zero
+                    
+                    # faccio il plod
+                    plod = osg.PagedLOD()
+                    plod.setRangeMode( osg.LOD.PIXEL_SIZE_ON_SCREEN )
+
+                    ##plod.addChild( geode,          0,               lod_range[lev]                     )
+                    ##plod.addChild( self.fake_node, lod_range[lev],  10000000,          child + self.ext  )
+                    sz = self.activate_size[child]
+                    plod.addChild( geode,          0,  sz                           )
+                    plod.addChild( self.fake_node, sz, 10000000,  child + self.ext  )
+                    
+                    # sostituisco il plod al geode
+                    for p in parent_list:
+                        p.removeChild( geode )
+                        p.addChild(plod)
+        
+        except:
+            print 'error during MakeInstanceReplacer'
+        
         root.thisown = False
         return root 
 
@@ -507,6 +514,13 @@ class ProcessDef(object):
 
         return geode
 
+    def PrintHier(self):
+        k = self.hier.keys()
+        k.sort()
+        for i in k:
+            n = i.ljust(60)
+            print n,'--->',p.hier[i]
+
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
     
@@ -518,7 +532,8 @@ if __name__ == "__main__":
     definition = dir + "f_tr\\f_tr.definition"
     p = ProcessDef(definition)
     print '--------------------------'
-    print 'now open', p.GetIveRoot()
+    print '--------------------------'
+    print '--------------------------'
+    p.PrintHier()
     
     
-

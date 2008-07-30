@@ -24,7 +24,9 @@ todo: PROGRAMMA
       
       - tenere presente che OSG e Max non vanno daccordo (spegnere osg senza spegnere il programma ?)
       - svuotare il LOG quando si riparte
-      - muo
+      - 
+      
+      - il nome del file usato col la root e' una vaccata 111
       
 todo: WORKFLOW
       * sintassi per accendere/spegnere il lightning a livello di oggetti 
