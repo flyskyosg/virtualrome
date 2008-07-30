@@ -60,7 +60,7 @@ connect  f_pace_hi    f_pace_portico_sottotetto               f_pace_mid   f_pac
 connect  f_pace_hi    f_pace_portico_cornice                  f_pace_mid   f_pace_portico_tetto_mid             300
 
 #leggasi: i poligoni f_pace_col di f_pace_low.max chiamano le istanze delle colonne in f_pace_mid                       
-connect  f_pace_mid   f_pace_col*                             f_pace_low   f_pace_col                           200
+connect  f_pace_mid   f_pace_col*                             f_pace_low   f_pace_col                           500
 
 #-------------------------------------------------------------------------------------------------------------------
 # Connessione degli oggetti istanziati: (connect2)
