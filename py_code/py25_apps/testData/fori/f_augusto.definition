@@ -1,0 +1,94 @@
+
+	# Definition File:
+	# le righe che iniziano con '#' sono commenti - e sono ignorate
+	# le righe vuote sono ignorate
+
+	#-------------------------------------------------------------------------------------------------------------------
+	# Gerarchia:
+	#
+	# Ogni nodo e' specificato da: nome-file nome-modello.
+	# Per ogni nodo visibile indicare da chi sara' chiamato, e quando deve switchare (vedi screen-size).
+	# Per i nodi iniziali indicare come chiamante 'root'.
+	# Il nome del chiamato puo' finire con l'asterisco.
+	# Ogni chiamato deve comparire una volta sola, il chiamante puo comparire piu volte.
+	# Ogni Nodo chiamante deve prima essere stato inserito come Chiamato
+	# scree-size e' la dimensione in pixel a schermo, superata la quale si spegne il nodo chiamante e si accende il nodo chiamato
+	#
+	#-------------------------------------------------------------------------------------------------------------------
+	#comando  file e nome oggetto chiamato                  file e nome oggetto chiamante         screen-size
+	#-------------------------------------------------------------------------------------------------------------------
+	
+connect   f_augusto_low   f_augusto_arco_a_low                    f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_arco_b_low                    f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_esedra_a                      f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_esedra_b                      f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_esedra_tetto_a                f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_esedra_tetto_b                f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_muro_perim                    f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_muro_perim_a                  f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_piazza                        f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_portico_low                   f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_tempio_low                    f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_tetto_edificio_a              f_augusto_low   root                  50
+connect   f_augusto_low   f_augusto_tetto_edificio_b              f_augusto_low   root                  50
+	#-------------------------------------------------------------------------------------------------------------------
+	#comando  file e nome oggetto chiamato                  file e nome oggetto chiamante         screen-size
+	#-------------------------------------------------------------------------------------------------------------------
+	
+connect   f_augusto_mid		colonna_b_hi*                         f_augusto_low   f_augusto_portico_low          150
+connect   f_augusto_mid		colonna_hi*                           f_augusto_low   f_augusto_tempio_low       150
+connect   f_augusto_mid   f_augusto_arco_a_mid                    f_augusto_low   f_augusto_arco_a_low        50
+connect   f_augusto_mid   f_augusto_arco_a_scale                  f_augusto_low   f_augusto_arco_a_low         50
+connect   f_augusto_mid   f_augusto_arco_b_mid                    f_augusto_low   f_augusto_arco_b_low        50
+connect   f_augusto_mid   f_augusto_arco_b_scale                  f_augusto_low   f_augusto_arco_b_low         50
+connect   f_augusto_mid   f_augusto_muro_perim_a_top*              f_augusto_low   root                  1000
+connect   f_augusto_mid   f_augusto_muro_perim_modanat_dx*         f_augusto_low   root                  1000
+connect   f_augusto_mid   f_augusto_muro_perim_modanat_sx*         f_augusto_low   root                  1000
+connect   f_augusto_mid   f_augusto_portico_a_fregi               f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_a_gradini_mid         f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_a_intradosso_mid      f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_a_tetto               f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_a_trabeaz_mid         f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_b_fregi               f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_b_gradini_mid         f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_b_intradosso_mid      f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_b_tetto               f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_b_trabeaz_mid         f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_c_fregi               f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_c_gradini_mid         f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_c_intradosso_mid      f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_c_tetto               f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portico_c_trabeaz_mid         f_augusto_low   f_augusto_portico_low         150
+connect   f_augusto_mid   f_augusto_portone                       f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_cella_mid              f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_colmo                  f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_cornic_mid             f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_lesena_00_mid          f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_lesena_01_mid          f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_lesena_angolo00_mid    f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_lesena_angolo01_mid    f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_scale_mid              f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_tetto                  f_augusto_low   f_augusto_tempio_low        150
+connect   f_augusto_mid   f_augusto_tempio_timpano                f_augusto_low   f_augusto_tempio_low        150
+	#-------------------------------------------------------------------------------------------------------------------
+	#comando  file e nome oggetto chiamato                  file e nome oggetto chiamante         screen-size
+	#-------------------------------------------------------------------------------------------------------------------
+	
+connect   f_augusto_hi   f_augusto_arco_a_hi                     f_augusto_mid   f_augusto_arco_a_mid         400
+connect   f_augusto_hi   f_augusto_arco_b_hi                     f_augusto_mid   f_augusto_arco_b_mid         400
+connect   f_augusto_hi   f_augusto_portico_a_gradini_hi          f_augusto_mid   f_augusto_portico_a_gradini_mid         200
+connect   f_augusto_hi   f_augusto_portico_a_intradosso_hi       f_augusto_mid   f_augusto_portico_a_intradosso_mid       300
+connect   f_augusto_hi   f_augusto_portico_a_trabeaz_hi          f_augusto_mid   f_augusto_portico_a_trabeaz_mid         1000
+connect   f_augusto_hi   f_augusto_portico_b_gradini_hi          f_augusto_mid   f_augusto_portico_b_gradini_mid         200
+connect   f_augusto_hi   f_augusto_portico_b_intradosso_hi       f_augusto_mid   f_augusto_portico_b_intradosso_mid       300
+connect   f_augusto_hi   f_augusto_portico_b_trabeaz_hi          f_augusto_mid   f_augusto_portico_b_trabeaz_mid         400
+connect   f_augusto_hi   f_augusto_portico_c_gradini_hi          f_augusto_mid   f_augusto_portico_c_gradini_mid         200
+connect   f_augusto_hi   f_augusto_portico_c_intradosso_hi       f_augusto_mid   f_augusto_portico_c_intradosso_mid       300
+connect   f_augusto_hi   f_augusto_portico_c_trabeaz_hi          f_augusto_mid   f_augusto_portico_c_trabeaz_mid         1000
+connect   f_augusto_hi   f_augusto_tempio_cella_hi               f_augusto_mid   f_augusto_tempio_cella_mid         300
+connect   f_augusto_hi   f_augusto_tempio_cornic_hi              f_augusto_mid   f_augusto_tempio_cornic_mid         600
+connect   f_augusto_hi   f_augusto_tempio_lesena_00_hi           f_augusto_mid   f_augusto_tempio_lesena_00_mid         300
+connect   f_augusto_hi   f_augusto_tempio_lesena_01_hi           f_augusto_mid   f_augusto_tempio_lesena_01_mid         300
+connect   f_augusto_hi   f_augusto_tempio_lesena_angolo00_hi     f_augusto_mid   f_augusto_tempio_lesena_angolo00_mid         300
+connect   f_augusto_hi   f_augusto_tempio_lesena_angolo01_hi     f_augusto_mid   f_augusto_tempio_lesena_angolo01_mid         300
+connect   f_augusto_hi   f_augusto_tempio_scale_hi               f_augusto_mid   f_augusto_tempio_scale_mid         200
