@@ -1,0 +1,156 @@
+
+# Definition File:
+# le righe che iniziano con '#' sono commenti - e sono ignorate
+# le righe vuote sono ignorate
+
+#-------------------------------------------------------------------------------------------------------------------
+# Gerarchia:
+#
+# Ogni nodo e' specificato da: nome-file nome-modello.
+# Per ogni nodo visibile indicare da chi sara' chiamato, e quando deve switchare (vedi screen-size).
+# Per i nodi iniziali indicare come chiamante 'root'.
+# Il nome del chiamato puo' finire con l'asterisco.
+# Ogni chiamato deve comparire una volta sola, il chiamante puo comparire piu volte.
+# Ogni Nodo chiamante deve prima essere stato inserito come Chiamato
+# scree-size e' la dimensione in pixel a schermo, superata la quale si spegne il nodo chiamante e si accende il nodo chiamato
+#
+#-------------------------------------------------------------------------------------------------------------------
+#comando  file e nome oggetto chiamato                  file e nome oggetto chiamante         screen-size
+#-------------------------------------------------------------------------------------------------------------------
+	
+	
+	
+connect   f_tr_low   f_tr_basilica_low                       f_tr_low   root                           50
+connect   f_tr_low   f_tr_biblioteca_low                     f_tr_low   root                           50
+connect   f_tr_low   f_tr_biblioteca_pavimento               f_tr_low   root                           50
+#connect   f_tr_low   f_tr_passaggio_low                      f_tr_low   root                           50
+connect   f_tr_low   f_tr_esedra_a_00_low                    f_tr_low   root                           50
+connect   f_tr_low   f_tr_esedra_a_01_low                    f_tr_low   root                           50
+connect   f_tr_low   f_tr_esedra_00_low                      f_tr_low   root                           50
+connect   f_tr_low   f_tr_esedra_01_low                      f_tr_low   root                           50
+connect   f_tr_low   f_tr_fronte_basilica_low                f_tr_low   root                           50
+connect   f_tr_low   f_tr_fronte_portico_a_low               f_tr_low   root                           50
+connect   f_tr_low   f_tr_gradini_ingresso_low               f_tr_low   root                           50
+connect   f_tr_low   f_tr_ingresso_low                       f_tr_low   root                           50
+connect   f_tr_low   f_tr_pavimento                          f_tr_low   root                           50
+connect   f_tr_low   f_tr_portico_a_low                      f_tr_low   root                           50
+connect   f_tr_low   f_tr_portico_b_low                      f_tr_low   root                           50
+connect   f_tr_low   f_tr_portico_c_low                      f_tr_low   root                           50
+connect   f_tr_low   f_tr_collegamento_low                   f_tr_low   root                           50
+
+connect   f_tr_mid   f_tr_passaggio_architrave_a_mid         f_tr_low   f_tr_collegamento_low          150
+connect   f_tr_mid   f_tr_passaggio_architrave_b_mid         f_tr_low   f_tr_collegamento_low          150
+connect   f_tr_mid   f_tr_passaggio_architrave_c_mid         f_tr_low   f_tr_collegamento_low          150
+connect   f_tr_mid   f_tr_passaggio_mid                      f_tr_low   f_tr_collegamento_low          150
+connect   f_tr_mid   f_tr_passaggio_pavimento_mid            f_tr_low   f_tr_collegamento_low          150
+
+connect   f_tr_mid   f_tr_basilica_par_alta_mid              f_tr_low   f_tr_basilica_low              150
+connect   f_tr_mid   f_tr_basilica_stucco_mid                f_tr_low   f_tr_basilica_low              150
+connect   f_tr_mid   f_tr_biblioteca_architrave_a_mid        f_tr_low   f_tr_biblioteca_low            150
+connect   f_tr_mid   f_tr_biblioteca_architrave_b_mid        f_tr_low   f_tr_biblioteca_low            150
+connect   f_tr_mid   f_tr_biblioteca_architrave_c_mid        f_tr_low   f_tr_biblioteca_low            150
+connect   f_tr_mid   f_tr_biblioteca_architrave_d_mid        f_tr_low   f_tr_biblioteca_low            150
+connect   f_tr_mid   f_tr_biblioteca_architrave_e_mid        f_tr_low   f_tr_biblioteca_low            150
+connect   f_tr_mid   f_tr_biblioteca_par_esterna_mid         f_tr_low   f_tr_biblioteca_low            150
+connect   f_tr_mid   f_tr_biblioteca_par_finestre_mid        f_tr_low   f_tr_biblioteca_low            150
+connect   f_tr_mid   f_tr_biblioteca_pavimento               f_tr_low   f_tr_biblioteca_pavimento      150
+connect   f_tr_mid   f_tr_passaggio_architrave_a_mid         f_tr_low   f_tr_collegamento_low          150
+connect   f_tr_mid   f_tr_passaggio_architrave_b_mid         f_tr_low   f_tr_collegamento_low          150
+connect   f_tr_mid   f_tr_passaggio_architrave_c_mid         f_tr_low   f_tr_collegamento_low          150
+connect   f_tr_mid   f_tr_passaggio_mid                      f_tr_low   f_tr_collegamento_low          150
+connect   f_tr_mid   f_tr_passaggio_pavimento_mid            f_tr_low   f_tr_collegamento_low          150
+connect   f_tr_mid   f_tr_esedra_00_mid                      f_tr_low   f_tr_esedra_00_low             150
+connect   f_tr_mid   f_tr_esedra_01_mid                      f_tr_low   f_tr_esedra_01_low             150
+connect   f_tr_mid   f_tr_esedra_a_00_mid                    f_tr_low   f_tr_esedra_a_00_low           150
+connect   f_tr_mid   f_tr_esedra_a_01_mid                    f_tr_low   f_tr_esedra_01_low             150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_a_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_b_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_c_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_d_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_e_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_f_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_g_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_h_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_i_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_l_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_m_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_n_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_architrave_o_mid   f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_gradini_mid        f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_basilica_parete_mid         f_tr_low   f_tr_fronte_basilica_low       150
+connect   f_tr_mid   f_tr_fronte_portico_a_architrave_a_mid  f_tr_low   f_tr_fronte_portico_a_low      150
+connect   f_tr_mid   f_tr_fronte_portico_a_architrave_b_mid  f_tr_low   f_tr_fronte_portico_a_low      150
+connect   f_tr_mid   f_tr_fronte_portico_a_mid               f_tr_low   f_tr_fronte_portico_a_low      150
+connect   f_tr_mid   f_tr_fronte_portico_a_timpano_mid       f_tr_low   f_tr_fronte_portico_a_low      150
+connect   f_tr_mid   f_tr_ingresso_timpano_mid               f_tr_low   f_tr_ingresso_low              150
+connect   f_tr_mid   h_f_tr_pavimento                        f_tr_low   f_tr_pavimento                 150
+connect   f_tr_mid   f_tr_portico_b_architrave_mid           f_tr_low   f_tr_portico_b_low             150
+connect   f_tr_mid   f_tr_portico_b_gradini_mid              f_tr_low   f_tr_portico_b_low             150
+connect   f_tr_mid   f_tr_portico_b_mid                      f_tr_low   f_tr_portico_b_low             150
+connect   f_tr_mid   f_tr_portico_b_pavim_mid                f_tr_low   f_tr_portico_b_low             150
+connect   f_tr_mid   f_tr_portico_b_pavim_mid                f_tr_low   f_tr_portico_b_low             150
+connect   f_tr_mid   f_tr_portico_c_architrave_mid           f_tr_low   f_tr_portico_c_low             150
+connect   f_tr_mid   f_tr_portico_c_gradini_mid              f_tr_low   f_tr_portico_c_low             150
+connect   f_tr_mid   f_tr_portico_c_mid                      f_tr_low   f_tr_portico_c_low             150
+connect   f_tr_mid   f_tr_portico_c_pavim_mid                f_tr_low   f_tr_portico_c_low             150
+connect   f_tr_mid   f_tr_portico_c_pavim_mid                f_tr_low   f_tr_portico_c_low             150
+connect   f_tr_mid   h_f_tr_gradini_ingresso_low             f_tr_low   f_tr_gradini_ingresso_low      150
+connect   f_tr_mid   h_f_tr_portico_a_low                    f_tr_low   f_tr_portico_a_low             150
+
+connect   f_tr_hi   f_tr_basilica_par_alta_hi                f_tr_mid   f_tr_basilica_par_alta_mid               300
+connect   f_tr_hi   f_tr_basilica_stucco_hi                  f_tr_mid   f_tr_basilica_stucco_mid                 300
+connect   f_tr_hi   f_tr_biblioteca_architrave_a_hi          f_tr_mid   f_tr_biblioteca_architrave_a_mid         300
+connect   f_tr_hi   f_tr_biblioteca_architrave_b_hi          f_tr_mid   f_tr_biblioteca_architrave_b_mid         300
+connect   f_tr_hi   f_tr_biblioteca_architrave_c_hi          f_tr_mid   f_tr_biblioteca_architrave_c_mid         300
+connect   f_tr_hi   f_tr_biblioteca_architrave_d_hi          f_tr_mid   f_tr_biblioteca_architrave_d_mid         300
+connect   f_tr_hi   f_tr_biblioteca_architrave_e_hi          f_tr_mid   f_tr_biblioteca_architrave_e_mid         300
+connect   f_tr_hi   f_tr_biblioteca_par_finestre_hi          f_tr_mid   f_tr_biblioteca_par_finestre_mid         300
+connect   f_tr_hi   f_tr_biblioteca_parete_esterna_hi        f_tr_mid   f_tr_biblioteca_par_esterna_mid          300
+connect   f_tr_hi   f_tr_biblioteca_pavimento                f_tr_low   f_tr_biblioteca_pavimento                300
+connect   f_tr_hi   f_tr_collegamento_architrave_a_hi        f_tr_mid   f_tr_passaggio_architrave_a_mid          300
+connect   f_tr_hi   f_tr_collegamento_architrave_b_hi        f_tr_mid   f_tr_passaggio_architrave_b_mid          300
+connect   f_tr_hi   f_tr_collegamento_architrave_c_hi        f_tr_mid   f_tr_passaggio_architrave_c_mid          300
+connect   f_tr_hi   f_tr_collegamento_hi                     f_tr_mid   f_tr_passaggio_mid                       300
+connect   f_tr_hi   f_tr_collegamento_pavimento_hi           f_tr_mid   f_tr_passaggio_pavimento_mid             300
+connect   f_tr_hi   f_tr_esedra_00_hi                        f_tr_mid   f_tr_esedra_00_mid                       300
+connect   f_tr_hi   f_tr_esedra_01_hi                        f_tr_mid   f_tr_esedra_01_mid                       300
+connect   f_tr_hi   f_tr_esedra_a_00_hi                      f_tr_mid   f_tr_esedra_a_00_mid                     300
+connect   f_tr_hi   f_tr_esedra_a_01_hi                      f_tr_mid   f_tr_esedra_a_01_mid                     300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_a_hi     f_tr_mid   f_tr_fronte_basilica_architrave_a_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_b_hi     f_tr_mid   f_tr_fronte_basilica_architrave_b_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_c_hi     f_tr_mid   f_tr_fronte_basilica_architrave_c_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_d_hi     f_tr_mid   f_tr_fronte_basilica_architrave_d_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_e_hi     f_tr_mid   f_tr_fronte_basilica_architrave_e_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_f_hi     f_tr_mid   f_tr_fronte_basilica_architrave_f_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_g_hi     f_tr_mid   f_tr_fronte_basilica_architrave_g_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_h_hi     f_tr_mid   f_tr_fronte_basilica_architrave_h_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_i_hi     f_tr_mid   f_tr_fronte_basilica_architrave_i_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_l_hi     f_tr_mid   f_tr_fronte_basilica_architrave_l_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_m_hi     f_tr_mid   f_tr_fronte_basilica_architrave_m_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_n_hi     f_tr_mid   f_tr_fronte_basilica_architrave_n_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_architrave_o_hi     f_tr_mid   f_tr_fronte_basilica_architrave_o_mid    300
+connect   f_tr_hi   f_tr_fronte_basilica_gradini_hi          f_tr_mid   f_tr_fronte_basilica_gradini_mid         300
+connect   f_tr_hi   f_tr_fronte_basilica_parete_hi           f_tr_mid   f_tr_fronte_basilica_parete_mid          300
+connect   f_tr_hi   f_tr_fronte_portico_a_architrave_a_hi    f_tr_mid   f_tr_fronte_portico_a_architrave_a_mid   300
+connect   f_tr_hi   f_tr_fronte_portico_a_architrave_b_hi    f_tr_mid   f_tr_fronte_portico_a_architrave_b_mid   300
+connect   f_tr_hi   f_tr_fronte_portico_a_hi                 f_tr_mid   f_tr_fronte_portico_a_mid                300
+connect   f_tr_hi   f_tr_fronte_portico_a_timpano_hi         f_tr_mid   f_tr_fronte_portico_a_timpano_mid        300
+connect   f_tr_hi   f_tr_gradini_ingresso_hi                 f_tr_low   f_tr_gradini_ingresso_low                300
+connect   f_tr_hi   f_tr_ingresso_timpano_hi                 f_tr_mid   f_tr_ingresso_timpano_mid                300
+connect   f_tr_hi   f_tr_pavimento_hi                        f_tr_low   f_tr_pavimento                           300
+connect   f_tr_hi   f_tr_portico_a_hi                        f_tr_mid   h_f_tr_portico_a_low                     300
+connect   f_tr_hi   f_tr_portico_b_architrave_hi             f_tr_mid   f_tr_portico_b_architrave_mid            300
+connect   f_tr_hi   f_tr_portico_b_gradini_hi                f_tr_mid   f_tr_portico_b_gradini_mid               300
+connect   f_tr_hi   f_tr_portico_b_hi                        f_tr_mid   f_tr_portico_b_mid                       300
+connect   f_tr_hi   f_tr_portico_b_pavim_hi                  f_tr_mid   f_tr_portico_b_pavim_mid                 300
+connect   f_tr_hi   f_tr_portico_c_architrave_hi             f_tr_mid   f_tr_portico_c_architrave_mid            300
+connect   f_tr_hi   f_tr_portico_c_gradini_hi                f_tr_mid   f_tr_portico_c_gradini_mid               300
+connect   f_tr_hi   f_tr_portico_c_hi                        f_tr_mid   f_tr_portico_c_mid                       300
+connect   f_tr_hi   f_tr_portico_c_pavim_hi                  f_tr_mid   f_tr_portico_c_pavim_mid                 300
+
+#-------------------------------------------------------------------------------------------------------------------
+#comando  file e nome oggetto chiamato                  file e nome oggetto chiamante         screen-size
+#-------------------------------------------------------------------------------------------------------------------
+connect   f_tr_mid       f_tr_col*                f_tr_low   root                150
+connect2  f_tr_colonna   f_tr_colonna_hi          f_tr_mid   f_tr_col*           300
+
