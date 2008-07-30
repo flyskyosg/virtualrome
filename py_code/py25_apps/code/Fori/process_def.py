@@ -51,6 +51,7 @@ FUTURO:
     creazione assistita del def.file
 ------------------------------------------------------------------------------
 '''
+import wx
 import os
 import glob
 import re
@@ -108,6 +109,8 @@ class ProcessDef(object):
             self.ext = '.osg'
         
         self.hier     = {}  # gerarchia :  nodo->lista-di-nodi-richiamati
+                            # nodo == nome_file @ nome_modello
+        
         self.root     = ''  # elemento radice della gerarchia
         
         self.osgFiles = {}  # nome-file-osg -> root-del-file
@@ -115,10 +118,21 @@ class ProcessDef(object):
         self.activate_size = {} # nome-modello -> pixel-size soglia di accensione
 
         self.garbage = osg.Group() # attacco qui tutti i nodi temporanei
-                                  # per ritardare il messaggio di memory leak
-                                  # che altrimenti mi incasina il logging
+                                   # per ritardare il messaggio di memory leak
+                                   # che altrimenti mi incasina il logging
+        self.garbage.thisown = False
+
+
 
         self.fake_node = osg.Group() # nodo stupido usato in MakePLod
+        self.fake_node.thisown = False
+
+        print 
+        print '================================================='
+        print 'Process def Begin'
+        print '================================================='
+        print
+        
 
         self.ConvertTextures()
         self.ReadDefinition()  # legge def_file, crea hier, carica  le chiavi di osgFile e osgNodes
@@ -162,7 +176,7 @@ class ProcessDef(object):
 
         print "lettura del file di definizione"
         
-        linenum = -1
+        linenum = 0
         for line in f:
             linenum +=1
             line = line.strip() # toglie gli spazi/tab iniziali e finali
@@ -249,7 +263,10 @@ class ProcessDef(object):
             print cmd
             print '------- converting ' + name + ' to DDS -------'
             # l'output del programma viene comunque mandato su stdout 
-            os.system(cmd)        
+            os.system(cmd) 
+            
+            wx.Yield()
+       
 
     #----------------------
     def PreprocessOsgFile(self,name):
@@ -297,6 +314,8 @@ class ProcessDef(object):
                 print "fallito il cast a gruppo di: ->", i, "<-"
                 continue
             self.osgFiles[i] = g
+            
+            wx.Yield()
 
     #----------------------
     def OpenAllModels(self):
@@ -329,6 +348,8 @@ class ProcessDef(object):
     #----------------------
     def MakeHierarchy(self, name, lev ):
         ''' attraversa riscorsivamente la gerarchia e crea le pagine IVE corrispondenti '''
+        
+        wx.Yield()
         
         if not self.hier.has_key(name):
             print 'MakeHierarchy error: -', name, '- nome non trovato nella gerarchia'
@@ -369,6 +390,7 @@ class ProcessDef(object):
         for n in nodes:
             root.addChild(n)
 
+        root.thisown = False
         return root
 
     #----------------------
@@ -385,6 +407,7 @@ class ProcessDef(object):
             c = c.replace('*','')
             plod.addChild( self.fake_node, sz, 10000000, c + self.ext )
         
+        plod.thisown = False
         return plod
 
     #----------------------
@@ -442,6 +465,7 @@ class ProcessDef(object):
                     p.removeChild( geode )
                     p.addChild(plod)
             
+        root.thisown = False
         return root 
 
     #----------------------
@@ -453,7 +477,7 @@ class ProcessDef(object):
         
         # delays memory leak alerts
         self.garbage.addChild(node)
-        node.thisown=False # boh - ho copiato Gigi
+        #node.thisown=False # boh - ho copiato Gigi
 
     #----------------------
     def MakeFakeGeom(self, node ):
@@ -477,6 +501,10 @@ class ProcessDef(object):
         mat = osg.Material()
         mat.setDiffuse( osg.Material.FRONT_AND_BACK, osg.Vec4(1.0, 0.0, 0.0, 0.1 )  )
         ss.setAttribute( mat, osg.StateAttribute.ON )
+
+        for i in [box, shape, geode, ss, pm, mat]:
+            i.thisown = False
+
         return geode
 
 #--------------------------------------------------------------------------
@@ -487,7 +515,7 @@ if __name__ == "__main__":
     dir = testdata.dir
 
     # test ProcessDef
-    definition = dir + "f_pace\\f_pace.definition"
+    definition = dir + "f_tr\\f_tr.definition"
     p = ProcessDef(definition)
     print '--------------------------'
     print 'now open', p.GetIveRoot()
