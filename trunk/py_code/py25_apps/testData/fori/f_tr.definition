@@ -96,6 +96,7 @@ connect   f_tr_mid   f_tr_portico_c_pavim_mid                f_tr_low   f_tr_por
 connect   f_tr_mid   f_tr_portico_c_pavim_mid                f_tr_low   f_tr_portico_c_low             150
 connect   f_tr_mid   h_f_tr_gradini_ingresso_low             f_tr_low   f_tr_gradini_ingresso_low      150
 connect   f_tr_mid   h_f_tr_portico_a_low                    f_tr_low   f_tr_portico_a_low             150
+connect   f_tr_mid   f_tr_traianea_mid*                      f_tr_low   root                           150
 
 connect   f_tr_hi   f_tr_basilica_par_alta_hi                f_tr_mid   f_tr_basilica_par_alta_mid               300
 connect   f_tr_hi   f_tr_basilica_stucco_hi                  f_tr_mid   f_tr_basilica_stucco_mid                 300
@@ -147,6 +148,7 @@ connect   f_tr_hi   f_tr_portico_c_architrave_hi             f_tr_mid   f_tr_por
 connect   f_tr_hi   f_tr_portico_c_gradini_hi                f_tr_mid   f_tr_portico_c_gradini_mid               300
 connect   f_tr_hi   f_tr_portico_c_hi                        f_tr_mid   f_tr_portico_c_mid                       300
 connect   f_tr_hi   f_tr_portico_c_pavim_hi                  f_tr_mid   f_tr_portico_c_pavim_mid                 300
+connect   f_tr_hi   f_tr_traianea_hi                         f_tr_mid   f_tr_traianea_mid                        300
 
 #-------------------------------------------------------------------------------------------------------------------
 #comando  file e nome oggetto chiamato                  file e nome oggetto chiamante         screen-size
