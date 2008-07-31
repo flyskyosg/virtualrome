@@ -80,15 +80,20 @@ class FindByName(VisitorBase):
     
 #------------------------------------------------------------------
 class ProcessDef(object):
-    def __init__(self, definition_file, save_as_ive=True ):
+    def __init__(self, definition_file, save_as_ive=True, texture_inside_ive=False ):
         
         self.def_file = definition_file
+
+        self.texture_inside_ive = texture_inside_ive
 
         self.osg_path = os.path.dirname(definition_file) + '\\'
         self.img_path = os.path.dirname(definition_file) + '\\images\\'
         self.ive_path = os.path.dirname(definition_file) + '\\ive\\'
         self.tmp_path = os.path.dirname(definition_file) + '\\tmp\\'
         self.dds_path = os.path.dirname(definition_file) + '\\tmp\\images\\'
+
+        if not self.texture_inside_ive:
+            self.ive_path = self.osg_path
 
         if not os.path.exists(self.osg_path):
             print 'osg path not exist',self.osg_path
@@ -480,8 +485,12 @@ class ProcessDef(object):
         
         name = name.replace('*','')
         filename = self.ive_path + name + self.ext
-        osgDB.writeNodeFile( node, filename )
-        
+
+        if not self.texture_inside_ive:
+            osgDB.writeNodeFile( node, filename )
+        else:
+            pass
+            
         # delays memory leak alerts
         self.garbage.addChild(node)
         #node.thisown=False # boh - ho copiato Gigi
