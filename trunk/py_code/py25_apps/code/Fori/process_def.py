@@ -80,7 +80,7 @@ class FindByName(VisitorBase):
     
 #------------------------------------------------------------------
 class ProcessDef(object):
-    def __init__(self, definition_file, save_as_ive=True, texture_inside_ive=False ):
+    def __init__(self, definition_file, save_as_ive=True, texture_inside_ive=True ):
         
         self.def_file = definition_file
 
@@ -93,7 +93,7 @@ class ProcessDef(object):
         self.dds_path = os.path.dirname(definition_file) + '\\tmp\\images\\'
 
         if not self.texture_inside_ive:
-            self.ive_path = self.osg_path
+            self.ive_path = self.tmp_path
 
         if not os.path.exists(self.osg_path):
             print 'osg path not exist',self.osg_path
@@ -285,6 +285,8 @@ class ProcessDef(object):
         f.close()
 
         buffer = buffer.replace( '.png"', '.dds"' )
+        
+        buffer = buffer.replace( 'images\\', 'images/' ) #Luigi: l' exporter mette images\<***>.png questo lo fa andare in locale ma non in rete, quindi sostituisco \ con /
 
         filename = self.tmp_path + name + '.osg'
         f = open( filename, 'w' )
@@ -486,10 +488,10 @@ class ProcessDef(object):
         name = name.replace('*','')
         filename = self.ive_path + name + self.ext
 
-        if not self.texture_inside_ive:
+        if self.texture_inside_ive:
             osgDB.writeNodeFile( node, filename )
         else:
-            pass
+            osgDB.writeNodeFile_s( node, filename, "noTexturesInIVEFile useOriginalExternalReferences" )
             
         # delays memory leak alerts
         self.garbage.addChild(node)
@@ -541,11 +543,21 @@ if __name__ == "__main__":
     dir = testdata.dir
 
     # test ProcessDef
-    definition = dir + "f_tr\\f_tr.definition"
-    p = ProcessDef(definition)
-    print '--------------------------'
-    print '--------------------------'
-    print '--------------------------'
-    p.PrintHier()
+##    definition = dir + "fori\\f_tr.definition"
+##    p = ProcessDef(definition, True,False)
+##    print '--------------------------'
+##    print '--------------------------'
+##    print '--------------------------'
+##    p.PrintHier()
+    g=osg.Group()
+    for tempio in ('augusto','tr','pace'):
+        definition = dir + "fori\\f_"+tempio+".definition"
+        print '----------------------------- processing -->',definition
+        p = ProcessDef(definition, True,False)
+        tempiotop = osgDB.readNodeFile( p.GetIveRoot())
+        g.addChild(tempiotop)
+        
+    osgDB.writeNodeFile_s( g, dir + "fori\\tmp\\f_top.ive", "noTexturesInIVEFile useOriginalExternalReferences" )    
+    osgDB.writeNodeFile_s( g, dir + "fori\\tmp\\f_top.osg", "noTexturesInIVEFile useOriginalExternalReferences" )    
     
     
