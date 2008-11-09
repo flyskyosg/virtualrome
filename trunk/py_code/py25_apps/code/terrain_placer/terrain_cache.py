@@ -9,9 +9,21 @@ class TerrainTilesCache():
     def __init__(self,top_tile):
         if(os.path.exists(top_tile)):
             self.terrain_dir=os.path.dirname(os.path.normpath(os.path.abspath(top_tile)))
+            self.tiles_cache=shelve.open(os.path.normpath(os.path.abspath(top_tile))+'.cache',writeback=True)
+
         else:
             print "ERROR!!! invalid top tile-->"+top_tile+"<--"
             
+            
+    def apply_func(tile,func):
+        if(self.tiles_cache.has_key(tile)):
+            if(self.tiles_cache[tile].has_key(func)):
+                return self.tiles_cache[tile][func]
+        else:
+            self.tiles_cache[tile]=dict()
+        res=func(tile)
+        self.tiles_cache[tile][func]=res
+        return res
             
 class ParseTerrain():
     """ParseTerrain -- A Class that walk tiled terrains, takes a function to handle tiles."""  
