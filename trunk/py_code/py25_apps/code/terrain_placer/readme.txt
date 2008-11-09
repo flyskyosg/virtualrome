@@ -1,0 +1,1 @@
+here put code for vegetation placement over taerrains created with osgdem
