@@ -207,7 +207,7 @@ class Frame(wx.Frame):
         if ret == wx.OK:
             url = dlg.GetUrl()
             print url
-            good = OpenUrl( url )
+            good = self.OpenFile( url )
             if good:
                 self.fileHistory.addFile(url)
         else:
@@ -323,6 +323,8 @@ def defaultFilename():
 
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
+    
+    print "in main app luigi"
 
     app = App(0)  
     
