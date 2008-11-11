@@ -2,7 +2,7 @@ import sys
 import os
 import glob
 sys.path.append('F:\\devel\\svn_projects\\vegetazione\\python_prove')
-import osg_setup
+#import osg_setup
 import osg
 import osgDB
 import osgGA
@@ -15,7 +15,9 @@ import osgUtil
 hat=osgSim.HeightAboveTerrain()
 #hat.setDatabaseCacheReadCallback(los.getDatabaseCacheReadCallback())
 #filename="D:/vrome/web/terreni/prove_vegetazione/ive_16_256_dds_reduced_orig/romano.osg"
-filename="H:/UrbanCenter/terrain/2007/c2007c.ive"
+#filename="H:/UrbanCenter/terrain/2007/c2007c.ive"
+filename="http://3d.cineca.it/storage/osg4web/htdocs/virtual_data/projects/6/terreni/romano/vrome_final_02/noveg.ive"
+
 scene = osgDB.readNodeFile(filename)
 bs = scene.getBound()
 s=bs.center() 
