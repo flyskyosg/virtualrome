@@ -106,6 +106,9 @@ class CustomTree( TreeBase ) :
             icon = self.osgIcon[cls]
         
         # inserisco
+        
+        print  label
+        
         TreeBase.AddNode(self, parent, node, icon, label )
 
     def  CollapseAllChildren(self,node):
@@ -129,6 +132,7 @@ class CustomTree( TreeBase ) :
 
     def ReadSceneGraph(self,root):
         self.Freeze() # congela l'update del widget
+        #self.Clear()
         self.ClearSceneGraph()
         v = FillTreeVisitor(self)
         root.accept(v)
@@ -221,20 +225,21 @@ if __name__ == "__main__":
         print 'env-var "DATADIR" not found, exiting'
         sys.exit()
     # there are good and bad data :-)
-    dir = dir + 'bad\\'
+    dir = dir + 'fori\\'
 
     # open the test file
-    filename = dir + 'f_pace.osg'
+    filename = dir + 'f_pace_hi.osg'
     node = osgDB.readNodeFile(filename)
     if not node : 
         print 'error loading', filename
         sys.exit()
     
-
     app.tree.AddSettings(1,'config1')
     app.tree.AddSettings(2,'config2')
     app.tree.AddFile(3,'file1')
     app.tree.AddFile(4,'file2')
+
+    #app.tree.AddOsgNode(node, 0)
     app.tree.ReadSceneGraph(node)
     
     app.MainLoop()
