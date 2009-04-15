@@ -27,7 +27,7 @@ import sys
 import wx
 
 # customize this at your will
-appName = 'virtualrome'
+appName = 'config'
 
 
 # the config global object

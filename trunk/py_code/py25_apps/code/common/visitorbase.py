@@ -57,7 +57,10 @@ class Visitor(VisitorBase):
         # MatrixTransform
         if node.className() == 'MatrixTransform':
             proceed = self.visitMatrixTransform(node)
-
+        elif node.className() == 'Group':
+            gr = node.asGroup()
+            proceed = self.visitGroup(gr)
+        
         # visit Geodes
         elif node.className() == 'Geode':
             geode = osg.NodeToGeode(node)
@@ -92,6 +95,11 @@ class Visitor(VisitorBase):
         print node.className(), node.getName()
         return True
         
+    def visitGroup(self, gr):
+        '''virtual func to be redefined -- return False to stop visiting this branch'''
+        print gr.className(), gr.getName(),"num parent",gr.getNumParents()
+        return True
+
     def visitGeode(self, node):
         '''virtual func to be redefined -- return False to stop visiting this branch'''
         print node.className(), node.getName(),"num parent",node.getNumParents()
@@ -135,15 +143,17 @@ if __name__ == "__main__":
     import os
 
     # locate the DataDir
-    dir = os.getenv('DATADIR')
-    if not dir:
+    datadir = os.getenv('DATADIR')
+    if not datadir:
         print 'env-var "DATADIR" not found, exiting'
         sys.exit()
-    # there are good and bad data :-)
-    dir = dir + 'bad\\'
 
     # open the test file
-    filename = dir + 'f_pace.osg'
+    
+    #filename = datadir + 'fori\\f_pace_low.osg'
+    filename = datadir + 'gaiani\\blocco1.osg'
+
+
     node = osgDB.readNodeFile(filename)
     if not node : 
         print 'error loading', filename
@@ -152,6 +162,11 @@ if __name__ == "__main__":
     # test VisitorBase
     print '------- testing VisitorBase --------'
     v = VisitorBase()
+    node.accept(v)
+
+    # test Visitor
+    print '------- testing Visitor --------'
+    v = Visitor()
     node.accept(v)
 
     # test a Visitor Subclass

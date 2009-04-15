@@ -42,9 +42,6 @@ class Canvas(wx.glcanvas.GLCanvas):
         ss = self.viewer.getCamera().getOrCreateStateSet()
         self.viewer.addEventHandler( osgGA.StateSetManipulator(ss) )
 
-
-
-
         self.root = osg.Group()
         self.viewer.setSceneData(self.root)
 
@@ -63,7 +60,7 @@ class Canvas(wx.glcanvas.GLCanvas):
         self.Bind(wx.EVT_MOUSE_EVENTS,      self.onMouse)
 
     def onTimer(self,e):
-        # it inderectly calls  Paint
+        # it indirectly calls  Paint
         self.Refresh()
 
     def onEraseBackground(self, evt):
