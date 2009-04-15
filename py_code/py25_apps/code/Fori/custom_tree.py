@@ -107,7 +107,7 @@ class CustomTree( TreeBase ) :
         
         # inserisco
         
-        print  label
+        #print  label
         
         TreeBase.AddNode(self, parent, node, icon, label )
 
@@ -234,10 +234,10 @@ if __name__ == "__main__":
         print 'error loading', filename
         sys.exit()
     
-    app.tree.AddSettings(1,'config1')
-    app.tree.AddSettings(2,'config2')
-    app.tree.AddFile(3,'file1')
-    app.tree.AddFile(4,'file2')
+    #app.tree.AddSettings(1,'config1')
+    #app.tree.AddSettings(2,'config2')
+    #app.tree.AddFile(3,'file1')
+    #app.tree.AddFile(4,'file2')
 
     #app.tree.AddOsgNode(node, 0)
     app.tree.ReadSceneGraph(node)
