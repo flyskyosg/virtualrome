@@ -32,7 +32,7 @@ class VisitorBase(osg.NodeVisitor):
     
     def visitNode(self, node):
         '''virtual func to be redefined -- return False to stop visiting this branch'''
-        print node.className(), node.getName(),"num parent",node.getNumParents()
+        print "BASE GENERIC NODE: ",node.className(), node.getName(),"num parent",node.getNumParents()
         return True
 
 #--------------------------------------------------------------------------
@@ -46,6 +46,7 @@ class Visitor(VisitorBase):
     def __init__(self,visitAllInstances=False):
         VisitorBase.__init__(self,visitAllInstances)
         self.visited = {}  
+        self.verbose=True
         
     def apply(self, node):
 
@@ -56,7 +57,8 @@ class Visitor(VisitorBase):
 
         # MatrixTransform
         if node.className() == 'MatrixTransform':
-            proceed = self.visitMatrixTransform(node)
+            mt = osg.NodeToMatrixTransform(node)
+            proceed = self.visitMatrixTransform(mt)
         elif node.className() == 'Group':
             gr = node.asGroup()
             proceed = self.visitGroup(gr)
@@ -64,7 +66,9 @@ class Visitor(VisitorBase):
         # visit Geodes
         elif node.className() == 'Geode':
             geode = osg.NodeToGeode(node)
+            geode.thisown=False
             proceed = self.visitGeode( geode )
+            
             
             # visit Drawables
             for j in range(0,geode.getNumDrawables()):
@@ -77,9 +81,20 @@ class Visitor(VisitorBase):
                     if ss:
                         if not self.alreadyVisited( ss ):
                             self.visitStateSet(ss,drawable)
+        elif node.className() == 'PagedLOD':
+            plod=osg.NodeToPagedLOD(node)
+            plod.thisown=False
+            proceed = self.visitPagedLOD( plod )
+
+        elif node.className() == 'ProxyNode':
+            pnode=osg.ProxyNode(node)
+            pnode.thisown=False
+            ##pnode=node.asProxyNode()
+            proceed = self.visitProxyNode( pnode )
 
         else:
             proceed = self.visitNode(node)
+            
         
         # visit Node StateSet
         ss = node.getStateSet()
@@ -92,26 +107,55 @@ class Visitor(VisitorBase):
     
     def visitMatrixTransform(self, node):
         '''virtual func to be redefined -- return False to stop visiting this branch'''
-        print node.className(), node.getName()
+        if(self.verbose):
+            print node.className(), node.getName()
         return True
         
     def visitGroup(self, gr):
         '''virtual func to be redefined -- return False to stop visiting this branch'''
-        print gr.className(), gr.getName(),"num parent",gr.getNumParents()
+        if(self.verbose):
+            print gr.className(), gr.getName(),"num parent",gr.getNumParents()
+        return True
+
+    def visitPagedLOD(self, plod):
+        '''virtual func to be redefined -- return False to stop visiting this branch'''
+        if(self.verbose):
+            print plod.className(), plod.getName(),"num parent",plod.getNumParents()
+        #not working#   print "   ",plod.getRangeList()
+        filenames=[]
+        for i in range(0,plod.getNumFileNames()):
+            filenames.append(plod.getFileName(i))
+        if(self.verbose):
+            print "   ",filenames
+        return True
+
+    def visitProxyNode(self, pnode):
+        '''virtual func to be redefined -- return False to stop visiting this branch'''
+        if(self.verbose):
+            print pnode.className(), pnode.getName(),"num parent",pnode.getNumParents()
+        #not working#   print "   ",plod.getRangeList()
+        filenames=[]
+        for i in range(0,pnode.getNumFileNames()):
+            filenames.append(pnode.getFileName(i))
+        if(self.verbose):
+            print "   ",filenames
         return True
 
     def visitGeode(self, node):
         '''virtual func to be redefined -- return False to stop visiting this branch'''
-        print node.className(), node.getName(),"num parent",node.getNumParents()
+        if(self.verbose):
+            print node.className(), node.getName(),"num parent",node.getNumParents()
         return True
 
     def visitDrawable(self,drawable,geode):
         '''virtual func to be redefined'''
-        print drawable.className(), drawable.getName(),"num parent",geode.getNumParents()
+        if(self.verbose):
+            print drawable.className(), drawable.getName(),"num parent",geode.getNumParents()
 
     def visitStateSet(self,ss,parent):
         '''virtual func to be redefined  --- node can be a node or a drawable '''
-        print ss.className(), ss.getName(),"num parent",ss.getNumParents()
+        if(self.verbose):
+            print ss.className(), ss.getName(),"num parent",ss.getNumParents()
 
 #--------------------------------------------------------------------------
 # VisitorBase Test and  subclassing Example 
