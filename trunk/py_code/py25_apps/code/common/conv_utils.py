@@ -538,11 +538,17 @@ def build_binary_plod(node,filepath,dist,center=None,dmax=10000.0):
         lod.setCenter(osg.Vec3(center[0],center[1],center[2]))
     else:
         lod.setCenterMode(osg.LOD.USE_BOUNDING_SPHERE_CENTER)
-    lod.setFileName(0,"")
-    lod.setFileName(1,filepath)
-    lod.setRange(0,dist,dmax)
-    lod.setRange(1,0.0,dist)
-    lod.addChild(node)
+    if(node): 
+        lod.setFileName(0,"")
+        lod.setFileName(1,filepath.replace("\\","/"))
+        lod.setRange(0,dist,dmax)
+        lod.setRange(1,0.0,dist)
+        lod.addChild(node)
+    else:
+        #this case there is just a range and no children
+        lod.setFileName(0,filepath.replace("\\","/"))
+        lod.setRange(0,0.0,dist)
+       
     lod.thisown=False
     return lod
 
@@ -914,22 +920,22 @@ class BaseCopyHandler(BaseHandler,FileSizer):
         FileWriter.__init__(self)
         self.image_suffix=""
         self.opt=osgUtil.Optimizer()
-        self.optimization_flags= osgUtil.Optimizer.SHARE_DUPLICATE_STATE | osgUtil.Optimizer.OPTIMIZE_TEXTURE_SETTINGS | osgUtil.Optimizer.REMOVE_LOADED_PROXY_NODES
+        self.optimization_flags = osgUtil.Optimizer.SHARE_DUPLICATE_STATE | osgUtil.Optimizer.OPTIMIZE_TEXTURE_SETTINGS | osgUtil.Optimizer.REMOVE_LOADED_PROXY_NODES
         self.LOD_par=dict()
-        self.max_distance=10000.0
+        self.max_distance=100000.0
         self.LOD_par['LO']={
             "imgpar" : ((1.0/4.0,64 ),{'.*LightingMap.*' : (1.0/2.0,128  ) } ),
-            "rngscl" : (8.0,{}),
+            "rngscl" : (16.0,{}),
             "iotype" : ({   'iveout' : True,
                             'no_textures' : False, 
-                            'with_textures' : False,  
+                            'with_textures' : True,  
                             'incl_ext_ref' : False,
                             'orig_ext_ref' : True  
                         },{})
         }
         self.LOD_par['MI']={
             "imgpar" : ((1.0/2.0,128),{'.*LightingMap.*' : (1.0/2.0,256  ) } ),
-            "rngscl" : (4.0,{}),
+            "rngscl" : (8.0,{}),
             "iotype" : ({   'iveout' : True,
                             'no_textures' : False, 
                             'with_textures' : True,  
@@ -939,7 +945,7 @@ class BaseCopyHandler(BaseHandler,FileSizer):
             }
         self.LOD_par['HI']={
             "imgpar" : ((1.0    ,512),{'.*LightingMap.*' : (1.0    ,1024 ) } ),
-            "rngscl" : (2.0,{}),
+            "rngscl" : (4.0,{}),
             "iotype" : ({   'iveout' : True,
                             'no_textures' : False, 
                             'with_textures' : True,  
@@ -985,12 +991,12 @@ class BaseCopyHandler(BaseHandler,FileSizer):
             return None
 
 
-    def node_handler(self,node,id=""):
+    def node_handler(self,node,id="",save=False):
         if(node):
             ret=self.node_info(node)
             print id,"-->",ret
             v1=ListFileComponents(False)
-            v1.verbose=False
+            v1.verbose=self.verbose
             v1.basepath=self.basepath
             v1.visit_loaded_childs=True
             node.accept(v1)
@@ -1012,20 +1018,30 @@ class BaseCopyHandler(BaseHandler,FileSizer):
             v1.ProcessImages(self.image_handler) #now in node there is a version with MI res images
             plod=build_binary_plod(node,webfile,dist,bnd,self.max_distance)
             self.set_write_options()
-            self.iveout=False   #debugging: set out to osg
-            self.BuildOptionString()
+##            self.iveout=False   #debugging: set out to osg
+##            self.BuildOptionString()
             outfile=self.WriteNode(plod,id+"_"+self.image_suffix)
             (base,webfile)=os.path.split(outfile)
             print "LOD: ",self.image_suffix,"-->",outfile
             dist=self.get_switch_distance(bnd)  #this is the switch distance for MI lod
-            self.image_suffix='LO'
-            v1.ProcessImages(self.image_handler) #now in node there is a version with LO res images
-            plod=build_binary_plod(node,webfile,dist,bnd,self.max_distance)
-            self.set_write_options()
-            self.iveout=False   #debugging: set out to osg
-            self.BuildOptionString()
-            outfile=self.WriteNode(plod,id+"_"+self.image_suffix)
-            print "LOD: ",self.image_suffix,"-->",outfile
+            
+            if(ret[0][0] > 50000): #if the geometry is too big, just produce two levels, the LO is empty
+                print "skipping LO lod, should be empty for ",outfile
+                plod=build_binary_plod(None,webfile,dist,bnd,self.max_distance)
+            else:
+                self.image_suffix='LO'
+                v1.ProcessImages(self.image_handler) #now in node there is a version with LO res images
+                plod=build_binary_plod(node,webfile,dist,bnd,self.max_distance)
+            if(save):
+                self.set_write_options()
+##                self.iveout=False   #debugging: set out to osg
+##                self.BuildOptionString()
+                outfile=self.WriteNode(plod,id+"_"+self.image_suffix)
+                (base,webfile)=os.path.split(outfile)
+                print "LOD: ",self.image_suffix,"-->",outfile
+                return webfile
+            else:
+                return plod
             
 ##            for res in ['HI','MI','LO']:
 ####                self.image_resize_dim=res
@@ -1053,7 +1069,7 @@ class BaseCopyHandler(BaseHandler,FileSizer):
         if os.path.exists(ff):
             #print "loading-->" , ff
             node = osgDB.readNodeFile(ff)
-            opt.optimize(node,optimization_flags)
+            self.opt.optimize(node,self.optimization_flags)
             return node
         else:
             if(self.verbose):
@@ -1104,7 +1120,7 @@ class BaseCopyHandler(BaseHandler,FileSizer):
                 for i in exceptions.keys():
                     if(re.match(i,name)):
                         (scale,top)=exceptions[i]
-        print "Using ",scale, top
+        #print "Using ",scale, top
         newdim=dict()
         for k in [0,1]:
             newdim[k]=im.size[k] * scale
@@ -1145,6 +1161,40 @@ class BaseCopyHandler(BaseHandler,FileSizer):
         else:
             print 'LOD_par has no "'+self.image_suffix+'" key'
         return self.max_distance
+
+    def MultiGroup(self,patlist,useproxy=False):
+
+        top=osg.Group()
+        for p in patlist:
+            #print "globbing-->",p
+            flist=glob.glob1(self.basepath,p)
+            for rf in flist:
+                ff = os.path.join(self.basepath,rf)
+
+                if os.path.exists(ff):
+                    print "loading-->" , ff
+                    node = self.file_loader(ff)
+
+                    if node :
+                        (name,ext)=os.path.splitext(rf)
+                        if(useproxy):
+                            pr=osg.ProxyNode()
+                            pr.setLoadingExternalReferenceMode(osg.ProxyNode.DEFER_LOADING_TO_DATABASE_PAGER)
+                            handled_file=self.node_handler(node,name,True)
+                            if(handled_file):
+                                pr.setFileName(0,handled_file.replace("\\","/"))
+                                top.addChild(pr)
+                        else:
+                            print "node_handler name->",name,"<--"
+                            handled_node=self.node_handler(node,name)
+                            if(handled_node):
+                                top.addChild(handled_node)
+                    else:
+                        print 'error loading', filename
+                else:
+                     print "missing-->" , ff
+        top.thisown=False
+        return top   
     
 
             
