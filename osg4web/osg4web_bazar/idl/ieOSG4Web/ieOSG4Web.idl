@@ -1,0 +1,93 @@
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(5B3E8016-185D-47AB-8473-408C8B4C2978), version(1.0),
+  helpfile("ieOSG4Web.hlp"),
+  helpstring("ieOSG4Web ActiveX Control module"),
+  control ]
+
+library ieOSG4WebLib
+{
+	importlib(STDOLE_TLB);
+
+	const int DISPID_ADVCore					= 100;
+	const int DISPID_ADVCoreStartOptions				= 101;
+	const int DISPID_ADVCoreInitOptions				= 102;
+	const int DISPID_ADVCoreSHA1					= 103;
+	const int DISPID_ADVCoreDep					= 104;
+	const int DISPID_ADVCoreDepSHA1					= 105;
+	const int DISPID_LoadCoreOptions				= 106;
+	const int DISPID_EnableDiskLogs					= 107;
+	const int DISPID_ExecCoreCommand				= 108;
+	const int DISPID_ExecShellCommand				= 109;
+
+
+	//  Primary dispatch interface for Ctrl
+
+	[ 
+		uuid(F72EBA29-BC35-4001-B291-1A0851F34888),
+		helpstring("Dispatch interface for ieOSG4Web Control 1.0")
+	]
+		
+	dispinterface _DieOSG4Web
+	{
+	properties:
+		[id(DISPID_ADVCore), helpstring("property ADVCore")] 
+			BSTR ADVCore;
+		[id(DISPID_ADVCoreStartOptions), helpstring("property ADVCoreStartOptions")] 
+			BSTR ADVCoreStartOptions;
+		[id(DISPID_ADVCoreInitOptions), helpstring("property ADVCoreInitOptions")] 
+			BSTR ADVCoreInitOptions;
+		[id(DISPID_ADVCoreSHA1), helpstring("property ADVCoreSHA1")] 
+			BSTR ADVCoreSHA1;
+		[id(DISPID_ADVCoreDep), helpstring("property ADVCoreDep")] 
+			BSTR ADVCoreDep;
+		[id(DISPID_ADVCoreDepSHA1), helpstring("property ADVCoreDepSHA1")] 
+			BSTR ADVCoreDepSHA1;
+		[id(DISPID_LoadCoreOptions), helpstring("property LoadCoreOptions")] 
+			BSTR LoadCoreOptions;
+		[id(DISPID_EnableDiskLogs), helpstring("property EnableDiskLogs")] 
+			BSTR EnableDiskLogs;
+	
+	methods:
+		[id(DISPID_ExecCoreCommand), helpstring("method ExecCoreCommand")] 
+			BSTR ExecCoreCommand(BSTR Command);
+		[id(DISPID_ExecShellCommand), helpstring("method ExecShellCommand")] 
+			BSTR ExecShellCommand(BSTR Command);
+	};
+
+
+
+	//  Event dispatch interface for Ctrl
+	const int EVENTID_GetEvent						= 500;
+
+       
+	[ 
+		uuid(AFFD9D00-91CC-468D-84C5-19F15FFCFD90),
+		helpstring("Event interface for ieOSG4Web Control 1.0")
+	]
+	
+	dispinterface _DieOSG4WebEvents
+	{
+	properties:
+		//  Event interface has no properties
+
+	methods:
+		[id(EVENTID_GetEvent), helpstring("event method GetEvent")] 
+			void GetEvent(BSTR eventstr);
+	};
+
+	//  Class information for Ctrl
+
+	[ 
+		uuid(559F0DCD-759E-48EE-B1F2-C917AA6FB7EA),
+		helpstring("ieOSG4Web Control 1.0"), 
+		control 
+	]
+	
+	coclass ieOSG4Web
+	{
+		[default] dispinterface _DieOSG4Web;
+		[default, source] dispinterface _DieOSG4WebEvents;
+	};
+};
