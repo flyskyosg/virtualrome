@@ -1,0 +1,115 @@
+<HTML>
+<HEAD>
+<TITLE>OSG4Web: OpenSceneGraph Plugin 4 IE and Firefox</TITLE>
+<style type="text/css">
+<!--
+.Stile1 {font-family: Verdana, Arial, Helvetica, sans-serif}
+.Stile2 {
+	font-size: 14px;
+	font-style: italic;
+}
+.Stile4 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 36px;
+}
+.Stile5 {font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; }
+.Stile6 {font-size: 10px}
+-->
+</style>
+</HEAD>
+<BODY>
+
+<center class="Stile1">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td><div align="center"><span class="Stile4">OSG4Web Test Page </span></div></td>
+  </tr>
+  <tr>
+    <td><div align="center"><strong><span class="Stile1"><span class="Stile2"><br>
+      OpenSceneGraph Plugin 4 IE and Firefox</span></span></strong><br>
+      </div></td>
+  </tr>
+</table>
+</center>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="73%"><div align="center"><span class="Stile1">
+      <br>
+      <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="100%" height="550" type="application/osg4web-plugin" @IE_CLASSID_DEBUG@>
+	<param name="ADVCore" value="http://localhost/osg4webtest/@PROJECT_NAME@.rar">
+	<param name="ADVCoreSHA1" value="@PROJECT_NAME@">
+	<param name="ADVCoreStartOptions" value="COREBASE ADDSINGLE_MODEL http://3d.cineca.it/storage/terrain/demo/out_run_2/demo2.ive"> 
+<!--	<param name="ADVCoreInitOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
+<!--	<param name="LoadCoreOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
+      </object>
+
+<script language="JavaScript">
+function ExecCoreCommand(command) 
+{
+	compcommand = command;
+
+	//alert(command);
+
+	document.OSG.execCoreCommand(compcommand);
+}
+</script>
+
+    </span></div></td>
+    <td width="27%" valign="top" class="Stile5">
+	    <p> 
+	    
+	    <a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a>
+	    <a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://3d.cineca.it/storage/terrain/demo_virtualrome/out_run_2/demo2.ive')">Carica Terreno</a>
+	    <a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://3d.cineca.it/storage/terrain/demo_virtualrome/modelli/esterni/esterni.osg')">Carica Villa ext</a>
+	    <a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://3d.cineca.it/storage/terrain/demo_virtualrome/modelli/interni/area_E.ive')">Carica Villa int</a>
+	    
+	    </p>
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td width="27%"><div align="center">
+              	<a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK YAW LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW LEFT</a>
+                </div></td>
+              <td width="14%"><div align="center"><a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK FORWARD UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD UP</a></div></td>
+              <td width="29%"><div align="center">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK YAW RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW RIGHT</a>
+              </div></td>
+              <td width="3%"><div align="center"></div></td>
+              <td width="27%"><div align="center">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK PITCH UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH UP</a>
+              </div></td>
+            </tr>
+            <tr>
+              <td><div align="center">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK STRAFE LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE LEFT</a>
+              </div></td>
+              <td><div align="center">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK FORWARD DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD DOWN</a>
+              </div></td>
+              <td><div align="center">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK STRAFE RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE RIGHT</a>
+              </div></td>
+              <td><div align="center"></div></td>
+              <td><div align="center">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK PITCH DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH DOWN</a>
+              </div></td>
+            </tr>
+            <tr>
+              <td><div align="center">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK SETSTEPS 10.0 10.0'); javascript:ExecCoreCommand('WALK GOTO 292498.22775 4653219.68388 200.0 0.0 0.0 0.0');" href="javascript:void(0)">GOTO position</a>
+              </div></td>
+            </tr>
+        </table>
+   </td>
+  </tr>
+</table>
+ </span></p>
+<center>
+
+  <br>
+
+</center>
+
+</BODY>
+</HTML>

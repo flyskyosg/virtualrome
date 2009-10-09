@@ -1,0 +1,275 @@
+                RAR - What's new in the latest version
+
+
+   Version 2.90
+
+   1. Added extraction only support of BZIP2, JAR (Java ARchive)
+      and ACE 2.0 formats.
+   
+   2. Now it is possible to use full file paths such as d:\path\name
+      in the exclude lists and -x<name> switch when archiving. 
+      Earlier versions understood only relative file paths here.
+
+   3. New option "Append archive name to path" in the
+      "Settings/Compression" dialog. It is used only if the default
+      folder for extracted files is specified and it controls if the 
+      archive name is appended to the default folder name when 
+      constructing the destination path.
+
+   4. New 'E' parameter for -ag switch denotes a day of year.
+      For example: rar a -agEEE backup.
+
+   5. To provide a reasonable tradeoff between compression and
+      reliability, RAR resets solid statistics between volumes
+      only if sufficient data (about 4 MB) had been processed since 
+      the last reset.
+
+      You may use two new switches to change this default behaviour.
+      Switch -sv forces RAR to always reset statistics, regardless
+      of volume size, when -sv- disables such reset at all times.
+
+      Switch -sv- supersedes -sd, though the latter is also recognized
+      by RAR for compatibility purposes.
+
+   6. The choice "Never" is added to the file overwrite request
+      displayed by console mode RAR. Style of console RAR requests
+      is somewhat altered.
+
+   7. "Extract Here" item is added to archives context menu.
+      You may use it to unpack archive contents to the current folder.
+
+   8. If you selected several archives in Explorer and then
+      right clicked them, the context menu will include both
+      archiving and extraction commands, so you may unpack all
+      the archives at once.
+
+      The old group unpacking method, through dragging a group
+      by the right mouse button to the destination folder,
+      is also supported.
+
+   9. File selection is not cleared when a user cancels the archiving
+      in WinRAR, so it is possible to repeat archiving without
+      selecting files again.
+
+  10. File lists (@listfile parameters of the command line) may now
+      contain comments preceeded by // characters. For example:
+
+      c:\work\doc\*.txt         //backup text documents
+      c:\work\image\*.bmp       //backup pictures
+
+  11. Disks disabled in the system policy are not displayed in the toolbar
+      and "Change drive" menu.
+   
+  12. Bugs corrected:
+
+      a) switches -y -inul did not disable some messages in GUI WinRAR;
+
+      b) sometimes WinRAR could display "Cannot create temporary file" 
+         error when opening a lot of archived files for a short time;
+
+      c) now RAR skips archived names like 'prn', which belong to devices
+         reported by Windows 2000 as pipe. Names of character devices are
+         skipped by both this and previous WinRAR versions.
+
+
+   Version 2.80
+
+   1. We express our gratitude to Francesco Indrio
+      <naradamoon@operamail.com> for designing all new WinRAR graphics.
+
+   2. Added support of Unicode in file names. It may help to avoid
+      many problems related with national and some special characters
+      in archived file names. The complete support of Unicode
+      is available only for Windows NT and Windows 2000 users,
+      but this feature still provides some benefits for
+      Win9x/WinME users.
+
+   3. Dialogs "Info", "SFX", "Comment", "Lock" and "Protect" are
+      combined to a single dialog, so you may change several
+      archive parameters at once.
+
+   4. "Advanced SFX options" button added to SFX dialog allows
+      to set additional parameters of SFX module such as extraction
+      path, title, window text others.
+
+   5. Toolbar:
+
+      a) toolbar buttons are reordered;
+
+      b) "Add" button is now available also inside of archives;
+
+      c) "Extract" and "Lock" are not present on the toolbar
+         by default, but you may use "Extract To" and
+         "Info/Options/Lock archive" instead. On the other hand
+         it is possible to enable these buttons using a new
+         "Select buttons..." command in "Settings/General" dialog;
+
+      d) "Extract To" command now has the same Alt-E keyboard
+         shortcut both inside and outside of archives.
+         Shortcut of the "Extract" command is changed to "Alt-W".
+
+   6. Changes in the "Archive name and parameters" dialog:
+
+      a) "General/Lock archive" option - lock a created or
+         modified archive;
+
+      b) "Advanced/Pause after each volume" option - always ask
+         confirmation before creating next volume regardless
+         of disk type;
+
+      c) "Advanced/Recovery record" - specify the size of the recovery
+         record as a percentage of the total archive size;
+
+      d) "SFX options" - set parameters of the created SFX archive;
+
+      e) "Files to add" and "Files to exclude" had been moved from
+         "Advanced" to the new "Files" sheet;
+
+      f) "Files/File paths" - select a method of storing file paths;
+
+      g) "Put each file to separate archive" - put each selected file
+         in the current folder and all files in selected subfolders to
+         separate archives, each archive contains only one file.
+
+   7. "History" menu is removed. The names of a few recently opened
+      archives are added to the end of "Files" menu.
+
+   8. The new "Import/Export" submenu in "Settings" menu includes
+      two commands allowing to export WinRAR settings to Settings.reg
+      file and import them later. It may be useful if you wish to
+      restore WinRAR settings after re-installing Windows or if is 
+      needed to move them to another computer. Settings.reg file is 
+      created in the same folder as WinRAR.exe.
+
+   9. "Settings/General" dialog:
+
+      a) "High priority" option is removed as it usually
+         deteriorated overall system performance without any real
+         increase of WinRAR performance. But "Low priority" option
+         is present and it can be useful if you wish to give more
+         processor time to other tasks.
+
+      b) New "Keep archives history" option allows to disable
+         storing the names of recently opened archives, for example,
+         for security reasons.
+
+      c) "Always on top" option places WinRAR window above all 
+         other programs. You may wish to set it if you frequently
+         use WinRAR as a drag and drop target.
+
+      d) Use "Toobar/Select buttons..." to customize WinRAR buttons.
+
+  10. "Settings/Compression" dialog:
+
+      a) "Volume options" are removed. Now WinRAR always creates
+         independent volumes, because they minimize data losses
+         in case of archive damage.
+
+         Compression profiles introduced in the previous version
+         provide better flexibility than the removed "Always put
+         recovery record" option. You may specify all required
+         settings in a separate profile intended for volumes.
+
+      b) "Default folder for extracted files" is moved to this dialog.
+         Its behaviour is changed a bit, now it is used both in
+         "Extract To" and "Extract" commands as the base part of
+         the destination path. The complete path is constructed
+         by appending an archive name to the default folder.
+
+         "Settings/Extraction" dialog is removed.
+         
+  11. New options in the "Settings/File list" dialog:
+
+      a) "Show archives first" - display archive names above all
+         other files in the file list window;
+
+      b) "Merge volumes contents" - when you open the first volume,
+         read and display contents of all volumes available in the same
+         folder as the first volume.
+
+      Both options are enabled by default.
+
+  12. "Settings/Viewer" dialog:
+
+      a) "Reuse existing window" option tells WinRAR to keep
+         only one internal viewer window.
+
+  13. Changes in the GUI SFX module script language:
+
+      a) New "License" command displays a license text before
+         extracting files;
+
+      b) New "Presetup" command runs the specified program before
+         extracting files;
+
+      c) New "ExtSign" command informs SFX that additional data
+         in free format may be present at the end of archive;
+
+      d) script may include more than one Setup command;
+
+      e) New optional syntax of "Text" command.
+         "Text" and "License" commands now support some HTML tags;
+
+      f) "Silent" command may have an optional parameter.
+
+  14. SFX module displays the total processed progress bar while
+      unpacking files.
+
+  15. Archive information dialog:
+
+      a) the authenticity information is displayed in a separate
+         window, which can be scrolled to view very long AV strings;
+
+      b) this dialog now contains the size of maximum continuous damaged
+         area, which still can be repaired using the recovery record
+         contained in the archive. This number is for the best case,
+         a real value can be smaller depending on the type of damage.
+
+  16. Command 's-' allows to remove SFX module from SFX archive.
+
+  17. Switch '-ag' supports two new format parameters:
+
+      a) 'W' - a number of the current week in a year;
+
+      b) 'A' - a number of the current day in a week.
+         Weeks start with Monday.
+
+  18. New switch '-k' - lock archive.
+
+  19. New switch '-vp' - pause after each volume.
+
+  20. You may specify the recovery record size as a percentage of the
+      total archive size in 'rr' command and '-rr' switch. For 
+      example, -rr3%
+
+  21. New -ep2 switch - store full file paths when archiving.
+
+  22. You may break the archiving operation directly from
+      the "Diagnostic messages" dialog using "Break operation" button.
+
+  23. Switches -inul and -y can be used in WinRAR command line
+      to disable error messages.
+
+  24. Switch -sv is removed, now RAR and WinRAR by default create
+      independent volumes. You may override it using the new -sd
+      switch, but note that it reduces your chances to restore
+      a part of data in case of archive damage.
+
+  25. In case of write error WinRAR asks for "Retry/Abort"
+      confirmation instead of immediate aborting as before, so a user
+      has a possibility to free some space on the destination disk.
+
+  26. The following keyboard shortcuts are now supported by WinRAR:
+
+      a) F2 - rename a file under the cursor. It is supported
+         only outside archives;
+
+      b) F4 - open the address list.
+
+  27. RCVT archive converter is removed from WinRAR distributive.
+      It is available in "RAR extras" section of www.rarsoft.com.
+
+  28. Note to users willing to translate WinRAR to their native
+      language: please look at rarlng.rar archive in "RAR extras"
+      section of www.rarsoft.com. Now it is possible to localize
+      WinRAR very easily simply by editing plain text files.

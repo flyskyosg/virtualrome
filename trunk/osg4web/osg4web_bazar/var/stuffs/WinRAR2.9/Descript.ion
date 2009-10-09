@@ -1,0 +1,26 @@
+Default.SFX          GUI RAR SFX module
+descript.ion         File descriptions
+Dos.SFX              DOS RAR SFX module
+File_Id.diz          Short version description
+License.txt          License for use and distribution
+Order.txt            Registration form
+Os2.SFX              OS/2 SFX module
+Rar.exe              Console RAR
+Rar.txt              Console RAR manual
+RarLng.dll           Language resources
+Rar_Site.txt         Distribution sites list
+RarExt.dll           WinRAR shell extension
+RarFiles.lst         Sort order for solid archives
+ReadMe.txt           Brief WinRAR overview
+Register.txt         Registration hints
+TechNote.txt         Description of RAR archive format
+Uninstall.exe        Uninstall program
+Uninstall.lst        Uninstall list file
+UnRAR.exe            Freeware tool to extract from RAR archives
+WhatsNew.txt         What is new in this version
+WinCon.SFX           Console RAR SFX module
+WinRAR.cnt           WinRAR help file contents
+WinRAR.exe           WinRAR
+WinRAR.hlp           WinRAR help file
+Zip.SFX              GUI ZIP SFX module
+UnrarSrc.txt         Unrar sources

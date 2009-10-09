@@ -1,0 +1,92 @@
+*****************************************
+*					*
+*		TODO			*
+*					*
+*****************************************
+
+
+- Progetto npOSG4Web Linux
+- Mettere a posto tutta la gestione delle Options passate ad OSG che non funge
+- Abilitare l'utilizzo della curl per il download di altri file
+
+
+- PARZIALMENTE IMPLEMENTATO: Download dei pacchetti di dipendenza al core (CARLO)
+
+
+
+*****************************************
+*					*
+*		KNOWN BUG		*
+*					*
+*****************************************
+
+- **BUG** ShellBase - Resettare la WinID in modo da far ripartire correttamente il context OpenGL
+- **BUG** Scroll bug con schede nvidia
+
+
+
+*****************************************
+*					*
+*		DONE			*
+*					*
+*****************************************
+
+- Finiti progetti di release per nposg e core vari
+- Progetto Internet Explorer
+- Messaggi di errore del plug
+- Messaggi errore per il core
+- Libcurl statica
+- Ripristinare il nome delle DLL a nomepacchetto (Bug FIX)
+
+
+
+*****************************************
+*					*
+*		TASK CARLO		*
+*					*
+*****************************************
+
+CORES
+
+- Finire di Riguardare tutto il codice dei core e commentare
+- Correggere il baco di resize di CoreBase
+- Creare Classe per la creazione e gestione dei tooltips
+
+
+
+SHELL
+- Fare milioni di cose... vedi agenda
+
+
+
+DONE
+- Finiti i log forzati
+- Ristrutturata tutta la parte di gestione dei parametri di inizializzazione e dei parametri passati tramite object
+- Portare LoadCore a Derivato di CoraBase
+- Spostare ToolTips in Descriptions
+- Aggiunta registrazione dei comandi
+- Ricerca tramite comandi registrati nel NodeCommandList
+- Creata la classe base CommandSchedule per il parsing e l'handle dei comandi dalla DoCommand
+- Creato Esempio AsyncLoading
+- Test modelli caricati sotto nodi
+- Cache modelli caricati
+- Dare un occhio ai progetti CMAKE
+- Fare un test per CoreBase
+- Definire dove andare a posizionare il compilato di corebase
+- Pacchetto di test (GIGI)
+- Versionare tutte le dll di OSG
+
+
+
+
+*****************************************
+*					*
+*		TASK GIGI		*
+*					*
+*****************************************
+
+- generare il rar di CoreBase in automatico e generare SHA-1 del pacchetto (ora SHA-1 è sul pacchetto rar, bisognerebbe farlo della dll e fare iol check a runtime?)
+
+
+
+

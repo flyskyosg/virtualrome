@@ -1,0 +1,166 @@
+
+Change Log
+
+10/03/2008
+- Attivato proxy tramite variabili di env
+- ShellThread iniziato lo spostamento dei thread da np a shell
+
+09/03/2007
+- Centralizzati i messaggi di errore
+
+08/03/2008
+- Allineamento esempi
+- Implementazione resize sugli HUD 2D
+
+06/03/2008
+- Eventi di resize della finestra
+- Bug fix chiamata a DoRendering
+
+28/02/2008
+- Riscritta la parte di parsing dei nodi
+- Riscritto la metodologia di picking
+- Riconfigurazione del Tooltips 
+- FunCore allineato
+- Aggiunta del CoreJSExample
+
+06/02/2008
+- Riscritta la parte di gestione dei parametri di init della shell e dei parametri da object
+- Finita implementazione dei log forzati su file da parametri Object
+- Caricamento Core Advanced anche dentro Local Firefox e Main FIrefox
+
+04/02/2008
+- Minor bug fix
+- Aggiunta define per settare directory core o User space o Firefox Plugin
+
+29/01/2008
+- Finita la release per nposg e core
+
+28/01/2008
+- Ripristinato il nome dll a nome di progetto (per release e test usare lo stesso nome dello sha1)
+- Varie modifiche e improv
+
+11/12/2007
+- Rilasciata R2
+- Modificati i progetti
+
+04/12/2007
+- SceneModifier finito creazione nodi gruppo, switch, mt
+- Aggiunti comportamenti per switch
+- Finita Delete Node
+- Iniziati i comportamenti per le MT
+
+03/12/2007
+- Finito CoreExampleAnimateView con esempio
+- Porting FlyManipulator -> osgvisweb a osg4web. Riadattato senza Pick. 
+- Ripristinata navigazione a 3 pulsanti
+- TODO: manca esempio definitivo con pulsanti tramite JavaScript
+- KNOW BUG: la camera se ne fotte di setViewMatrix... ogni volta risetta la stessa
+
+30/11/2007
+- Finita integrazione CoreExampleEditManipulator
+- KNOW BUGS: bug con l'HUD di testo e finire il loading dei modelli
+- TODO ISSUES: mettere a posto le dimensioni dell'HUD, renderlo switchabile e altre mini modifiche
+
+26/11/2007
+- Cache modelli caricati in loadAsync
+- Risposta a JS di errore in caricamento
+- Aggiunta funzione di raise in JS
+- Inizializzato progetto SceneModifier
+- Aggiunta Metodo initSceneData
+- Modificati Progetti
+
+23/11/2007
+- Loading e attacco in gruppi (testare)
+- Modifiche al test
+- Corretto BUG isLoading
+- Opzioni di ottimizzazione dei modelli
+
+
+22/11/2007
+- Implementazione CoreExampleAsyncLoad (da testare funzionalità)
+- Testato Loading singolo
+- KNOW BUG: isLoading restituisce sempre false
+- Creato Loading Mark
+- Corretto Test CoreExampleEditManip.html.in
+- Modificato CoreBase con CommandRegistry
+- Modificata DoCommand base per fare handle di comandi registrati tramite CommandSchedule
+- Modificati tutti gli esempi con CommandSchedule (manca EditManipulator... non modificare fino commit di Andrea)
+
+21/11/2007
+- Aggiunto CoreExampleAsyncLoad
+
+20/11/2007
+- funzioni di registrazioni comandi nel NodeParser e NodeCommandList
+- possibilità di scegliere il metodo di ricerca tra i NodeCommand
+- Find di comandi diretto e first occurrence (Down e Up)
+
+20/11/2007 - 1/11/2007 
+- CINECA modifiche non loggate
+
+30/10/2007
+- Corretto Log Name dei messaggi di errore dei Core.
+- CoreInterface: aggiunto private m_corename
+- Aggiunto esempio WalkManipulator, NodeParser
+
+19/10/2007 - 29/10/2007 
+- CINECA modifiche non loggate
+
+18/10/2007
+- Aggiunta define in ie Helper per evitare funzioni deprecated in VS2005
+- Ripulito e commentato CoreBase
+- Iniziato il supporto alle dipendenze dei core in pacchetti separati
+
+16/10/2007
+- Corretto BUG creazione directory Temp
+- Testato Debug Internet Explorer
+- Implementata Gestione Messaggi di Errore del DynamicLoad
+
+15/10/2007
+- Iniziato progetto Debug Internet Explorer
+
+03/10/2007
+- Addattamento codice ieOSG4Web completato
+- *** BUG *** il res non trova .tlb spostare la generazione in idl/ieOSG4Web
+
+02/10/2007
+- Iniziato l'adattamento del codice di ieOSG4Web
+
+01/10/2007
+- Inizio progetto CMake ieOSG4Web
+
+26/09/2007
+- Spostato il caricamento del core advanced nel thread di download. In questo modo non si blocca l'istanza del plugin
+
+25/09/2007
+- Aggiunto parsing dei messaggi header del server
+- Rimozione dei file downloadati incompleti
+- Testato libcurl statico
+- Rimossi DestroyWindow in caso di errore inizializzazione Core.
+- Rigenerato pacchetto CoreDebug
+- Nuovo SHA-1 per i test
+
+21/09/2007
+- Aggiunto metodo per sganciare windows id ad ogni chiusura del core
+
+20/09/2007
+- Logging Debugged
+- Aggiunta Directory in TEMP/osg4web/coresha
+- **BUG** in curl download se il file non è presente sul server -- Differenziare i messaggi di errore di curl
+- **BUG** core Advanced - Trovare il modo di resettare la win id per fare swap buffer
+
+19/09/2007
+- Logging completato
+
+18/09/2007
+- Primo abbozzo per i messaggi di errore/debug
+
+11/09/2007
+- Corretto il settaggio dei parametri iniziali al CoreADV
+- Spostato in CoreInterface il bridge per i messaggi tra i core e la shell
+- Test.php adattato alle nuove procedure
+- Prodotto test.html
+- Aggiunto corebase.rar per i test
+
+07/09/2007
+- Init ChangeLog
+
