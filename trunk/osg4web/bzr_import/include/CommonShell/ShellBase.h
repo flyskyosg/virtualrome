@@ -6,7 +6,12 @@
 #include <CommonCore/CoreInterface.h>
 #include <Utilities/EnvUtils.h>
 
+#include <CommonShell/Defines.h>
+
 #include <unrarlib.h>
+
+#include <iostream>
+#include <map>
 
 class ShellBase
 {
@@ -24,12 +29,6 @@ public:
 	void setDownloadingCoreHandler(void* dcore) { m_dcoreptr = dcore; };
 
 	void setWindowHandler(HWND hwnd);
-	void setProxyParameters(std::string url, std::string port) { m_proxyport = port; m_proxyurl = url; }
-
-	bool setInstallDirectory(std::string insdir);
-	bool setLocalInstallDirectory(std::string insdir);
-	bool setTempDirectory(std::string insdir);
-	bool setCoreAppDirectory(std::string insdir);
 
 	bool startLoadingBaseCore();
 	bool startLoadingAdvancedCore();
@@ -48,8 +47,9 @@ public:
 	std::string getEnvironmentAppDirectory();
  
 	std::string	getAdvancedCore() { return m_advancedcore; };
-	std::string getAdvancedCoreAddress() { return m_advancedcoreaddress; };
+	std::string getAdvancedCoreAddress();
 	std::string getAdvancedCoreFileName();
+	std::string getAdvancedCoreSHA1();
 	std::string	getAdvancedCoreDirectory(); //FIXME: cambiare in modo tale da usare anche la dir plugin
 	
 	bool checkFileExistance(std::string fname);
@@ -68,9 +68,29 @@ public:
 	void sendWarnMessage(std::string warnmessage);
 	void sendNotifyMessage(std::string notifymessage);
 
+	//Settaggio dei parametri di configurazione
+	typedef std::pair<std::string, std::string> OptionPair;
+	
+	//Settaggio parametri iniziali
+	void setInitOption(OptionPair opair) { m_initOptionsMap.insert(opair); }
+	void setInitOption(std::string name, std::string value) { this->setInitOption(OptionPair(name, value)); }
+	bool getInitOption(std::string name, std::string& value);
+
+	//Funzione di configurazione dei parametri iniziali
+	bool configuringInitialOptions();
+
+	//Settaggio parametri iniziali
+	void setObjectShellOption(OptionPair opair) { m_objectShellOptionsMap.insert(opair); }
+	void setObjectShellOption(std::string name, std::string value) { this->setObjectShellOption(OptionPair(name, value)); }
+	bool getObjectShellOption(std::string name, std::string& value);
+
+	//Funzione di configurazione dei parametri provenienti da Object
+	bool configuringObjectOptions();
+	
 protected:
 	bool initializeLogMessages(std::string logname);
 	bool restoreLogMessages();
+	bool isLogMessagesInitialized()	{ return (m_coutbuf || m_cerrbuf); }
 
 	bool loadDynamicCore(std::string);
 	bool deleteCurrentCore();
@@ -99,31 +119,21 @@ protected:
 	//Parametri del LoadCore
 	std::string	m_loadcorename;
 	std::string	m_loadcoredir;
-	std::string m_initloadcoreoptions;
 
 	//Parametri di Advanced Core
 	std::string	m_advancedcore;
-	std::string m_advancedcoreaddress;
-	std::string m_advancedcorehash;
-	std::string m_advancedcoredepaddress;
-	std::string m_advancedcoredephash;
-	std::string m_advancedcoresha1;
 	std::string	m_advancedcoredir;
-	std::string m_initadvancedcoreinitoptions;
-	std::string m_initadvancedcorestartoptions;
 
+	//Mappa delle opzioni iniziali
+	std::map<std::string,std::string> m_initOptionsMap;
+
+	//Mappa delle opzioni passate tramite gli argomenti di HTML Object o Embedded
+	std::map<std::string,std::string> m_objectShellOptionsMap;
+
+	//Controllo di inizializzazione
 	bool m_coreInit;
 
-	//Configurazione Directory
-	std::string	m_installdir;
-	std::string	m_localinstalldir;
-	std::string	m_coreinstalldir;
-	std::string	m_tempdir;
-
-	//Configurazione Proxy
-	std::string	m_proxyport;
-	std::string	m_proxyurl;
-
+	//Stato di errore
 	unsigned int m_errorcode;
 	
 #if defined(WIN32)

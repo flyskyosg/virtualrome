@@ -104,6 +104,13 @@ namespace OSG4WebCC
 			std::cout << "NOTIFY: " << _CoreName << "::" << notifymessage << std::endl;
 		}
 
+		bool forcingLogMessages()
+		{
+			if(!this->isLogMessagesInitialized())
+				return this->initializeLogMessages();
+			return false;
+		}
+
 	protected:
 		//Inizializza il salvatagggio dei Log
 		virtual bool initializeLogMessages()
@@ -151,6 +158,8 @@ namespace OSG4WebCC
 
 			return false;
 		}
+
+		virtual bool isLogMessagesInitialized()	{ return (_coutbuf || _cerrbuf); }
 
 		//Trasporta un messaggio a Javascript
 		bool raiseCommand(std::string eventmessage)

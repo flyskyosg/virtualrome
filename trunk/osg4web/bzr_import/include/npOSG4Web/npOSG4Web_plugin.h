@@ -147,41 +147,12 @@ private:
 	NPP mInstance;
 	//controllo di inizializzazione
 	NPBool mInitialized;
+
+	//Check di setting opzioni iniziali critiche
+	bool mInitOptionsSet;
 	
-	//Installation Directory
-	std::string *mInstDir;
-
-	//Local Installation Directory
-	std::string *mLocalInstDir;
-
-	//Temporary Directory
-	std::string *mTempDir;
-
-	//Default Core Install Directory
-	std::string *mCoreInstallDir;
-	
-	//AdvancedCore Downloading Address
-	std::string *mADVCore;
-	//AdvancedCore Hash String
-	std::string *mADVCoreSHA1Hash;
-	//AdvancedCore Dependacies Address
-	std::string *mADVCoreDep;
-	//AdvancedCore Dependacies Hash String
-	std::string *mADVCoreDepSHA1Hash;
-	//AdvancedCore Initialization Options
-	std::string *mADVInitOptions;
-	//AdvancedCore Start Options
-	std::string *mADVStartOptions;
-	//LoadCore Init Option String
-	std::string *mLoadCBOptions;
-
 	//Puntatore allo Scriptable Peer
 	nsScriptablePeer * mScriptablePeer;
-
-	//Proxy HostName
-	std::string mProxyHName;
-	//Proxy Port
-	std::string mProxyPort;
 
 	PRThread* mThread;
 	NPBool mShutdownThread;
