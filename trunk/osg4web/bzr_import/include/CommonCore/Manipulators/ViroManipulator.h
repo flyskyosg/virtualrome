@@ -279,6 +279,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 
 		double		_yaw;					// not used
 		double		_pitch;					// not used
+		double		_roll;					//
 
 		double		_FrameDT;
 		double		_lastFrameTime;
