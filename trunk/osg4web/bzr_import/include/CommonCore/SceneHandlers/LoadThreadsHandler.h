@@ -12,6 +12,8 @@
 
 #include <osgUtil/Optimizer>
 
+#include <osgViewer/Viewer>
+
 namespace SceneHandlers
 {
 	/***********************************************************************
@@ -20,7 +22,7 @@ namespace SceneHandlers
 	 *
 	 ***********************************************************************/
 
-	class LoadThreadsHandler : public osg::Referenced
+	class LoadThreadsHandler : public osgGA::GUIEventHandler
 	{
 	public:
 
@@ -207,7 +209,7 @@ namespace SceneHandlers
 
 		
 		//Costruttore
-		LoadThreadsHandler();
+		LoadThreadsHandler(int width, int height);
 		
 		//Richiede il caricamento di un file
 		bool requestLoading(std::string filename);
@@ -246,6 +248,9 @@ namespace SceneHandlers
 
 		//Controlla la presenza di un nodo attraverso il nome
 		bool checkNodePresenceByName(std::string name);
+
+		//Handle degli eventi
+		bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa);
 		
 	protected:
 		//Distruttore
@@ -285,6 +290,10 @@ namespace SceneHandlers
 	protected:
 		//Handle the loading Message
 		osg::ref_ptr<osg::Switch> _LoadingMarkSwitch;
+		//Handle the loading Camera
+		osg::ref_ptr<osg::Camera> _LoadingMarkCamera;
+		//Handle the loading Mark Position
+		osg::ref_ptr<osg::MatrixTransform> _MatrixMarkPosition;
 
 		//Vettore dei Thread di Loading (con definizione)
 		typedef std::vector< osg::ref_ptr< LoadThreadsHandler::LoaderThread > > LoaderThreadStack;

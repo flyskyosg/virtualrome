@@ -11,6 +11,9 @@
 //OSG4Web name
 #define		OSG4WEB_SHELL_NAME		"npOSG4Web"
 
+//Millisecondi di mantenimento messaggi
+#define		TIME_CORE_MESSAGES		2000
+
 #if defined (WIN32) //Windows DEBUG
 
 //#define		_WIN32_WINNT		0x0400

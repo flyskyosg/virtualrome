@@ -18,6 +18,7 @@ LoadCore::LoadCore(std::string corename) : CoreBase(corename),
 	_MessageTimer(NULL),
 	_SwitchMessage(new osg::Switch),
 	_LoadedNode(NULL),
+	_CameraNode(new osg::Camera),
 	_CapsuleBarSD(new osg::ShapeDrawable),
 	_CapsuleBarSwitch(new osg::Switch)
 {
@@ -41,6 +42,9 @@ LoadCore::~LoadCore()
 {
 	if(_LoadedNode.valid())
 		_LoadedNode = NULL;
+
+	if(_CameraNode.valid())
+		_CameraNode = NULL;
 
 	if(_SwitchMessage.valid())
 		_SwitchMessage = NULL;
@@ -270,23 +274,21 @@ bool LoadCore::createOSG4WebLogo()
 
 osg::Node* LoadCore::createOSG4WebMessages()
 {
-	osg::Camera *camera = new osg::Camera;
-
 	osg::ref_ptr<osg::Geode> tgeode = new osg::Geode;
 
 	this->sendNotifyMessage("createOSG4WebMessages -> Creating OSG4Web Status Messages");
 
-	camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-	camera->setProjectionMatrixAsOrtho2D(0, 1000, 0, 1000); 
-	camera->setViewMatrix(osg::Matrix::identity());
-	camera->setClearMask(GL_DEPTH_BUFFER_BIT);
-	camera->addChild(_SwitchMessage.get());
-	camera->getOrCreateStateSet()->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
+	_CameraNode->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+	_CameraNode->setProjectionMatrixAsOrtho2D(0, 1280, 0, 1024); 
+	_CameraNode->setViewMatrix(osg::Matrix::identity());
+	_CameraNode->setClearMask(GL_DEPTH_BUFFER_BIT);
+	_CameraNode->addChild(_SwitchMessage.get());
+	_CameraNode->getOrCreateStateSet()->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
 
 	_TextMessage->setFont(this->getInstallationDirectory() + "/" + OSG4WEB_LOADCORE_FONT);
 	_TextMessage->setColor(OSG4WEB_COLORVEC_RED);
-	_TextMessage->setCharacterSize(35.0f);
-	_TextMessage->setPosition(osg::Vec3(1000.0 / 2.0, 1000.0 / 3.3, 0.0));
+	_TextMessage->setCharacterSize(18.0f);
+	_TextMessage->setPosition(osg::Vec3(1280.0 / 2.0, 1024.0 / 3.3, 0.0));
         
 	_TextMessage->setAlignment(osgText::Text::CENTER_BASE_LINE);
 	_TextMessage->setFontResolution(32,32); 
@@ -302,7 +304,7 @@ osg::Node* LoadCore::createOSG4WebMessages()
 
 	_SwitchMessage->addChild(tgeode.get(), false);
 
-	return camera;
+	return _CameraNode.get();
 }
 
 osg::Node* LoadCore::createOSG4WebLogoText()
@@ -387,6 +389,26 @@ bool LoadCore::setHUDMessageColor(std::string colorname)
 
 void LoadCore::preFrameUpdate() 
 {
+	osgViewer::Viewer::Windows windows;
+	_Viewer->getWindows(windows);
+	for(osgViewer::Viewer::Windows::iterator itr = windows.begin(); itr != windows.end(); ++itr)
+	{
+		int x, y, width, height;
+		(*itr)->getWindowRectangle(x, y, width, height);
+
+		if(width != _CurrWidth || height != _CurrHeight)
+		{
+			_CurrWidth = width;
+			_CurrHeight = height;
+
+			if(_CameraNode.valid())
+				_CameraNode->setProjectionMatrixAsOrtho2D(0, _CurrWidth, 0, _CurrHeight);
+
+			if(_TextMessage.valid())
+				_TextMessage->setPosition(osg::Vec3(_CurrWidth / 2.0, _CurrHeight / 3.3, 0.0));
+		}
+	}
+	
 	//Controllo se c'è un Timer Messaggio 
 	if(_MessageTimer)
 	{
@@ -444,76 +466,3 @@ std::string LoadCore::handleAction(std::string argument)
 	
 	return retstr;
 }
-
-/*
-std::string LoadCore::DoCommand(std::string command)
-{
-	this->sendNotifyMessage("DoCommand -> Command string: " + command);
-
-	std::string retstr( "CORE_BADCOMMAND" );
-	std::string::size_type pos = command.find( " " );
-	std::string lcommand, rcommand;
-
-	if( pos != std::string::npos )
-	{
-		lcommand = command.substr(0, pos);
-		rcommand = command.substr(pos + 1, command.size() -1);
-	}
-	else
-	{
-		lcommand = command;
-		rcommand.clear();
-	}
-
-	if(lcommand == "LC_LOAD_MODEL") //Only for testing core
-	{
-		if( !this->loadModel(rcommand) )
-			retstr = "CORE_FAILED";
-		else
-			retstr = "CORE_DONE";
-	}
-	else if(lcommand == "LC_STATUSBAR_VALUE")
-	{
-		if( !this->refreshStatusBarValue(rcommand) )
-			retstr = "CORE_FAILED";
-		else
-			retstr = "CORE_DONE";
-	}
-	else if(lcommand == "LC_STATUSBAR_COLOR")
-	{
-		if( !this->setStatusBarColor(rcommand) )
-			retstr = "CORE_FAILED";
-		else
-			retstr = "CORE_DONE";
-	}
-	else if(lcommand == "LC_STATUSBAR_VISIBILITY")
-	{
-		if( !this->setStatusBarVisibility(rcommand) )
-			retstr = "CORE_FAILED";
-		else
-			retstr = "CORE_DONE";
-	}
-	else if(lcommand == "LC_SETMESSAGE")
-	{
-		if( !this->setHUDMessage(rcommand) )
-			retstr = "CORE_FAILED";
-		else
-			retstr = "CORE_DONE";
-	}
-	else if(lcommand == "LC_SETMESSAGE_COLOR")
-	{
-		if( !this->setHUDMessageColor(rcommand) )
-			retstr = "CORE_FAILED";
-		else
-			retstr = "CORE_DONE";
-	}
-	else
-	{
-		this->sendWarnMessage("DoCommand -> Bad Command: " + command);
-		retstr = "CORE_BADCOMMAND";
-	}
-	
-	return retstr;
-}
-
- */
