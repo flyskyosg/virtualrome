@@ -504,7 +504,7 @@ bool AnimateViewHandler::setAnimationKey( std::string key )
 		return false;
 }
 
-osg::Vec3 AnimateViewHandler::interpolateCR(float t, osg::Vec3 p0, osg::Vec3 p1, osg::Vec3 p2, osg::Vec3 p3){
+osg::Vec3 AnimateViewHandler::interpolateCR(double t, osg::Vec3 p0, osg::Vec3 p1, osg::Vec3 p2, osg::Vec3 p3){
 	osg::Vec3 R;
 	double t2,t3;
 	t2 = t * t;
