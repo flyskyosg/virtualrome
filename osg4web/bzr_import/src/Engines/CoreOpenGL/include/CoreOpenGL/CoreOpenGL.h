@@ -18,7 +18,7 @@ using namespace CommonCore;
  * OSG CoreOpenGL Class
  *
  ***********************************************************************/
-class CoreOpenGL : public CoreInterface
+class CoreOpenGL : public CoreInterface , public CommandSchedule
 #if defined(WIN32)
 	, public WindowWin32
 #else
@@ -26,6 +26,10 @@ class CoreOpenGL : public CoreInterface
 #endif
 {
 public:
+	enum CoreOpenGLActions
+	{
+		UNKNOWN_ACTION = 0
+	};
 
 	//Costruttore/Distruttore
 	CoreOpenGL(std::string corename = OSG4WEB_COREOPENGL_NAME);
@@ -35,6 +39,9 @@ public:
 	virtual const char* className() { return OSG4WEB_COREOPENGL_LIBNAME; };
 	//Return Class Version
 	virtual const char* classVersion() { return OSG4WEB_COREOPENGL_VERSION; };
+
+	//Gestore dei Comandi pubblicati nel RegistryComandi
+	virtual std::string handleAction(std::string argument);
 
 	//Core initialization
 #if defined(WIN32)
@@ -47,6 +54,11 @@ public:
 	virtual bool handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam); //TODO:
 #endif
 
+	//Inizializza le Opzioni del core successivamente all'inizializzazione
+	virtual void AddStartOptions(std::string str, bool erase = true);
+	//Gestisce i comandi dalla Shell e Javascript
+	std::string DoCommand(std::string command);
+
 	//Rendering pass
 	bool RenderScene();
 	
@@ -56,7 +68,13 @@ public:
 	bool isDone() { return _done; }
 
 protected:
+	//Return the installation directory
 	std::string getInstallationDirectory() { return _InstDir; }
+	//Clear the local Command Registtry
+	void clearCommandRegistry()	{ _CommandRegistry.clear(); }
+	//Add Action to the command schedule
+	void addCommandSchedule(CommandSchedule* cschedule) { _CommandRegistry[cschedule->getCommandScheduleName()] = cschedule; }
+
 	//OpenGL Initialization
 	virtual void initializeOpenGL();
 	//OpenGL Window Resize
@@ -67,6 +85,7 @@ protected:
 private:
 	//Demo: Rotating Grid and Cube
 	void drawDemoGridAndCube();
+	//Model Rotation
 	float _theta;
 
 private:
