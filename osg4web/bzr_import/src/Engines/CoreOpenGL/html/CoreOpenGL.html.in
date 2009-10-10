@@ -40,7 +40,7 @@
       <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="100%" height="550" type="application/osg4web-plugin" @IE_CLASSID_DEBUG@>
 	<param name="ADVCore" value="http://localhost/osg4webtest/@PROJECT_NAME@.rar">
 	<param name="ADVCoreSHA1" value="@PROJECT_NAME@">
-	<param name="ADVCoreStartOptions" value="COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> 
+<!--	<param name="ADVCoreStartOptions" value="COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive">  -->
 <!--	<param name="ADVCoreInitOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
 <!--	<param name="LoadCoreOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
       </object>

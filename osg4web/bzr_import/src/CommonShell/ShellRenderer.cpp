@@ -40,20 +40,23 @@ bool ShellRenderer::doCallBack()
 
 	for (;;)
 	{
-		if( this->isBusy() )
+		if( this->isBusy() && !this->isShuttingDown())
 			this->waitCondition();
 			
-		if( !_rStubb->doRenderingBridge() )
+		if( !_rStubb->doRenderingBridge() && !this->isShuttingDown())
 		{
 			this->notifyCondition();
-			return false;
+			break;
 		}
 				
 		if( this->isShuttingDown() )
 			break;
 			
 		this->unLock();
-		this->makeSleep( RENDER_DELAY );
+
+		if(!this->isShuttingDown())
+			this->makeSleep( RENDER_DELAY );
+
 		this->Lock();
 	}
 

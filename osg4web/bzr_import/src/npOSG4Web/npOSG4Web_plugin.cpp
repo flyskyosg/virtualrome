@@ -209,7 +209,12 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 		return;
 	}
 
+#if !defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
 	reftempstr->append(APPEND_CORES_DIRECTORY);
+#else
+	reftempstr->append(APPEND_NPOSG4WEB_DIRECTORY);
+#endif
+	
 	mShellBase.setInitOption( INIT_OPTION_COREINSTDIR, *reftempstr );
 	reftempstr->clear();
 
@@ -482,7 +487,7 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 
 NPBool nsPluginInstance::initLoader()
 {
-	mInitialized = true; //FIXME: controllare se va messo a false in caso di errore 
+	mInitialized = true;
 
 	mShellBase.sendNotifyMessage("nsPluginInstance::initLoader -> starting the Loading Core.");
 	if(!mShellBase.startLoadingBaseCore())
@@ -517,6 +522,8 @@ void nsPluginInstance::shut()
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::shut -> Shutting down plugin instance"));
 
 	mLoading = true;
+
+	mShellBase.forcingShutDown();
 	
 	if(!mShellBase.closeAllLibraries())
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::shut -> Error closing all libraries."));

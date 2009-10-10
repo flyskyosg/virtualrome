@@ -45,12 +45,6 @@ ShellBase::~ShellBase()
 	m_generalOption.clearOption();
 	m_objectOption.clearOption();
 
-	if(m_Renderer)
-	{
-		delete m_Renderer;
-		m_Renderer = NULL;
-	}
-
 	if(m_Downloader)
 	{
 		m_Downloader->closeDownloader();
@@ -58,11 +52,34 @@ ShellBase::~ShellBase()
 		m_Downloader = NULL;
 	}
 
+	if(m_Renderer)
+	{
+		m_Renderer->closeRendering();
+		delete m_Renderer;
+		m_Renderer = NULL;
+	}
+
+	m_errormessage.clear();
+
 	if(this->isLogMessagesInitialized())
 		if(! this->restoreLogMessages() )
 			this->sendWarnMessage("ShellBase::~ShellBase -> Error closing messages redirection."); 
+
+	m_hWnd = NULL;
 }
 
+
+void ShellBase::forcingShutDown()
+{
+	this->sendNotifyMessage("ShellBase::forcingShutDown -> Forcing Shut Down.");
+	
+	if(m_Downloader)
+	{
+		m_Downloader->closeDownloader();
+		delete m_Downloader;
+		m_Downloader = NULL;
+	}
+}
 
 /************************************************************************
  *
@@ -548,7 +565,8 @@ bool ShellBase::initializeAdvancedCore()
 			
 			this->sendNotifyMessage("ShellBase::initializeAdvancedCore -> requesting advanced core dependacies.");
 
-			m_Downloader->addDownloadRequest(request);
+			if(m_Downloader)
+				m_Downloader->addDownloadRequest(request);
 
 			request.clear();
 		}
@@ -562,7 +580,9 @@ bool ShellBase::initializeAdvancedCore()
 		request.setUnpackDirectory( unpackdirectory );
 
 		this->sendNotifyMessage("ShellBase::initializeAdvancedCore -> requesting advanced core.");
-		m_Downloader->addDownloadRequest(request);
+
+		if(m_Downloader)
+			m_Downloader->addDownloadRequest(request);
 	}
 	else
 	{
@@ -665,10 +685,6 @@ bool ShellBase::startLoadingBaseCore()
 		return false;
 	}
 
-	std::string logname;
-	if(m_objectOption.getShellOption(OBJECT_OPTION_ENABLELOGS, logname)) //Se è presente l'indirizzo del core da caricare
-		m_CoreInterface->forcingLogMessages();
-
 	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr, &ShellBase::requestFileDownload);
 
 	m_coreInit = m_CoreInterface->InitCore(m_hWnd, m_generalOption.getShellOption(LOADER_COREDIR), this->getInitLoaderOptions());
@@ -746,12 +762,6 @@ bool ShellBase::startLoadingAdvancedCore()
 		this->sendWarnMessage( "ShellBase::startLoadingAdvancedCore -> runtime library loading failed!" );
 		return false;
 	}
-
-	//TODO: reset di finestra
-
-	std::string logname;
-	if(m_objectOption.getShellOption(OBJECT_OPTION_ENABLELOGS, logname)) //Se è presente l'indirizzo del core da caricare
-		m_CoreInterface->forcingLogMessages();
 
 	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr, &ShellBase::requestFileDownload);
 	
@@ -1034,7 +1044,7 @@ bool ShellBase::startRendering()
 
 bool ShellBase::stopRendering()
 {
-	bool ret = true;
+ 	bool ret = true;
 
 	if(m_CoreInterface == NULL)
 	{
@@ -1045,9 +1055,6 @@ bool ShellBase::stopRendering()
 
 	if(m_coreInit && !m_CoreInterface->isDone())
 	{
-		//Fermo il thread di Download se sta facendo cose particolari
-		m_Downloader->clearDownloadRequestQueue();
-
 		if( !m_Renderer )
 		{
 			this->sendWarnMessage( "ShellBase::stopRendering -> Renderer seems not presents!" );
@@ -1313,7 +1320,8 @@ bool ShellBase::setDownloadRequest(std::string url)
 	request.setDownloadURL(url);
 	request.setDownloadTempDir( tempdir );
 
-	m_Downloader->addDownloadRequest(request);
+	if(m_Downloader)
+		m_Downloader->addDownloadRequest(request);
 
 	return true;
 }

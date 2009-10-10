@@ -60,6 +60,7 @@ bool ShellThread::joinThread()
 		
 		this->notifyCondition();
 
+		PR_Sleep( JOIN_THREAD_DELAY );
 		PR_JoinThread(_Thread);
 		PR_Sleep( JOIN_THREAD_DELAY );
 

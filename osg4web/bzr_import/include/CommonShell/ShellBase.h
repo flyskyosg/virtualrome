@@ -73,6 +73,8 @@ public:
 	bool doRenderingBridge();
 	bool setDoneBridge();
 
+	void forcingShutDown();
+
 	//IE
 	std::string getEnvironmentTempDirectory();
 	std::string getEnvironmentAppDirectory();

@@ -86,6 +86,9 @@ private:
 	ShellUnpacker* _unpackerctr;
 
 	ShellBaseController* _dwnlcontrol;
+
+	bool _isLoading;
+	bool _isDone;
 };
 
 #endif //__OSG4WEB_SHELLDOWNLOADER__

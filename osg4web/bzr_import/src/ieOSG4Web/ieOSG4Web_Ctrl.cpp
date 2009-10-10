@@ -168,7 +168,10 @@ IMPLEMENT_OLECTLTYPE(ieOSG4Web_Ctrl, IDS_IEOSG4WEB, _dwieOSG4WebOleMisc)
 		return;
 	}
 
+#if !defined(IEOSG4WEB_COREDIR_PLUGIN)
 	reftempstr.append(APPEND_CORES_DIRECTORY);
+#endif
+	
 	m_ShellBase.setInitOption( INIT_OPTION_LOCALINSTDIR, reftempstr ); //FIXME: per adesso metto lo stesso... settare in core che è ie quindi non c'è
 	m_ShellBase.setInitOption( INIT_OPTION_COREINSTDIR, reftempstr );
 	reftempstr.clear();
@@ -230,6 +233,8 @@ void ieOSG4Web_Ctrl::OnClose(DWORD dwSaveOptions)
 
 	m_Loading = true;
 	
+	m_ShellBase.forcingShutDown();
+
 	if(!m_ShellBase.closeAllLibraries())
 		m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::OnClose -> Error closing all libraries."));
 	
@@ -662,7 +667,7 @@ void ieOSG4Web_Ctrl::GetProxyConfiguration()
 							m_ProxyEnabled = (ProxyEnable != 0);
 						}
 						else
-								m_ShellBase.sendWarnMessage("nsPluginInstance::GetProxyConfiguration -> Quering \"ProxyEnable\" value failed.");
+								m_ShellBase.sendNotifyMessage("ieOSG4Web_Ctrl::GetProxyConfiguration -> Quering \"ProxyEnable\" value is not set.");
 				
 						cbData = 2*MAX_PATH;
 						res = ::RegQueryValueEx(hKey5,"ProxyServer",NULL,&type,(LPBYTE)ProxyServer,&cbData);
@@ -677,32 +682,32 @@ void ieOSG4Web_Ctrl::GetProxyConfiguration()
 							m_ProxyPort = tmp.Right( tmp.GetLength()-pos-1);
 						}
 						else
-							m_ShellBase.sendWarnMessage("nsPluginInstance::GetProxyConfiguration -> Quering \"ProxyServer\" values failed.");
+							m_ShellBase.sendWarnMessage("ieOSG4Web_Ctrl::GetProxyConfiguration -> Quering \"ProxyServer\" values failed.");
 
 						RegCloseKey(hKey5);
 					}
 					else
-						m_ShellBase.sendWarnMessage("nsPluginInstance::GetProxyConfiguration -> Getting \"Internet Settings\" key failed.");
+						m_ShellBase.sendWarnMessage("ieOSG4Web_Ctrl::GetProxyConfiguration -> Getting \"Internet Settings\" key failed.");
 
 					RegCloseKey(hKey4);
 				}
 				else
-					m_ShellBase.sendWarnMessage("nsPluginInstance::GetProxyConfiguration -> Getting \"CurrentVersion\" key failed.");
+					m_ShellBase.sendWarnMessage("ieOSG4Web_Ctrl::GetProxyConfiguration -> Getting \"CurrentVersion\" key failed.");
 
 				RegCloseKey(hKey3);
 			}
 			else
-				m_ShellBase.sendWarnMessage("nsPluginInstance::GetProxyConfiguration -> Getting \"Windows\" key failed.");
+				m_ShellBase.sendWarnMessage("ieOSG4Web_Ctrl::GetProxyConfiguration -> Getting \"Windows\" key failed.");
 
 			RegCloseKey(hKey2);
 		}
 		else
-			m_ShellBase.sendWarnMessage("nsPluginInstance::GetProxyConfiguration -> Getting \"Microsoft\" key failed.");
+			m_ShellBase.sendWarnMessage("ieOSG4Web_Ctrl::GetProxyConfiguration -> Getting \"Microsoft\" key failed.");
 
 		RegCloseKey(hKey1);
 	}
 	else
-		m_ShellBase.sendWarnMessage("nsPluginInstance::GetProxyConfiguration -> Getting \"Software\" key failed.");
+		m_ShellBase.sendWarnMessage("ieOSG4Web_Ctrl::GetProxyConfiguration -> Getting \"Software\" key failed.");
 }
 
 BOOL ieOSG4Web_Ctrl::ieOSG4Web_CtrlFactory::UpdateRegistry(BOOL bRegister)

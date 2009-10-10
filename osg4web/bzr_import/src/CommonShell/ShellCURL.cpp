@@ -102,7 +102,7 @@ size_t ShellCURL::readDLStream(void *ptr, size_t size, size_t nmemb, void *data)
 	size_t realsize = size * nmemb;
 
 	if(_stopdownloading)
-		return 0L; //Stoppa il download
+		return 0L; //Stoppa l'upload
 
 	//TODO:
 	return realsize;
