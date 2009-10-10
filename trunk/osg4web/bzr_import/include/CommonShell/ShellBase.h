@@ -37,6 +37,7 @@ public:
 	bool closeAllLibraries();
 
 	bool isRunning(){ return m_coreInit; }
+	bool isThereErrors(){ return m_errorcode != 0; }
 
 	bool doRendering();
 

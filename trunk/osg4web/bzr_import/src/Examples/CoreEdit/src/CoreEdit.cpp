@@ -122,14 +122,16 @@ bool CoreEdit::initSceneData()
 std::string CoreEdit::handleAction(std::string argument)
 {
 	std::string retstr = "CORE_DONE";
+	std::string lcommand, rcommand;
 
+	this->splitActionCommand(argument, lcommand, rcommand);
 	//this->sendNotifyMessage("handleAction -> Command Found");
 
-	switch(this->getCommandActionIndex(argument))
+	switch(this->getCommandActionIndex(lcommand))
 	{
 	case 0: //LOAD_TERRAIN
 		{
-			osg::ref_ptr<osg::Node> terreno = osgDB::readNodeFile( argument ); 
+			osg::ref_ptr<osg::Node> terreno = osgDB::readNodeFile( rcommand ); 
 	
 			if( terreno.valid() )
 			{
