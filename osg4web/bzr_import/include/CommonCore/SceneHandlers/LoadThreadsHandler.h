@@ -227,6 +227,13 @@ namespace SceneHandlers
 
 		//Setta l'ottimizzatore dei modelli caricati e il metodo di ottimizzazione
 		void setOptimization(bool opt, osgUtil::Optimizer::OptimizationOptions optType = osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS);
+
+		//Cerca i nodi di self Load
+		void findSelfLoadingGroups();
+
+		//Setto il server prefix per i nodi caricati dai Loading Groups
+		void setServerPrefix(std::string address) { _address = address; }
+		std::string getServerPrefix() { return _address; }
 		
 	protected:
 		//Distruttore
@@ -291,6 +298,9 @@ namespace SceneHandlers
 
 		//Risoluzione del Camera 2D
 		float _xMaxResolution, _yMaxResolution;
+
+		//Server Prefix per i nodi caricati da Loading Groups
+		std::string _address;
 	};
 };
 

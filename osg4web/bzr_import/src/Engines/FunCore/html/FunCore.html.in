@@ -45,6 +45,23 @@ function SetMatrix()
 	else
 		alert('Specify a position with GetMatrix');
 }
+
+function SwitchRomano() 
+{
+	retcommand = document.OSG.execCoreCommand('SCENEMODIFIER SWITCH_SOLO_CHILD_BYNAME Main_Scene_Switch Main_Romano_Group');
+	
+	if(retcommand != 'COMMAND_OK')
+		alert(retcommand);
+}
+
+function SwitchAttuale() 
+{
+	retcommand = document.OSG.execCoreCommand('SCENEMODIFIER SWITCH_SOLO_CHILD_BYNAME Main_Scene_Switch Main_Attuale_Group');
+	
+	if(retcommand != 'COMMAND_OK')
+		alert(retcommand);
+}
+
 </script>
 </head>
 <body>
@@ -72,7 +89,7 @@ function SetMatrix()
               <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="800" height="600" type="application/osg4web-plugin" >
 				<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
 				<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
-				<param name="ADVCoreStartOptions" value="FUNCORE SETMAINSCENEGRAPH http://localhost/osg4webtest/flaminia/topflaminiascene.osg"> 
+				<param name="ADVCoreStartOptions" value="FUNCORE SETMAINSCENEGRAPH http://localhost/osg4webtest/flaminia/top.osg"> 
               </object>
 		<!--	  </noscript> -->
             </td>
@@ -84,16 +101,19 @@ function SetMatrix()
             <td><div align="center">
             <table width="800" border="0" cellspacing="0" cellpadding="0">
             <tr>
-              <td width="23%"><div align="center" class="style3">
+              <td width="17%"><div align="center" class="style3">
               	<a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK YAW LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW LEFT</a>
                 </div></td>
-              <td width="23%"><div align="center" class="style3"><a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK FORWARD UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD UP</a></div></td>
-              <td width="23%"><div align="center" class="style3">
+              <td width="17%"><div align="center" class="style3"><a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK FORWARD UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD UP</a></div></td>
+              <td width="17%"><div align="center" class="style3">
               <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK YAW RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW RIGHT</a>
               </div></td>
               <td ><div align="center"><span class="style4"><span class="style5"></span></span></div></td>
-              <td width="23%"><div align="center" class="style3">
+              <td width="17%"><div align="center" class="style3">
               <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK PITCH UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH UP</a>
+	      </div></td>
+	      <td width="17%"><div align="center" class="style3">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK LIFT UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">LIFT UP</a>
               </div></td>
             </tr>
             <tr>
@@ -109,6 +129,9 @@ function SetMatrix()
               <td><div align="center"><span class="style4"><span class="style5"></span></span></div></td>
               <td><div align="center" class="style3">
               <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK PITCH DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH DOWN</a>
+	      </div></td>
+	      <td><div align="center" class="style3">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK LIFT DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">LIFT DOWN</a>
               </div></td>
             </tr>
          <!--   <tr>
@@ -128,7 +151,14 @@ function SetMatrix()
         
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td><div align="left"></div></td>
+	    <td><div align="center">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td><div align="center" class="style3"><a href="javascript:SwitchAttuale()">Attuale</a></div></td>
+                  <td><div align="center" class="style3"><a href="javascript:SwitchRomano()">Romano</a></div></td>
+                </tr>
+              </table>
+            </div></td>
           </tr>
           <tr>
             <td height="10"></td>

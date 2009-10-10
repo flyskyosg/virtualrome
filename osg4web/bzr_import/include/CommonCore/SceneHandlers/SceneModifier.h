@@ -27,6 +27,7 @@ namespace SceneHandlers
 			DELETE_NODE,
 			SWITCH_ALLCHILD,
 			SWITCH_CHILD_BYNAME,
+			SWITCH_SOLO_CHILD_BYNAME,
 			SET_MATRIXIDENTITY,
 			SET_MATRIX,
 			SET_MATRIX_ROTATE,
@@ -64,7 +65,7 @@ namespace SceneHandlers
 		std::string createMatrixTransform(std::string action);
 		std::string deleteNode(std::string action);
 		std::string switchAllChild(std::string action);
-		std::string switchChildByName(std::string action);
+		std::string switchChildByName(std::string action, bool alone = false);
 
 
 		//Matrix Set Commands
@@ -89,7 +90,7 @@ namespace SceneHandlers
 		bool removeNode(osg::Node* node, std::string &retstr);
 
 		bool switchAllChildByNode(osg::Node* parent, std::string &retstr);
-		bool switchNamedChildByNode(osg::Node* parent, std::string childname, std::string &retstr);
+		bool switchNamedChildByNode(osg::Node* parent, std::string childname, std::string &retstr, bool alone = false);
 
 		//Funzioni di supporto per matrici di trasformazione
 

@@ -279,20 +279,20 @@ bool CoreBase::initSceneData()
 }
 
 //Inizializzo le opzioni del core
-bool CoreBase::initSetupOptions(std::string options, bool erase) //FIXME: finire le options... (Provare ad usare readNodeFunc in modo da non passare dal Registry)
+bool CoreBase::initSetupOptions(std::string options, bool erase)
 {
+	//FIXME: finire le options... (Provare ad usare readNodeFunc in modo da non passare dal Registry)
 	this->sendNotifyMessage("initSetupOptions -> setting init OSG Registry Options " + options);
-
-	//std::string options("useOriginalExternalReferences noLoadExternalReferenceFiles");
 
 	/*
 	osg::ref_ptr<osgDB::ReaderWriter::Options> opt = osgDB::Registry::instance()->getOptions();
 	if(!opt.valid())
 	{
 		opt = new osgDB::ReaderWriter::Options;
+		opt->ref(); //FIXME: FACCIO REF PER LA FAVA DELLA DEALLOCAZIONE... IN QUESTO MODO NON VENGONO PIU' UCCISE LE DLL
 	}
-
-	opt->setName("Global Loading Option");
+	
+	opt->setName("Global_Registry_Option");
 
 	std::string option = opt->getOptionString();
 
@@ -308,8 +308,9 @@ bool CoreBase::initSetupOptions(std::string options, bool erase) //FIXME: finire
 	}
 	
 	osgDB::Registry::instance()->setOptions(opt.get()); 
-	*/
 
+	*/
+	
 	return true;
 }
 

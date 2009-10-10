@@ -41,6 +41,9 @@ using namespace SceneHandlers;
  *		SWITCH_CHILD_BYNAME
  *			"Nome_Nodo"		"Nome_Nodo_Figlio"
  *
+ *		SWITCH_SOLO_CHILD_BYNAME
+ *			"Nome_Nodo"		"Nome_Nodo_Figlio"
+ *
  *		SET_MATRIXIDENTITY
  *			"Nodo_Padre"
  *
@@ -98,6 +101,7 @@ void SceneModifier::initCommandActions()
 	this->setCommandAction("DELETE_NODE");
 	this->setCommandAction("SWITCH_ALL_CHILD");
 	this->setCommandAction("SWITCH_CHILD_BYNAME");
+	this->setCommandAction("SWITCH_SOLO_CHILD_BYNAME");
 	this->setCommandAction("SET_MATRIXIDENTITY");
 	this->setCommandAction("SET_MATRIX");
 	this->setCommandAction("SET_MATRIX_ROTATE");
@@ -133,6 +137,9 @@ std::string SceneModifier::handleAction(std::string argument)
 		break;
 	case SWITCH_CHILD_BYNAME:
 		retstr = this->switchChildByName(rcommand);
+		break;
+	case SWITCH_SOLO_CHILD_BYNAME:
+		retstr = this->switchChildByName(rcommand, true);
 		break;
 	case SET_MATRIXIDENTITY:
 		retstr = this->setMatrixIdentityByName(rcommand);
@@ -407,7 +414,7 @@ std::string SceneModifier::switchAllChild(std::string action)
 	return retstr;
 }
 
-bool SceneModifier::switchNamedChildByNode(osg::Node* parent, std::string childname, std::string &retstr)
+bool SceneModifier::switchNamedChildByNode(osg::Node* parent, std::string childname, std::string &retstr, bool alone)
 {
 	osg::ref_ptr<osg::Switch> swt = dynamic_cast<osg::Switch*>(parent);
 
@@ -421,11 +428,17 @@ bool SceneModifier::switchNamedChildByNode(osg::Node* parent, std::string childn
 
 	bool found = false;
 	for(unsigned int i = 0; i < swt->getNumChildren(); i++)
-		if(swt->getChild(i)->getName() == childname) //Switch di tutti i figli con lo stesso nome
+	{
+		child = swt->getChild(i);
+		if(child->getName() == childname) //Switch di tutti i figli con lo stesso nome
 		{
+			if(alone)
+				swt->setAllChildrenOff();
+
 			swt->setChildValue(child.get(), !swt->getChildValue(child.get()));
 			found = true;
 		}
+	}
 	
 	if(!found)
 	{
@@ -438,7 +451,7 @@ bool SceneModifier::switchNamedChildByNode(osg::Node* parent, std::string childn
 	return true;
 }
 
-std::string SceneModifier::switchChildByName(std::string action)
+std::string SceneModifier::switchChildByName(std::string action, bool alone)
 {
 	std::string retstr("BAD_COMMAND");
 	std::string nodename, childname;
@@ -454,7 +467,7 @@ std::string SceneModifier::switchChildByName(std::string action)
 		return "NODE_NOTFOUND";
 
 	for(unsigned int i = 0; i < number; i++) //Switch di tutti i nodi trovati a swtype
-		if( !this->switchNamedChildByNode(fnvbn.getNodeByIndex(i).at(fnvbn.getNodeByIndex(i).size() - 1), childname, retstr) )
+		if( !this->switchNamedChildByNode(fnvbn.getNodeByIndex(i).at(fnvbn.getNodeByIndex(i).size() - 1), childname, retstr, alone) )
 			return retstr;
 
 	_SceneData->dirtyBound();

@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.h,v $
 Language:  C++
-Date:      $Date: 2007/12/12 16:53:28 $
-Version:   $Revision: 1.2 $
+Date:      $Date: 2007/12/16 15:35:01 $
+Version:   $Revision: 1.3 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -42,7 +42,7 @@ namespace Manipulators
 {
 
 	const static double _walk_smoothing_factor = 5.0;
-	const static double _angle_step = 0.3;
+	const static double _angle_step = 0.5;
 
 	//---------------------------------------------------
 	class walkManipulator : public MatrixManipulator, public CommandSchedule
@@ -70,6 +70,7 @@ namespace Manipulators
 		osg::Node* getNode() {return _node.get();}; 
 
 		virtual void searchDefaultPos();
+		virtual void searchPosUsingSubNode(osg::Node* subnode, double ydistfromcenter = 3.0);
 		virtual bool handle(const GUIEventAdapter& ea,GUIActionAdapter& us);
 
 		void Render(void);
@@ -107,13 +108,15 @@ namespace Manipulators
 		//Ridefinizioni del Gestore dei Comandi
 		virtual std::string handleAction(std::string argument);
 
+		void setIntersectSegmenteMultiplier(double one, double two) { _segmult1 = one; _segmult2 = two; };
+
 	  protected:
 		virtual ~walkManipulator();
 		bool calcMovement();
 
 		void IntersectTerrain(void);
 		bool Intersect( osg::Vec3d p1, osg::Vec3d p2, osg::Vec3d& result);
-		  void moveHorizzontally(double amount, bool move_forward, bool move_left);
+		void moveHorizzontally(double amount, bool move_forward, bool move_left);
 		void moveVertically(double amount);
 		osg::Vec3d calcNextPosition(double step_x, double dist_y, double dist_z); 
 		double calcGroundDistance(void);
@@ -150,6 +153,9 @@ namespace Manipulators
 		bool         _keep_on_walking;
 		bool         _keep_on_rotating_left, _keep_on_rotating_right, _keep_on_rotating_up, _keep_on_rotating_down;
 		bool         _ground_collision_on;   
+
+		double		_segmult1;
+		double		_segmult2;
 	};
 
 };
