@@ -85,6 +85,8 @@ protected:
 
 	void clearCommandRegistry();
 	void addCommandSchedule(CommandSchedule* cschedule);
+
+	std::string getInstallationDirectory() { return _InstDir; }
 	
 protected:
 	osg::ref_ptr<osg::Camera> _MainCamera;

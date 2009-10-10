@@ -22,6 +22,18 @@ LoadCore::LoadCore(std::string corename) : CoreBase(corename),
 	_CapsuleBarSwitch(new osg::Switch)
 {
 	this->sendNotifyMessage("LoadCore -> Costructing LoadCore Instance.");
+
+	//Ridefinisco il nome dello Schedule Command
+	this->setCommandScheduleName("LOADCORE");
+
+	this->setCommandAction("LOAD_MODEL");
+	this->setCommandAction("STATUSBAR_VALUE");
+	this->setCommandAction("STATUSBAR_COLOR");
+	this->setCommandAction("STATUSBAR_VISIBILITY");
+	this->setCommandAction("SETMESSAGE");
+	this->setCommandAction("SETMESSAGE_COLOR");
+
+	this->addCommandSchedule((CommandSchedule*) this);
 }
 
 //LoadCore Distruttore
@@ -54,28 +66,21 @@ LoadCore::~LoadCore()
 	this->sendNotifyMessage("~LoadCore -> Destructing LoadCore Instance.");
 }
 
-//Setta le opzioni del core successivamente alla inizializzazione
-void LoadCore::AddStartOptions(std::string str, bool erase)
+bool LoadCore::initSceneData()
 {
-	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
+	this->sendNotifyMessage("initSceneData -> Building the SceneGraph.");
 
-	//Ridefinisco il nome dello Schedule Command
-	this->setCommandScheduleName("LOADCORE");
+	bool ret = this->createOSG4WebLogo();
 
-	this->setCommandAction("LOAD_MODEL");
-	this->setCommandAction("STATUSBAR_VALUE");
-	this->setCommandAction("STATUSBAR_COLOR");
-	this->setCommandAction("STATUSBAR_VISIBILITY");
-	this->setCommandAction("SETMESSAGE");
-	this->setCommandAction("SETMESSAGE_COLOR");
+	_Viewer->setSceneData(_LocalSceneGraph.get());
 
-	this->addCommandSchedule((CommandSchedule*) this);
+	return ret;
 }
 
 bool LoadCore::initManipulators()
 {
 	this->sendNotifyMessage("initManipulators -> Initializing Manipulators.");
-
+	
 	_NullManipulator->setNode( _LocalSceneGraph.get() );
 
 	_KeySwitchManipulator->addMatrixManipulator( '1', "NullManipulator", _NullManipulator.get());
@@ -192,7 +197,7 @@ bool LoadCore::createOSG4WebLogo()
 	osg::Vec3 capsulerotateaxis(0.0, 1.0, 0.0);
 	osg::Vec3 capsuleposition(50.0, 0.0, -120.0);
 
-	std::string osglogo(_InstDir + "/" + OSG4WEB_LOADCORE_LOGO);
+	std::string osglogo(this->getInstallationDirectory() + "/" + OSG4WEB_LOADCORE_LOGO);
 
 	osg::ref_ptr<osg::Group> scene = new osg::Group;
 	osg::ref_ptr<osg::Group> delight = new osg::Group;
@@ -278,7 +283,7 @@ osg::Node* LoadCore::createOSG4WebMessages()
 	camera->addChild(_SwitchMessage.get());
 	camera->getOrCreateStateSet()->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
 
-	_TextMessage->setFont(_InstDir + "/" + OSG4WEB_LOADCORE_FONT);
+	_TextMessage->setFont(this->getInstallationDirectory() + "/" + OSG4WEB_LOADCORE_FONT);
 	_TextMessage->setColor(OSG4WEB_COLORVEC_RED);
 	_TextMessage->setCharacterSize(35.0f);
 	_TextMessage->setPosition(osg::Vec3(1000.0 / 2.0, 1000.0 / 3.3, 0.0));
@@ -310,7 +315,7 @@ osg::Node* LoadCore::createOSG4WebLogoText()
 	osg::ref_ptr<osg::StateSet> stateset = geode->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
 
-    std::string font(_InstDir + "/" + OSG4WEB_LOADCORE_FONT);
+    std::string font(this->getInstallationDirectory() + "/" + OSG4WEB_LOADCORE_FONT);
 	std::string label("OSG4Web");
 
 	osg::ref_ptr<osgText::Text> text = new  osgText::Text;
@@ -409,7 +414,7 @@ std::string LoadCore::handleAction(std::string argument)
 	switch(this->getCommandActionIndex( lcommand ))
 	{
 	case LOAD_MODEL: //LOAD_MODEL
-		if( !this->loadModel( rcommand, false ) )
+		if( !this->loadModel( rcommand, true ) )
 			retstr = "CORE_FAILED";
 		break;
 	case STATUSBAR_VALUE: //STATUSBAR_VALUE
