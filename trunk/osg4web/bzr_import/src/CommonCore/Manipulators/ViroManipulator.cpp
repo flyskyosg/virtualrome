@@ -788,6 +788,8 @@ void ViroManipulator::AutoControl(double callTime){
 		else autoStepFactor = (_vEye.z()-10.0) / 2500; //(max-min);
 
 		#define VIRO_LOWHEIGHT	0.1
+		//#define VIRO_ENVCOL     0.95,1.0,1.0, 1.0
+		
 		if (autoStepFactor < VIRO_LOWHEIGHT){
 			double l,r,t,b,z,Z;
 			_Viewer->getCamera()->getProjectionMatrixAsFrustum(l,r,b,t,z,Z);
@@ -802,9 +804,11 @@ void ViroManipulator::AutoControl(double callTime){
 			_Viewer->getCamera()->setProjectionMatrixAsFrustum(l,r,b,t, z,Zfar);
 			
 			RollWithYaw = _Mix.interpolate(autoStepFactor/VIRO_LOWHEIGHT, 0.01,1.5); // 0.01;
+
 			if ( _envFog.get() ){
-				_envFog->setDensity( _Mix.interpolate(autoStepFactor/VIRO_LOWHEIGHT, (_envFogDensity*3),_envFogDensity) );
-				_envFog->setMode(osg::Fog::EXP2);
+				_envFog->setDensity( _Mix.interpolate(autoStepFactor/VIRO_LOWHEIGHT, (_envFogDensity*5),_envFogDensity) );
+				//_envFog->setColor( _Mix.interpolate(autoStepFactor/VIRO_LOWHEIGHT, osg::Vec4d(0.8,0.9,0.9, 1.0),osg::Vec4d(VIRO_ENVCOL)) );
+				//_envFog->setMode(osg::Fog::EXP2);
 				}
 			_bDirtyScale = true;
 			}
@@ -814,7 +818,8 @@ void ViroManipulator::AutoControl(double callTime){
 			RollWithYaw = 1.5;
 			if ( _envFog.get() ){
 				_envFog->setDensity( _envFogDensity );
-				_envFog->setMode(osg::Fog::EXP2);
+				//_envFog->setColor( osg::Vec4(VIRO_ENVCOL) );
+				//_envFog->setMode(osg::Fog::EXP2);
 				}
 			_bDirtyScale = false;
 			}
