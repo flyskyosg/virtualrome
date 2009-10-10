@@ -29,6 +29,4 @@ private:
 	std::string _argument;
 };
 
-
-
 #endif //__OSG4WEB_SHELLCOMMAND__

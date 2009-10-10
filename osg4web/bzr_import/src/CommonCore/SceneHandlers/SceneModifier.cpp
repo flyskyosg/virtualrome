@@ -19,7 +19,6 @@ using namespace SceneHandlers;
  *
  *  Nome Handler: SCENEMODIFIER
  *
- *	FIXME: capire come fare sta roba senza un Parser e senza usare i marker di stringa
  *	TIPS: per adesso i nomi NON POSSONO contenere spazi
  *
  *		CREATE_GROUP
@@ -264,11 +263,10 @@ std::string SceneModifier::addCommandDescription(std::string action)
 
 	osg::ref_ptr<osg::Node> node = dynamic_cast<osg::Node*>(fnvbn.getNodeByIndex(0).at(fnvbn.getNodeByIndex(0).size() - 1));
 
-	if(node.valid())
+	if( node.valid() )
 	{
 		osg::Node::DescriptionList desclist = node->getDescriptions();
-		desclist.push_back(caction);
-		desclist.push_back(commandarg);
+		desclist.push_back(caction + " " + commandarg);
 		node->setDescriptions(desclist);
 	}
 	else
