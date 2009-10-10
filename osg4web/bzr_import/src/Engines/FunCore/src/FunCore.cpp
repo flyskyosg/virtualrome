@@ -60,6 +60,7 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	this->setCommandAction("DEACTIVATE_JSMAP_MESSAGES");
 	this->setCommandAction("GET_JSMAP_COORDINATES");
 	this->setCommandAction("SETHOMEPOSITION");
+	this->setCommandAction("SETBOUNDS");
 
 	this->addCommandSchedule((CommandSchedule*) this);
 }
@@ -307,6 +308,14 @@ std::string FunCore::handleAction(std::string argument)
 			else retstr = "HOME_NOT_SET";
 		}
 		break;
+		
+	case SETBOUNDS:
+		{
+			if ( this->setBounds( rcommand ) ) retstr = "BOUNDS_SET";
+			else retstr = "INVALID_BOUNDS";
+		}
+		break;
+
 	default: //UNKNOWN_ACTION
 		retstr = "UNKNOWN_ACTION";
 		break;
@@ -394,6 +403,23 @@ bool FunCore::setHomePosition( std::string arguments ){
 		double x,y,z, tx,ty,tz;
 		if (_Viewer.get()->getCameraManipulator() && ( sscanf(arguments.c_str(), "%lf %lf %lf %lf %lf %lf", &x,&y,&z,&tx,&ty,&tz) == 6) ){
 			_Viewer.get()->getCameraManipulator()->setHomePosition( osg::Vec3d(x,y,z), osg::Vec3d(tx,ty,tz), osg::Z_AXIS );
+			return true;
+			}
+		}
+	return false;
+}
+
+bool FunCore::setBounds( std::string arguments ){
+	if ( _ViRoMan.get() ){
+		double x,y,z, X,Y,Z;
+		if ( sscanf(arguments.c_str(), "%lf %lf %lf %lf %lf %lf", &x,&y,&z,&X,&Y,&Z) == 6 ){
+			if (x>=X || y>=Y || z>=Z) return false;
+
+			// Glass Prison
+			osg::BoundingBox BB;									
+			BB.set( osg::Vec3d(x,y,z), osg::Vec3d(X,Y,Z) );
+			_ViRoMan->setGlassPrison( BB );
+
 			return true;
 			}
 		}
