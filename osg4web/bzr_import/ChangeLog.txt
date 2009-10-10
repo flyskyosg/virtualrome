@@ -1,6 +1,10 @@
 
 Change Log
 
+11/12/2007
+- Rilasciata R2
+- Modificati i progetti
+
 04/12/2007
 - SceneModifier finito creazione nodi gruppo, switch, mt
 - Aggiunti comportamenti per switch
