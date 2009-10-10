@@ -11,8 +11,8 @@
 #include <osg/Matrixd>
 #include <osg/Transform>
 #include <osg/CullStack>
-#include <osgUtil/IntersectVisitor>
 #include <osgViewer/Viewer>
+#include <osg/PositionAttitudeTransform>
 
 using namespace osg;
 using namespace Manipulators;
@@ -141,13 +141,124 @@ void ViroHud::Init(){
 	geodeHUD->addDrawable( gsmooth.get() );
 
 	xform->addChild( geodeHUD.get() );
+	_CompassPAT = new osg::PositionAttitudeTransform;
+	xform->addChild( _CompassPAT.get() );
+
+	CreateCompass(_vp_width-50,40, 70);
+	_CompassPAT->addChild( _Compass.get() );
 }
+
+void ViroHud::CreateCompass(float px,float py, float size){
+	if ( _Compass.get() ) return;
+
+	_Compass = new osg::Geode();
+
+	float z = -0.1f;
+	float halfsize = size*0.5f;
+	float xsize = halfsize*0.7f;
+	float quartersize = size*0.25f;
+	float shortsize = size*0.15f;
+	float octavesize = quartersize*0.5f;
+
+	osg::ref_ptr<osg::Geometry> NS = new osg::Geometry;
+	osg::ref_ptr<osg::Vec3Array> NSvertex = new osg::Vec3Array;
+	osg::ref_ptr<osg::Vec4Array> NScolor = new osg::Vec4Array;
+
+	osg::ref_ptr<osg::Geometry> WE = new osg::Geometry;
+	osg::ref_ptr<osg::Vec3Array> WEvertex = new osg::Vec3Array;
+	osg::ref_ptr<osg::Vec4Array> WEcolor = new osg::Vec4Array;
+
+	osg::ref_ptr<osg::Geometry> BK = new osg::Geometry;
+	osg::ref_ptr<osg::Vec3Array> BKvertex = new osg::Vec3Array;
+	osg::ref_ptr<osg::Vec4Array> BKcolor = new osg::Vec4Array;
+
+	NSvertex->push_back(osg::Vec3(0.0,-halfsize, z));
+	NSvertex->push_back(osg::Vec3(shortsize,0.0, z));
+	NSvertex->push_back(osg::Vec3(0.0,halfsize, z));
+	NSvertex->push_back(osg::Vec3(-shortsize,0.0, z));
+
+	NScolor->push_back(Vec4(0,0,0, 1.0));
+	NScolor->push_back(Vec4(0,0,0, 0.5));
+	NScolor->push_back(Vec4(VIROHUD_COMPASSNORTHCOLOR));
+	NScolor->push_back(Vec4(0,0,0, 0.5));
+
+	NS->setVertexArray( NSvertex.get() );
+	NS->setColorArray( NScolor.get() );
+	NS->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	NS->addPrimitiveSet(new osg::DrawArrays(GL_QUADS,0,4));
+
+	WEvertex->push_back(osg::Vec3(-halfsize,0.0, z));
+	WEvertex->push_back(osg::Vec3(0.0,-shortsize, z));
+	WEvertex->push_back(osg::Vec3(halfsize,0.0, z));
+	WEvertex->push_back(osg::Vec3(0.0,shortsize, z));
+
+	WEcolor->push_back(Vec4(0,0,0, 1.0));
+	WEcolor->push_back(Vec4(0,0,0, 0.5));
+	WEcolor->push_back(Vec4(0,0,0, 1.0));
+	WEcolor->push_back(Vec4(VIROHUD_COMPASSNORTHCOLOR));
+
+	WE->setVertexArray( WEvertex.get() );
+	WE->setColorArray( WEcolor.get() );
+	WE->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	WE->addPrimitiveSet(new osg::DrawArrays(GL_QUADS,0,4));
+
+	BKvertex->push_back(osg::Vec3(0.0,-octavesize, z));
+	BKvertex->push_back(osg::Vec3(octavesize,0.0, z));
+	BKvertex->push_back(osg::Vec3(0.0,octavesize, z));
+	BKvertex->push_back(osg::Vec3(-octavesize,0.0, z));
+
+	BKcolor->push_back(Vec4(VIROHUD_HUDCOLOR));
+	BKcolor->push_back(Vec4(VIROHUD_HUDCOLOR));
+	BKcolor->push_back(Vec4(VIROHUD_HUDCOLOR));
+	BKcolor->push_back(Vec4(VIROHUD_HUDCOLOR));
+
+	BK->setVertexArray( BKvertex.get() );
+	BK->setColorArray( BKcolor.get() );
+	BK->setColorBinding(osg::Geometry::BIND_OVERALL);
+	BK->addPrimitiveSet(new osg::DrawArrays(GL_QUADS,0,4));
+
+	// North Label
+	osg::ref_ptr<osgText::Font> northFont = osgText::readFontFile("arial.ttf");
+	osg::ref_ptr<osgText::Text> northLabel = new osgText::Text;
+	northLabel->setPosition( Vec3(0,halfsize,z) );
+	northLabel->setAlignment(osgText::Text::CENTER_CENTER);
+	northLabel->setFont( northFont.get() );
+	northLabel->setColor( Vec4f(0.0,0.0,0.0, 1.0) );
+	northLabel->setText("N");
+	northLabel->setFontResolution(20,20);
+	northLabel->setCharacterSize(20, 1.1);
+	northLabel->setBackdropType(osgText::Text::BackdropType::OUTLINE);
+	northLabel->setBackdropColor( Vec4(VIROHUD_HUDCOLOR) );
+
+
+	_Compass->addDrawable( WE.get() );
+	_Compass->addDrawable( NS.get() );
+	_Compass->addDrawable( BK.get() );
+	_Compass->addDrawable( northLabel.get() );
+
+	_Compass->setName("NOPICK");
+
+	// Use Image
+	/*
+    osg::Texture2D* texture = new osg::Texture2D;
+    texture->setDataVariance(osg::Object::DYNAMIC); // protect from being optimized away as static state.
+    texture->setImage(osgDB::readImageFile(filename));
+    
+    osg::StateSet* stateset = geom->getOrCreateStateSet();
+    stateset->setTextureAttributeAndModes(0,texture,osg::StateAttribute::ON);
+*/
+
+	_CompassPAT->setPosition( Vec3(px,py,z) );
+
+}
+
 
 void ViroHud::Update(){
 	if ( !_HUD.get() ) return;
+	if ( !_vm.get() ) return;
 
 
-	if (_viewer.get() && _viewer.get()->getCamera() && _viewer.get()->getCamera()->getViewport()){
+	if (0&& _viewer.get() && _viewer.get()->getCamera() && _viewer.get()->getCamera()->getViewport()){
 		_vp_height = _viewer->getCamera()->getViewport()->height();
 		_vp_width  = _viewer->getCamera()->getViewport()->width();
 		}
@@ -183,5 +294,13 @@ void ViroHud::Update(){
 		if ( _vm->getSoftImpact() ) HUDstring << std::string(" - Impact!!");
 
 		_HUDlabel->setText( HUDstring.str() );
+
+		// Update Compass Attitude
+		osg::Quat R;
+		osg::Vec3d L = _vm->getLookVec();
+		L.normalize();
+		L[2] = 0.0;
+		R.makeRotate( L, Vec3d(0,1,0) );
+		_CompassPAT->setAttitude( R );
 		}
 }
