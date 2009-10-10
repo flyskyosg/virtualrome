@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2007/12/14 16:04:57 $
-Version:   $Revision: 1.3 $
+Date:      $Date: 2007/12/16 15:35:16 $
+Version:   $Revision: 1.4 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -58,6 +58,8 @@ walkManipulator::walkManipulator() : CommandSchedule("WALK"),
    _going_up( 0 ),
    _calc_ground_distance( false ),
    _ground_collision_on( true ),
+   _segmult1(4.0),
+   _segmult2(3.0),
 #if _USE_VISMAN_
    _visman( NULL ),
    _viewer( NULL ),
@@ -180,11 +182,42 @@ void walkManipulator::searchDefaultPos()
 
   _position = getNode()->getBound().center();
   _yaw = 0;
-  _pitch = 0;
+  _pitch = -12;
   _roll = 0;
   _ground_distance = calcGroundDistance();
   C.Camera_X = _position.x();
   C.Camera_Y = _position.y() - 3.0 * radius;
+  C.Camera_Z = _position.z();
+  C.Camera_Yaw = _yaw;
+  C.Camera_Pitch = _pitch;
+  C.Camera_Roll = 0.0f;
+  setPosition(C, false);
+  setStepAmount(radius / 10.0f, radius / 10.0f);
+
+  IntersectTerrain();
+}
+//--------------------------------------------------------------------
+void walkManipulator::searchPosUsingSubNode(osg::Node* subnode, double ydistfromcenter)
+//--------------------------------------------------------------------
+{
+  double radius;
+  CameraData C;
+
+  if( subnode == NULL)
+  {
+	  this->searchDefaultPos();
+	  return;
+  }
+ 
+  radius = subnode->getBound().radius();
+
+  _position = subnode->getBound().center();
+  _yaw = 0;
+  _pitch = -12;
+  _roll = 0;
+  _ground_distance = calcGroundDistance();
+  C.Camera_X = _position.x();
+  C.Camera_Y = _position.y() - ydistfromcenter * radius;
   C.Camera_Z = _position.z();
   C.Camera_Yaw = _yaw;
   C.Camera_Pitch = _pitch;
@@ -558,8 +591,8 @@ void walkManipulator::moveHorizzontally(double amount, bool move_forward, bool m
 //--------------------------------------------------------------------
 {
   osg::Vec3d _newpos, _intersect_pos, _collision_result;
-  double _long_amout = 4.0 * amount;
-  double _z_distance = - 3.0 * _step_v;
+  double _long_amout = _segmult1 * amount; //4.0
+  double _z_distance = - _segmult2 * _step_v; //3.0
   
   // the intersection is calculated forward and lower
   if (move_forward)
@@ -1131,6 +1164,10 @@ std::string walkManipulator::ExecCommand(std::string lcommand, std::string rcomm
 		this->rotate_up(true);
 	else if ((lcommand.compare("PITCH") == 0)&& (rcommand.compare("DOWN") == 0))
 		this->rotate_down(true);
+	else if ((lcommand.compare("LIFT") == 0)&& (rcommand.compare("UP") == 0))
+		this->go_lift(false);
+	else if ((lcommand.compare("LIFT") == 0)&& (rcommand.compare("DOWN") == 0))
+		this->go_lower(false);
   else if (lcommand.compare("GOTO") == 0)
   {
     CameraData CP;

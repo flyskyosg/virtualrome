@@ -1,12 +1,17 @@
 
 #include <FunCore/FunCore.h>
+#include <FunCore/EnvironmentMap.h>
 
 
 #include <osg/MatrixTransform>
 
+#include <osgDB/FileNameUtils>
 #include <osgDB/ReadFile>
 
 #include <osgUtil/Optimizer>
+
+
+#include <CommonCore/Visitors/FindNodeVisitor.h>
 
 using namespace OSG4WebCC;
 
@@ -127,7 +132,7 @@ bool FunCore::buildMainScene()
 	_MainNode->addChild(tooltiphud.get());
 
 	//Attacco Nodi
-	_MainNode->addChild(_ModiSceneGraph.get());
+	_MainNode->addChild( _ModiSceneGraph.get() );
 
 	//Passo il nodo di scena al quale è possibile aggiungere figli
 	_LoaderThreadHandler->setNode(_ModiSceneGraph.get());
@@ -184,6 +189,18 @@ bool FunCore::loadModel(std::string nodename, bool erase)
 	if(erase)
 		_ModiSceneGraph->removeChildren(0, _ModiSceneGraph->getNumChildren()); //Clear di tutta la parte di scenegraph modelli
 
+	std::string address, filename;
+
+	int pos = nodename.rfind("/");
+
+	if(pos != std::string::npos)
+	{
+		address = nodename.substr(0, pos);
+		filename = nodename.substr(pos + 1, nodename.size());
+
+		_LoaderThreadHandler->setServerPrefix(address + "/");
+	}
+	
 	return _LoaderThreadHandler->requestLoading(nodename); 
 }
 
@@ -200,8 +217,46 @@ bool FunCore::loadModelToNode(std::string arguments)
 void FunCore::preFrameUpdate()
 {
 	this->handleLoadingThreads();
+	this->handleEnvironment();
 }
 
+void FunCore::handleEnvironment()
+{
+	Visitors::FindNodeVisitor fnvenvironment("Skybox_Loading_Node");
+	_ModiSceneGraph->accept(fnvenvironment);
+	
+	if( fnvenvironment.getNodeFoundSize() == 0)
+		return;
+
+	unsigned int npgeosize = fnvenvironment.getNodeByIndex(0).size();
+	osg::ref_ptr<osg::Geode> geode = dynamic_cast<osg::Geode*>(fnvenvironment.getNodeByIndex(0).at(npgeosize -1));
+
+	if( geode.valid() )
+	{
+		geode->setName("ATTACHED_Skybox_Loading_Node");
+		Visitors::FindNodeVisitor fnvcn("Environment_Map_Clear_Node");
+		_ModiSceneGraph->accept(fnvcn);
+
+		if(fnvcn.getNodeFoundSize() != 1)
+			return;
+
+		unsigned int npcnsize = fnvcn.getNodeByIndex(0).size();
+		osg::ref_ptr<osg::ClearNode> cnode = dynamic_cast<osg::ClearNode*>(fnvcn.getNodeByIndex(0).at(npcnsize -1));
+		if( cnode.get() )
+		{
+			osg::ref_ptr<osg::StateSet> stateset = geode->getStateSet();
+			if(stateset.valid())
+			{
+				osg::ref_ptr<osg::TexMat> tm = dynamic_cast<osg::TexMat*>(stateset->getTextureAttribute(0, osg::StateAttribute::TEXMAT));
+
+				if(tm.valid())
+				{
+					cnode->setCullCallback(new TexMatCallback(*tm));
+				}
+			}
+		}
+	}
+}
 
 void FunCore::handleLoadingThreads()
 {
@@ -215,14 +270,87 @@ void FunCore::handleLoadingThreads()
 		{
 			_ModiSceneGraph->addChild(lnode.get());
 
-			//TODO: set del manipoilatore di tiziano alla posizione iniziale e parametri di movimento FLY
-			_WalkManip->searchDefaultPos();
+			Visitors::FindNodeVisitor fnvconstraints("Contraints_Geo_Matrix");
+			_ModiSceneGraph->accept(fnvconstraints);
+
+			if( fnvconstraints.getNodeFoundSize() == 1)
+			{
+				osg::ref_ptr<osg::Node> node = fnvconstraints.getNodeByIndex(0).at(fnvconstraints.getNodeByIndex(0).size() -1);
+
+				if(node.valid())
+				{
+					_WalkManip->searchPosUsingSubNode(node.get(), 0.75f);
+					_WalkManip->setGroundCollisionOnOff(false);
+					_WalkManip->setStepAmount( node->getBound().radius() / 80.0f, node->getBound().radius() / 80.0f);
+					_WalkManip->setIntersectSegmenteMultiplier(1.5, 1.0);	
+				}
+				else
+					_WalkManip->searchDefaultPos();
+			}
+			else
+				_WalkManip->searchDefaultPos();
+
+			/*
+			bool environment = false;
+
+			Visitors::FindNodeVisitor fnvenvironment("Skybox_Loading_Node");
+			_ModiSceneGraph->accept(fnvenvironment);
+
+			if( fnvenvironment.getNodeFoundSize() == 1)
+			{
+				osg::ref_ptr<osg::Node> node = fnvenvironment.getNodeByIndex(0).at(fnvenvironment.getNodeByIndex(0).size() -1);
+
+				if(node.valid())
+				{
+					if(fnvenvironment.getNodeByIndex(0).size() != 1)
+					{
+						osg::ref_ptr<osg::Group> grp = dynamic_cast<osg::Group*>(fnvenvironment.getNodeByIndex(0).at(fnvenvironment.getNodeByIndex(0).size() -2));
+						if(grp.valid())
+						{
+							grp->removeChild(node.get());
+						}
+					}
+
+					osg::ref_ptr<osg::Transform> transform = new MoveEarthySkyWithEyePointTransform;
+					transform->setName("Move_EarthSky_Node");
+					transform->setCullingActive(false);
+					transform->addChild(node.get());
+
+					_ModiSceneGraph->addChild(transform.get());
+
+					environment = true;
+				}
+			}
+
+			if(!environment)
+			{
+				osg::ref_ptr<osg::ClearNode> clearNode = new osg::ClearNode;
+				clearNode->setName("Background_Clear_Node");
+				clearNode->setClearColor(osg::Vec4(54.0/255.0, 137.0/255.0, 152.0/255.0 , 1.0));
+				
+				_ModiSceneGraph->addChild(clearNode.get());
+			}
+			*/
+
+			osg::ref_ptr<osg::ClearNode> clearNode = new osg::ClearNode;
+			clearNode->setName("Environment_Map_Clear_Node");
+			clearNode->setClearColor(osg::Vec4(54.0/255.0, 137.0/255.0, 152.0/255.0 , 1.0));
+			
+			osg::ref_ptr<osg::Transform> transform = new MoveEarthySkyWithEyePointTransform;
+			clearNode->setName("Environment_Map_Transform_Node");
+			transform->setCullingActive(false);
+			transform->addChild(clearNode.get());
+
+			_ModiSceneGraph->addChild(transform.get());
 
 			_Viewer->home();
 			_maininit = true;
 		}
 		else
-			this->raiseCommand("ALERT Scena già inizializzata");
+		{
+			_ModiSceneGraph->addChild(lnode.get());
+			//this->raiseCommand("ALERT Scena già inizializzata");
+		}
 	}
 
 	//Controllo errori di caricamento

@@ -58,6 +58,7 @@ protected:
 	virtual void preFrameUpdate();
 
 	void handleLoadingThreads();
+	void handleEnvironment();
 
 
 	//Manipolatori

@@ -1,5 +1,7 @@
 
 #include <CommonCore/Scenehandlers/LoadThreadsHandler.h>
+#include <CommonCore/Visitors/FindNodeVisitor.h>
+
 
 #include <osg/Geode>
 #include <osg/MatrixTransform>
@@ -21,7 +23,8 @@ using namespace SceneHandlers;
  ***********************************************************************/
 
 /** Costruttore */
-LoadThreadsHandler::AttachNodeToSceneByName::AttachNodeToSceneByName(std::string nodename, osg::Node* node, bool multipleattach) : _nodeName(nodename),
+LoadThreadsHandler::AttachNodeToSceneByName::AttachNodeToSceneByName(std::string nodename, osg::Node* node, bool multipleattach) : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ACTIVE_CHILDREN),
+	_nodeName(nodename),
 	_attachNode(node),
 	_attached(false),
 	_multipleattach(multipleattach)
@@ -476,6 +479,8 @@ bool LoadThreadsHandler::clear()
 	//Clear della cache
 	clearNodeCache();
 	
+	_address.clear();
+
 	//Elimino tutte le richieste
 	while( _requestQueue.size() > 0)
 		_requestQueue.pop_back();
@@ -564,9 +569,47 @@ void LoadThreadsHandler::splitCommand(std::string command, std::string& largs, s
 	}
 }
 
+/** Scansiona lo SceneGraph e carica scova i gruppi Self Loading "Self_Loading_Group" */
+void LoadThreadsHandler::findSelfLoadingGroups()
+{
+	Visitors::FindNodeVisitor fnvslg("Self_Loading_Group");
+	_mainNode->accept(fnvslg);
+
+	if(fnvslg.getNodeFoundSize() == 0)
+		return;
+
+	for(unsigned int i = 0; i < fnvslg.getNodeFoundSize(); i++)
+	{
+		unsigned int npsize = fnvslg.getNodeByIndex(0).size();
+		osg::ref_ptr<osg::Group> grp = dynamic_cast<osg::Group*>(fnvslg.getNodeByIndex(0).at(npsize - 1));
+
+		if(grp.valid())
+		{
+			osg::Node::DescriptionList desclist = grp->getDescriptions();
+
+			if(desclist.size() > 0 )
+			{
+				std::string newname = "Self_Loading_Group_" + desclist.at(0);
+				std::string laddress = this->getServerPrefix() + desclist.at(0);
+				grp->setName(newname);
+
+				if(desclist.size() == 1)
+					this->requestLoading(laddress, newname); //Carico sotto il mio nodo col nome modificato 
+				else if(desclist.size() == 2)
+					this->requestLoading(laddress, newname + " " + desclist.at(1)); //Carico sotto il mio nodo col nome modificato + argomento "MULTIPLE o INSTANCE"
+				else
+					this->requestLoading(laddress, newname + " " + desclist.at(1), new osgDB::ReaderWriter::Options( desclist.at(3) )); //Opzioni di caching
+			}
+		}
+		else
+			fnvslg.getNodeByIndex(0).at(npsize - 1)->setName("FAKE_Self_Loading_Group");
+	}
+}
+
 /**  */
 osg::Node* LoadThreadsHandler::handleLoading()
 {
+	this->findSelfLoadingGroups();
 
 	this->refreshLoadingQueue();
 	this->refreshLoadingMark();
