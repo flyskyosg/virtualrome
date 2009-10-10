@@ -30,6 +30,7 @@
 
 #include <osg/NodeCallback>
 
+#define VIROHUD_FONT				"arial.ttf"
 #define VIROHUD_SIDECOLOR			0.94,0.91,0.78,0.7
 #define VIROHUD_HUDCOLOR			0.94,0.91,0.78,0.4	//1.0,1.0,0.0,0.4
 #define VIROHUD_COMPASSNORTHCOLOR	0.94,0.91,0.78,1.0
@@ -72,7 +73,8 @@ class ViroHud : public Referenced {
 				}
 			};
 
-		unsigned int _currentLoad;
+		void setCurrentLoad(unsigned int l){ _currentLoad = l; };
+		unsigned int getCurrentLoad(){ return _currentLoad; };
 
 	private:
 		osg::ref_ptr<Manipulators::ViroManipulator> _vm;			// using ViRo manipulator
@@ -87,6 +89,7 @@ class ViroHud : public Referenced {
 		std::ostringstream _HUDstring;
 		//char _HUDstring[512];	// Piu' performante
 		std::string _serverPrefix;
+		unsigned int _currentLoad;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

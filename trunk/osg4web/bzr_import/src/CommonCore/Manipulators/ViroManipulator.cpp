@@ -370,8 +370,10 @@ void ViroManipulator::scaleParameters( double scaleFactor ){
 void ViroManipulator::scaleParameters( const BoundingSphere BB ){
 	if ( !BB.valid() ) return;
 
-	double scaleFactor = BB.radius() * 0.001;
-	printf("Model Scale Factor: %.4f\n", scaleFactor);
+	//double scaleFactor = BB.radius() * 0.001;
+	double scaleFactor = BB.radius() * 0.0001;
+	
+	//printf("Model Scale Factor: %.4f\n", scaleFactor);
 
 	//BumpDistance        = _safeBD * scaleFactor;
 	//AvoidanceDistance   = _safeAD * scaleFactor;
@@ -379,9 +381,9 @@ void ViroManipulator::scaleParameters( const BoundingSphere BB ){
 	SurfaceSpeedLimiter = Acceleration * 0.1;
 	//_AvoidanceReaction = scaleFactor * 5e-8;
 
-	osg::notify(ALWAYS)<<"Acceleration = " << Acceleration <<std::endl;
-	osg::notify(ALWAYS)<<"Bump-Distance = " << BumpDistance <<std::endl;
-	osg::notify(ALWAYS)<<"Avoidance-Distance = " << AvoidanceDistance <<std::endl;
+	//osg::notify(ALWAYS)<<"Acceleration = " << Acceleration <<std::endl;
+	//osg::notify(ALWAYS)<<"Bump-Distance = " << BumpDistance <<std::endl;
+	//osg::notify(ALWAYS)<<"Avoidance-Distance = " << AvoidanceDistance <<std::endl;
 }
 
 // Sets the main node.
@@ -389,8 +391,8 @@ void ViroManipulator::scaleParameters( const BoundingSphere BB ){
 void ViroManipulator::setNode(osg::Node* node){
 	_NODE = node;
 	if (_NODE.get()){
-		scaleParameters( _NODE->getBound() );
-		_GlassPrison.expandBy( _NODE->getBound() );
+		//scaleParameters( _NODE->getBound() );
+		//_GlassPrison.expandBy( _NODE->getBound() );
 		//_NODE.get()->asGroup()->addChild( _HeadLight.get() );
 		}
 
@@ -743,7 +745,7 @@ void ViroManipulator::AutoControl(double callTime){
 		double Rad = _NODE->getBound().radius();
 
 		// Check for surface Z collisions
-		if ( Intersect(_vEye+Vec3d(0.0,0.0,Rad*0.15),_vEye-Vec3d(0.0,0.0,Rad), P,N) ){
+		if ( Intersect(_vEye/*+Vec3d(0.0,0.0,Rad*0.15)*/,_vEye-Vec3d(0.0,0.0,Rad), P,N) ){
 			_currentGroundDistance = _vEye.z()-P.z();
 			if ( (_vEye.z() - P.z()) <= GroundDistance ){
 				_vEye[2] = P.z() + GroundDistance;
@@ -807,7 +809,7 @@ void ViroManipulator::AutoControl(double callTime){
 			_bDirtyScale = true;
 			}
 		else if (_bDirtyScale){
-			_Viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::COMPUTE_NEAR_FAR_USING_PRIMITIVES);
+			_Viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::COMPUTE_NEAR_FAR_USING_BOUNDING_VOLUMES);
 			_Viewer->getCamera()->setNearFarRatio( 0.01 );
 			RollWithYaw = 1.5;
 			if ( _envFog.get() ){

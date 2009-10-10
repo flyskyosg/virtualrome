@@ -64,11 +64,14 @@ void ViroHud::CreateLoadingBar(){
 void ViroHud::UpdateLoadingBar(){
 	osg::Vec3Array* verts = dynamic_cast<osg::Vec3Array*>( _LoadingBarGeom->getVertexArray() );
 	if (verts && _viewer.get()){
+		// If no DBpager, return
+		if (!_viewer->getDatabasePager()) return;
+		// Current Load is actually based on the P-LOD load.
 		_currentLoad = _viewer->getDatabasePager()->getFileRequestListSize();
 
 		float S = _vp_width * 0.001;
-		(*verts)[2][0] = _currentLoad * S;
-		(*verts)[3][0] = _currentLoad * S;
+		(*verts)[2][0] = _currentLoad * S;	// La x del penultimo vertex
+		(*verts)[3][0] = _currentLoad * S;	// La x dell'ultimo vertex
 
 		_LoadingBarGeom->getVertexArray()->dirty();
 		_LoadingBarGeom->dirtyDisplayList();
@@ -80,7 +83,7 @@ void ViroHud::Realize(){
 
 	osg::ref_ptr<Geode> geodeHUD = new osg::Geode();
 	osg::ref_ptr<StateSet> hudSS = new StateSet;
-	osg::ref_ptr<osgText::Font> hudFont = osgText::readFontFile("arial.ttf");
+	osg::ref_ptr<osgText::Font> hudFont = osgText::readFontFile(VIROHUD_FONT);
 	_HUDlabel = new osgText::Text;
 
 	osg::Vec3 position(5.0f,5.0f,0.0f);
@@ -98,9 +101,7 @@ void ViroHud::Realize(){
 	_HUDlabel->setColor( Vec4f(0.0,0.0,0.0, 1.0) );
 	_HUDlabel->setText("ViRo HUD");
 	_HUDlabel->setFontResolution(15,15);
-	_HUDlabel->setCharacterSize(15, 1.1);
-	//_HUDlabel->setBackdropType(osgText::Text::BackdropType::OUTLINE);
-	//_HUDlabel->setBackdropColor( Vec4f(1.0,1.0,1.0, 0.7) );
+	_HUDlabel->setCharacterSize(15);
 
 	geodeHUD->addDrawable( _HUDlabel.get() );
 	geodeHUD->setName("NOPICK");
@@ -112,7 +113,7 @@ void ViroHud::Realize(){
 	xform->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	_HUD->addChild(xform.get());
 
-	osg::StateSet *ss = xform->getOrCreateStateSet();
+	osg::ref_ptr<osg::StateSet> ss = xform->getOrCreateStateSet();
 	ss->setRenderBinDetails(100, "RenderBin");
 	ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 	ss->setMode(GL_DEPTH_TEST, osg::StateAttribute::OFF);
