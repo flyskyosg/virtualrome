@@ -10,6 +10,7 @@
 
 #include <sstream>
 #include <string>
+#include "xpcom-config.h"
 
 #include "nsISupportsUtils.h" // some usefule macros are defined here
 #include "nsXPCOM.h"
