@@ -3,7 +3,8 @@
 
 
 #include <CoreOpenGL/Defines.h>
-#include <CoreOpenGL/WindowWin32.h>
+#include <CoreOpenGL/WindowSupport.h>
+
 
 #include <CommonCore/CommandSchedule.h>
 #include <CommonCore/CoreInterface.h>
@@ -21,12 +22,7 @@ using namespace CommonCore;
  * OSG CoreOpenGL Class
  *
  ***********************************************************************/
-class CoreOpenGL : public CoreInterface , public CommandSchedule
-#if defined(WIN32)
-	, public WindowWin32
-#else
-	//TODO: Linux...
-#endif
+class CoreOpenGL : public CoreInterface , public CommandSchedule, public WindowSupport
 {
 public:
 	enum CoreOpenGLActions
@@ -50,11 +46,11 @@ public:
 #if defined(WIN32)
 	bool InitCore(WINDOWIDTYPE, std::string, std::string);
 	//Handle Window Event
-	virtual LRESULT handleNativeWindowWin32Event(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam);
+	virtual LRESULT handleNativeWindowSupportEvent(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam);
 #else
 	bool InitCore(Display*, WINDOWIDTYPE, std::string, std::string);
 
-	virtual bool handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam); //TODO:
+	virtual bool handleNativeWindowSupportEvent(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam); //TODO:
 #endif
 
 	//Inizializza le Opzioni del core successivamente all'inizializzazione

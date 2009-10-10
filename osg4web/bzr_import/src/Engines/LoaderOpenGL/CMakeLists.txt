@@ -29,12 +29,6 @@ SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)
 SET("${PROJECT_NAME}_include_dir" ${CMAKE_CURRENT_SOURCE_DIR}/include)
 SET("${PROJECT_NAME}_include" ${CMAKE_CURRENT_SOURCE_DIR}/include/LoaderOpenGL)
 
-IF(WIN32)
-    	SET(COREOPENGL_ADD_SRCS ${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/src/WindowWin32.cpp)
-ELSE(WIN32)
-	#TODO: non windows
-ENDIF(WIN32)
-
 
 #coping debug files
 SET(OUTPUT_DIR $ENV{APPDATA}/osg4web/${PROJECT_NAME})
@@ -64,7 +58,6 @@ ADD_LIBRARY(${PROJECT_NAME}
 	${${PROJECT_NAME}_include_FILES}
     	${${PROJECT_NAME}_src_FILES}
     	${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/src/CoreOpenGL.cpp
-	${COREOPENGL_ADD_SRCS}
 )
 
 ###########################################################

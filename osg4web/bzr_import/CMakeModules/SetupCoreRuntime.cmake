@@ -179,11 +179,6 @@ MACRO(SETUP_COREOGL_EXAMPLE)
 	# Setting variables
 	SET(CMAKE_DEBUG_POSTFIX  "d")
 	SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)
-	IF(WIN32)
-		SET(COREOPENGL_SRCS ${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/src/WindowWin32.cpp) #TODO: sistemare meglio
-	ELSE(WIN32)
-		#TODO
-	ENDIF(WIN32)
 
 	# Grabbing src and include files
 	GRAB_FILES( "${PROJECT_NAME}_src" )
@@ -193,7 +188,6 @@ MACRO(SETUP_COREOGL_EXAMPLE)
 		SHARED
 	    	${${PROJECT_NAME}_src_FILES}
 	    	${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/src/CoreOpenGL.cpp
-		${COREOPENGL_SRCS}
 	)
 
 	# Adding ext libraries include directories
