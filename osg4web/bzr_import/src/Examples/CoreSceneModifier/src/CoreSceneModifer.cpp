@@ -14,7 +14,7 @@ using namespace OSG4WebCC;
 
 //CoreSceneModifier Costruttore
 CoreSceneModifier::CoreSceneModifier(std::string corename) : CoreBase(corename),
-_SceneModifier(new SceneHandlers::SceneModifier),
+	_SceneModifier(new SceneHandlers::SceneModifier),
 	_MainNode(new osg::Group)
 {
 	this->sendNotifyMessage("CoreSceneModifier -> Costructing CoreExampleSceneModifier Instance.");

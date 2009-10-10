@@ -48,7 +48,7 @@ namespace SceneHandlers
 		void setReaderWriterOptions(osgDB::ReaderWriter::Options* opt) { _options = opt; }
 
 		//Ridefinizioni del Gestore dei Comandi
-		virtual std::string handleAction(std::string action, std::string argument);
+		virtual std::string handleAction(std::string argument);
 
 
 	protected:

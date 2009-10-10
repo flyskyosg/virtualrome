@@ -40,25 +40,25 @@
       <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="500" height="500" type="application/osg4web-plugin" >
 	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
 	<param name="ADVCoreSHA1" value="test_CoreExampleEditManip">
-	<param name="ADVCoreStartOptions" value="CEM_LOAD_TERRAIN http://www.vhlab.itabc.cnr.it/flaminia3d/lod2/Flaminia_LOD2.ive"> 
+	<param name="ADVCoreStartOptions" value="COREEDIT LOAD_TERRAIN http://3d.cineca.it/storage/terrain/demo/out_run_2/demo2.ive"> 
       </object>
 
 <script language="JavaScript">
 function ExecCoreCommand(command) 
 {
-	if(command == 'CEM_VIEW')
+	if(command == 'PICKEDIT VIEW')
 	{
 		var frm = document.forms[0];
     frm.currentMode.value="VIEW";
 	}
 	
-	if(command == 'CEM_ADD')
+	if(command == 'PICKEDIT ADD')
 	{
 		var frm = document.forms[0];
     frm.currentMode.value="ADD";
 	}
 	
-	if(command == 'CEM_SELECT')
+	if(command == 'PICKEDIT SELECT')
 	{
     var frm = document.forms[0];
     
@@ -100,27 +100,27 @@ function ExecCoreCommand(command)
   <tr>
     <td>
     <form>
-    <input type="button" name="cem_view" value="View" onclick="javascript:ExecCoreCommand('CEM_VIEW')"><br>
-    <input type="button" name="cem_add" value="Add" onclick="javascript:ExecCoreCommand('CEM_ADD')"><br>
-    <input type="button" name="cem_select" value="Select" onclick="javascript:ExecCoreCommand('CEM_SELECT')">
-    <input type="button" name="cem_commit" disabled value="Commit" onclick="javascript:ExecCoreCommand('CEM_COMMIT')"><br><br>
+    <input type="button" name="cem_view" value="View" onclick="javascript:ExecCoreCommand('PICKEDIT VIEW')"><br>
+    <input type="button" name="cem_add" value="Add" onclick="javascript:ExecCoreCommand('PICKEDIT ADD')"><br>
+    <input type="button" name="cem_select" value="Select" onclick="javascript:ExecCoreCommand('PICKEDIT SELECT')">
+    <input type="button" name="cem_commit" disabled value="Commit" onclick="javascript:ExecCoreCommand('PICKEDIT COMMIT')"><br><br>
     
     Modalità Corrente: <input type="text" name="currentMode" readonly value="VIEW"><br><br>
     
     Dragger Selezionato: <select name="draggers">
       <!-- Elenco dragger disponibili -->
-      <option value="TabBoxDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TabBoxDragger')">TabBoxDragger</option>
-      <option value="TabPlaneDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TabPlaneDragger')">TabPlaneDragger</option>
-      <option value="TabPlaneTrackballDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TabPlaneTrackballDragger')">TabPlaneTrackballDragger</option>
-      <option value="TrackballDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TrackballDragger')">TrackballDragger</option>
-      <option value="Translate1DDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER Translate1DDragger')">Translate1DDragger</option>
-      <option value="Translate2DDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER Translate2DDragger')">Translate2DDragger</option>
-      <option value="TranslateAxisDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TranslateAxisDragger')">TranslateAxisDragger</option>
+      <option value="TabBoxDragger" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_DRAGGER TabBoxDragger')">TabBoxDragger</option>
+      <option value="TabPlaneDragger" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_DRAGGER TabPlaneDragger')">TabPlaneDragger</option>
+      <option value="TabPlaneTrackballDragger" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_DRAGGER TabPlaneTrackballDragger')">TabPlaneTrackballDragger</option>
+      <option value="TrackballDragger" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_DRAGGER TrackballDragger')">TrackballDragger</option>
+      <option value="Translate1DDragger" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_DRAGGER Translate1DDragger')">Translate1DDragger</option>
+      <option value="Translate2DDragger" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_DRAGGER Translate2DDragger')">Translate2DDragger</option>
+      <option value="TranslateAxisDragger" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_DRAGGER TranslateAxisDragger')">TranslateAxisDragger</option>
     </select><br><br>
     Modello Selezionato: <select name="models">
       <!-- Elenco modelli diponibili -->
-      <option value="Mucca" onclick="javascript:ExecCoreCommand('CEM_CHANGE_MODEL http://localhost/osg4webtest/cow.ive')">Mucca</option>
-      <option value="Cessna" onclick="javascript:ExecCoreCommand('CEM_CHANGE_MODEL http://localhost/osg4webtest/cessna.ive')">Cessna</option>
+      <option value="Mucca" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_MODEL http://localhost/osg4webtest/cow.ive')">Mucca</option>
+      <option value="Cessna" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_MODEL http://localhost/osg4webtest/cessna.ive')">Cessna</option>
     </select>
     </form>
 	<p>&nbsp;</p></td>
@@ -131,7 +131,7 @@ function ExecCoreCommand(command)
 	<p>&nbsp;</p></td>
   </tr>
   <tr>
-    <td><a href="javascript:ExecCoreCommand('CEM_SET_BILLBOARD http://localhost/osg4webtest/pianta.jpg')">Carica Pianta per BillBoard</a>
+    <td><a href="javascript:ExecCoreCommand('PICKEDIT SET_BILLBOARD http://localhost/osg4webtest/pianta.jpg')">Carica Pianta per BillBoard</a>
 	<p>&nbsp;</p></td>
   </tr>
 </table>

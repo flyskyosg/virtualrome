@@ -10,13 +10,14 @@
 
 using namespace SceneHandlers;
 
-AnimateViewHandler::AnimateViewHandler(osgViewer::Viewer* viewer) : _mainViewer(viewer),
+AnimateViewHandler::AnimateViewHandler(osgViewer::Viewer* viewer) : CommandSchedule("ANIMATEVIEW"), 
+	_mainViewer(viewer),
 	_options(new osgDB::ReaderWriter::Options),
 	_activateTransition(false),
 	_animationTime(1800.0)
 {
-	this->setCommandAction( "CAV_GET_MATRIX" );
-	this->setCommandAction( "CAV_SET_MATRIX" );
+	this->setCommandAction( "GET_MATRIX" );
+	this->setCommandAction( "SET_MATRIX" );
 
 	//TODO: set animation time
 }
@@ -79,18 +80,21 @@ bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActio
 }
 
 /** Ridefinisco la funzione che gestisce i comandi */
-std::string AnimateViewHandler::handleAction(std::string action, std::string argument)
+std::string AnimateViewHandler::handleAction(std::string argument)
 {
 	std::string retstr = "CORE_DONE";
+	std::string lcommand, rcommand;
+
+	this->splitActionCommand(argument, lcommand, rcommand);
 	
-	switch(this->getCommandActionIndex(action))
+	switch(this->getCommandActionIndex(lcommand))
 	{
-	case CAV_GET_ACTION:
+	case GET_MATRIX:
 		retstr = this->getViewMatrix();
 		break;
 	default:	
-		if(!this->setViewMatrix(argument))
-			retstr = "CAV_STREAM_ERROR";
+		if(!this->setViewMatrix(rcommand))
+			retstr = "STREAM_ERROR";
 		break;
 	}
 		
@@ -100,7 +104,7 @@ std::string AnimateViewHandler::handleAction(std::string action, std::string arg
 std::string AnimateViewHandler::getViewMatrix()
 {
 	std::stringstream s;
-	std::string retstring = "CAV_STREAM_ERROR";
+	std::string retstring = "STREAM_ERROR";
 
 	osg::ref_ptr<osg::MatrixTransform> m = new osg::MatrixTransform( _mainViewer->getCameraManipulator()->getMatrix() );
   

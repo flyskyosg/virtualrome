@@ -40,7 +40,7 @@
       <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="500" height="500" type="application/osg4web-plugin" >
 	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
 	<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
-	<param name="ADVCoreStartOptions" value="CB_ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> 
+	<param name="ADVCoreStartOptions" value="COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> 
 <!--	<param name="ADVCoreInitOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
 <!--	<param name="LoadCoreOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
       </object>
@@ -54,9 +54,9 @@ function ExecCoreCommand(command)
 
 function GetMatrix() 
 {
-	retcommand = document.OSG.execCoreCommand('CAV_GET_MATRIX');
+	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW GET_MATRIX');
 	
-	if(retcommand != 'CAV_STREAM_ERROR')
+	if(retcommand != 'STREAM_ERROR')
 		document.getElementById('MatrixArea').value = retcommand;
 	else
 		alert('Possible Stream Error. BAD COMMAND');
@@ -68,9 +68,9 @@ function SetMatrix()
 	
 	if(textmatrix != '')
 	{
-		retcommand = document.OSG.execCoreCommand('CAV_SET_MATRIX' + ' ' + textmatrix);
+		retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_MATRIX' + ' ' + textmatrix);
 	
-		if(retcommand == 'CAV_STREAM_ERROR')
+		if(retcommand == 'STREAM_ERROR')
 			alert('Possible Stream Error. BAD COMMAND');
 	}
 	else

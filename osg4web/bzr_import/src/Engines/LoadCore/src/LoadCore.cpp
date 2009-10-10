@@ -59,12 +59,15 @@ void LoadCore::AddStartOptions(std::string str, bool erase)
 {
 	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
 
-	this->setCommandAction("LC_LOAD_MODEL");
-	this->setCommandAction("LC_STATUSBAR_VALUE");
-	this->setCommandAction("LC_STATUSBAR_COLOR");
-	this->setCommandAction("LC_STATUSBAR_VISIBILITY");
-	this->setCommandAction("LC_SETMESSAGE");
-	this->setCommandAction("LC_SETMESSAGE_COLOR");
+	//Ridefinisco il nome dello Schedule Command
+	this->setCommandScheduleName("LOADCORE");
+
+	this->setCommandAction("LOAD_MODEL");
+	this->setCommandAction("STATUSBAR_VALUE");
+	this->setCommandAction("STATUSBAR_COLOR");
+	this->setCommandAction("STATUSBAR_VISIBILITY");
+	this->setCommandAction("SETMESSAGE");
+	this->setCommandAction("SETMESSAGE_COLOR");
 
 	this->addCommandSchedule((CommandSchedule*) this);
 }
@@ -395,36 +398,38 @@ void LoadCore::preFrameUpdate()
 
 
 /** Ridefinizione della funzione di Gestione Comandi per CommandSchedule "this" */
-std::string LoadCore::handleAction(std::string action, std::string argument)
+std::string LoadCore::handleAction(std::string argument)
 {
 	std::string retstr = "CORE_DONE";
+	std::string lcommand, rcommand;
 
+	this->splitActionCommand(argument, lcommand, rcommand);
 	this->sendNotifyMessage("handleAction -> Command Found");
 
-	switch(this->getCommandActionIndex( action ))
+	switch(this->getCommandActionIndex( lcommand ))
 	{
-	case LOAD_MODEL: //LC_LOAD_MODEL
-		if( !this->loadModel( argument, false ) )
+	case LOAD_MODEL: //LOAD_MODEL
+		if( !this->loadModel( rcommand, false ) )
 			retstr = "CORE_FAILED";
 		break;
-	case STATUSBAR_VALUE: //LC_STATUSBAR_VALUE
-		if( !this->refreshStatusBarValue( argument ) )
+	case STATUSBAR_VALUE: //STATUSBAR_VALUE
+		if( !this->refreshStatusBarValue( rcommand ) )
 			retstr = "CORE_FAILED";
 		break;
-	case STATUSBAR_COLOR: //LC_STATUSBAR_COLOR
-		if( !this->setStatusBarColor( argument ) )
+	case STATUSBAR_COLOR: //STATUSBAR_COLOR
+		if( !this->setStatusBarColor( rcommand ) )
 			retstr = "CORE_FAILED";
 		break;
-	case STATUSBAR_VISIBILITY: //LC_STATUSBAR_VISIBILITY
-		if( !this->setStatusBarVisibility( argument ) )
+	case STATUSBAR_VISIBILITY: //STATUSBAR_VISIBILITY
+		if( !this->setStatusBarVisibility( rcommand ) )
 			retstr = "CORE_FAILED";
 		break;
-	case SETMESSAGE: //LC_SETMESSAGE
-		if( !this->setHUDMessage( argument ) )
+	case SETMESSAGE: //SETMESSAGE
+		if( !this->setHUDMessage( rcommand ) )
 			retstr = "CORE_FAILED";
 		break;
-	case SETMESSAGE_COLOR: //LC_SETMESSAGE_COLOR
-		if( !this->setHUDMessageColor( argument ) )
+	case SETMESSAGE_COLOR: //SETMESSAGE_COLOR
+		if( !this->setHUDMessageColor( rcommand ) )
 			retstr = "CORE_FAILED";
 		break;
 	default: //UNKNOWN_CORE_COMMAND

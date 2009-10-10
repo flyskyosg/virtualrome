@@ -20,63 +20,65 @@ using namespace SceneHandlers;
  *	FIXME: capire come fare sta roba senza un Parser e senza usare i marker di stringa
  *	TIPS: per adesso i nomi NON POSSONO contenere spazi
  *
- *		SMODIF_CREATE_GROUP
+ *		CREATE_GROUP
  *			MAINSCENENODE	"Nuovo_Nome_Nodo"
  *			"Nodo_Padre"	EXCLUSIVE/INSTANCE		"Nuovo_Nome_Nodo"
  *
- *		SMODIF_CREATE_SWITCH
+ *		CREATE_SWITCH
  *			MAINSCENENODE	"Nuovo_Nome_Nodo"
  *			"Nodo_Padre"	EXCLUSIVE/INSTANCE		"Nuovo_Nome_Nodo"
  *
- *		SMODIF_CREATE_MATRIXTRANSFORM
+ *		CREATE_MATRIXTRANSFORM
  *			MAINSCENENODE	"Nuovo_Nome_Nodo"
  *			"Nome_Nodo"	EXCLUSIVE/INSTANCE		"Nuovo_Nome_Nodo"
  *
- *		SMODIF_DELETE_NODE
+ *		DELETE_NODE
  *			"Nome_Nodo"
  *
- *		SMODIF_SWITCH_ALL_CHILD
+ *		SWITCH_ALL_CHILD
  *			"Nome_Nodo"		
  *
- *		SMODIF_SWITCH_CHILD_BYNAME
+ *		SWITCH_CHILD_BYNAME
  *			"Nome_Nodo"		"Nome_Nodo_Figlio"
  *
- *		SMODIF_SET_MATRIXIDENTITY
+ *		SET_MATRIXIDENTITY
  *			"Nodo_Padre"
  *
- *		SMODIF_SET_MATRIX
+ *		SET_MATRIX
  *			"Nodo_Padre"	"MatrixStream"
  *
- *		SMODIF_SET_MATRIX_ROTATE
+ *		SET_MATRIX_ROTATE
  *			"Nodo_Padre"	PRE/POST	"DEGREES" "X" "Y" "Z"
  *
- *		SMODIF_SET_MATRIX_SCALE
+ *		SET_MATRIX_SCALE
  *			"Nodo_Padre"	PRE/POST	"X" "Y" "Z"
  *
- *		SMODIF_SET_MATRIX_TRANSLATE
+ *		SET_MATRIX_TRANSLATE
  *			"Nodo_Padre"	PRE/POST	"X" "Y" "Z"
  *
- *		SMODIF_GET_MATRIX
+ *		GET_MATRIX
  *			"Nodo_Padre"
  *
- *		SMODIF_MOVE_NODE
+ *		MOVE_NODE
  *			"Nodo_To_Move"	"New_Parent_Node"
  *
- *		SMODIF_MOVE_NODE
+ *		MOVE_NODE
  *			"Nodo_To_Move"	"New_Parent_Node"
  *
  */
 
 
 /** Costruttore */
-SceneModifier::SceneModifier() : _SceneData(NULL),
+SceneModifier::SceneModifier() : _SceneData(NULL), 
+	CommandSchedule("SCENEMODIFIER"),
 	_options(new osgDB::ReaderWriter::Options)
 {
 	this->initCommandActions();
 }
 
 
-SceneModifier::SceneModifier(osg::Group* grp) : _SceneData(grp)
+SceneModifier::SceneModifier(osg::Group* grp) : _SceneData(grp),
+	CommandSchedule("SCENEMODIFIER")
 {
 	this->initCommandActions();
 }
@@ -90,66 +92,68 @@ SceneModifier::~SceneModifier()
 
 void SceneModifier::initCommandActions()
 {
-	this->setCommandAction("SMODIF_CREATE_GROUP");
-	this->setCommandAction("SMODIF_CREATE_SWITCH");
-	this->setCommandAction("SMODIF_CREATE_MATRIXTRANSFORM");
-	this->setCommandAction("SMODIF_DELETE_NODE");
-	this->setCommandAction("SMODIF_SWITCH_ALL_CHILD");
-	this->setCommandAction("SMODIF_SWITCH_CHILD_BYNAME");
-	this->setCommandAction("SMODIF_SET_MATRIXIDENTITY");
-	this->setCommandAction("SMODIF_SET_MATRIX");
-	this->setCommandAction("SMODIF_SET_MATRIX_ROTATE");
-	this->setCommandAction("SMODIF_SET_MATRIX_SCALE");
-	this->setCommandAction("SMODIF_SET_MATRIX_TRANSLATE");
-	this->setCommandAction("SMODIF_GET_MATRIX");
-	this->setCommandAction("SMODIF_MOVE_NODE");
+	this->setCommandAction("CREATE_GROUP");
+	this->setCommandAction("CREATE_SWITCH");
+	this->setCommandAction("CREATE_MATRIXTRANSFORM");
+	this->setCommandAction("DELETE_NODE");
+	this->setCommandAction("SWITCH_ALL_CHILD");
+	this->setCommandAction("SWITCH_CHILD_BYNAME");
+	this->setCommandAction("SET_MATRIXIDENTITY");
+	this->setCommandAction("SET_MATRIX");
+	this->setCommandAction("SET_MATRIX_ROTATE");
+	this->setCommandAction("SET_MATRIX_SCALE");
+	this->setCommandAction("SET_MATRIX_TRANSLATE");
+	this->setCommandAction("GET_MATRIX");
+	this->setCommandAction("MOVE_NODE");
 }
 
 
-std::string SceneModifier::handleAction(std::string action, std::string argument)
+std::string SceneModifier::handleAction(std::string argument)
 {
-	std::string retstr;
+	std::string retstr, lcommand, rcommand;
 
-	switch(this->getCommandActionIndex(action))
+	this->splitActionCommand(argument, lcommand, rcommand);
+
+	switch(this->getCommandActionIndex(lcommand))
 	{
 	case CREATE_GROUP:
-		retstr = this->createGroup(argument);
+		retstr = this->createGroup(rcommand);
 		break;
 	case CREATE_SWITCH:
-		retstr = this->createSwitch(argument);
+		retstr = this->createSwitch(rcommand);
 		break;
 	case CREATE_MATRIXTRANSFORM:
-		retstr = this->createMatrixTransform(argument);
+		retstr = this->createMatrixTransform(rcommand);
 		break;
 	case DELETE_NODE:
-		retstr = this->deleteNode(argument);
+		retstr = this->deleteNode(rcommand);
 		break;
 	case SWITCH_ALLCHILD:
-		retstr = this->switchAllChild(argument);
+		retstr = this->switchAllChild(rcommand);
 		break;
 	case SWITCH_CHILD_BYNAME:
-		retstr = this->switchChildByName(argument);
+		retstr = this->switchChildByName(rcommand);
 		break;
 	case SET_MATRIXIDENTITY:
-		retstr = this->setMatrixIdentityByName(argument);
+		retstr = this->setMatrixIdentityByName(rcommand);
 		break;
 	case SET_MATRIX:
-		retstr = this->setMatrixByName(argument);
+		retstr = this->setMatrixByName(rcommand);
 		break;
 	case SET_MATRIX_ROTATE:
-		retstr = this->setMatrixRotateByName(argument);
+		retstr = this->setMatrixRotateByName(rcommand);
 		break;
 	case SET_MATRIX_SCALE:
-		retstr = this->setMatrixRotateByName(argument);
+		retstr = this->setMatrixRotateByName(rcommand);
 		break;
 	case SET_MATRIX_TRANSLATE:
-		retstr = this->setMatrixTranslateByName(argument);
+		retstr = this->setMatrixTranslateByName(rcommand);
 		break;
 	case GET_MATRIX:
-		retstr = this->getMatrixByName(argument);
+		retstr = this->getMatrixByName(rcommand);
 		break;
 	case MOVE_NODE:
-		retstr = this->moveNode(argument);
+		retstr = this->moveNode(rcommand);
 		break;
 	default: //UNKNOWN_CORE_COMMAND
 		retstr = "UNKNOWN_CORE_COMMAND"; //FIXME: qua non ci può finire. Da togliere
@@ -181,7 +185,7 @@ std::string SceneModifier::createMatrixTransform(std::string action)
 std::string SceneModifier::moveNode(std::string action)
 {
 	std::string nodename, newparentnode;
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 
 	this->splitActionCommand(action, nodename, newparentnode);
 
@@ -194,7 +198,7 @@ std::string SceneModifier::moveNode(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	osg::ref_ptr<osg::Node> nodetomove = dynamic_cast<osg::Node*>(fnvbn.getNodeByIndex(0).at(fnvbn.getNodeByIndex(0).size() - 1));
 
@@ -206,7 +210,7 @@ std::string SceneModifier::moveNode(std::string action)
 		number = fnvbnParent.getNodeFoundSize();
 
 		if(number == 0)
-			return "SMODIF_NODE_NOTFOUND";
+			return "NODE_NOTFOUND";
 
 		osg::ref_ptr<osg::Group> newpnode = dynamic_cast<osg::Group*>(fnvbnParent.getNodeByIndex(0).at(fnvbnParent.getNodeByIndex(0).size() - 1)); //Prendo il nuovo padre
 		osg::ref_ptr<osg::Group> oldpnode = dynamic_cast<osg::Group*>(fnvbn.getNodeByIndex(0).at(fnvbn.getNodeByIndex(0).size() - 2)); //Prendo il vecchio Padre
@@ -217,12 +221,12 @@ std::string SceneModifier::moveNode(std::string action)
 			oldpnode->removeChild(nodetomove.get());
 		}
 		else
-			return "SMODIF_CAST_ERROR";
+			return "CAST_ERROR";
 	}
 	else
-		return "SMODIF_CAST_ERROR";
+		return "CAST_ERROR";
 
-	retstr = "SMODIF_COMMAND_OK";
+	retstr = "COMMAND_OK";
 
 	_SceneData->dirtyBound();
 
@@ -235,7 +239,7 @@ bool SceneModifier::addNodeToParent(osg::Node* parent, osg::Node* child, std::st
 
 	if(!grp.valid())
 	{
-		retstr = "SMODIF_CAST_ERROR";
+		retstr = "CAST_ERROR";
 		return false;
 	}
 
@@ -245,7 +249,7 @@ bool SceneModifier::addNodeToParent(osg::Node* parent, osg::Node* child, std::st
 std::string SceneModifier::addNodeToSceneParsingAction(osg::Node* newnode, std::string action)
 {
 	std::string parent, args;
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 	
 	this->splitActionCommand(action, parent, args);
 
@@ -258,14 +262,14 @@ std::string SceneModifier::addNodeToSceneParsingAction(osg::Node* newnode, std::
 			_SceneData->accept(fnvbn);
 
 			if(!fnvbn.isUnique()) //Nome già usato
-				return "SMODIF_BAD_NAME";
+				return "BAD_NAME";
 
 			newnode->setName(args);
 			_SceneData->addChild(newnode);
 
 			_SceneData->dirtyBound();
 
-			return "SMODIF_COMMAND_OK";
+			return "COMMAND_OK";
 		}
 		else
 		{
@@ -280,7 +284,7 @@ std::string SceneModifier::addNodeToSceneParsingAction(osg::Node* newnode, std::
 			_SceneData->accept(fnvbn);
 
 			if(!fnvbn.isUnique()) //Nome già usato
-				return "SMODIF_BAD_NAME";
+				return "BAD_NAME";
 
 			unsigned int number = fnvbn.getNodeFoundSize();
 
@@ -294,7 +298,7 @@ std::string SceneModifier::addNodeToSceneParsingAction(osg::Node* newnode, std::
 				
 					_SceneData->dirtyBound();
 
-					retstr = "SMODIF_COMMAND_OK";
+					retstr = "COMMAND_OK";
 				}
 				else if(modestr == "EXCLUSIVE") //Istanza esclusiva
 				{
@@ -305,14 +309,14 @@ std::string SceneModifier::addNodeToSceneParsingAction(osg::Node* newnode, std::
 
 						_SceneData->dirtyBound();
 
-						retstr = "SMODIF_COMMAND_OK";
+						retstr = "COMMAND_OK";
 					}
 					else
-						retstr = "SMODIF_EXCLUSIVE_ERROR";
+						retstr = "EXCLUSIVE_ERROR";
 				}
 			}
 			else
-				retstr = "SMODIF_NODE_NOTFOUND";
+				retstr = "NODE_NOTFOUND";
 		}
 	}
 
@@ -327,7 +331,7 @@ bool SceneModifier::removeNode(osg::Node* node, std::string &retstr)
 		osg::ref_ptr<osg::Group> parent = node->getParent(i);
 		if( !parent->removeChild(node) )
 		{
-			retstr = "SMODIF_DELETE_ERROR";
+			retstr = "DELETE_ERROR";
 			return false;
 		}
 	}
@@ -337,7 +341,7 @@ bool SceneModifier::removeNode(osg::Node* node, std::string &retstr)
 
 std::string SceneModifier::deleteNode(std::string action)
 {
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 
 	Visitors::FindNodeVisitor fnvbn(action);
 	_SceneData->accept(fnvbn);
@@ -345,14 +349,14 @@ std::string SceneModifier::deleteNode(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	if( !this->removeNode(fnvbn.getNodeByIndex(0).at(fnvbn.getNodeByIndex(0).size() - 1), retstr) )
 		return retstr;
 
 	_SceneData->dirtyBound();
 
-	retstr = "SMODIF_COMMAND_OK";
+	retstr = "COMMAND_OK";
 	
 	return retstr;
 }
@@ -363,7 +367,7 @@ bool SceneModifier::switchAllChildByNode(osg::Node* parent, std::string &retstr)
 
 	if(!swt.valid())
 	{
-		retstr = "SMODIF_CAST_ERROR";
+		retstr = "CAST_ERROR";
 		return false;
 	}
 
@@ -382,7 +386,7 @@ bool SceneModifier::switchAllChildByNode(osg::Node* parent, std::string &retstr)
 
 std::string SceneModifier::switchAllChild(std::string action)
 {
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 	
 	Visitors::FindNodeVisitor fnvbn(action);
 	_SceneData->accept(fnvbn);
@@ -390,7 +394,7 @@ std::string SceneModifier::switchAllChild(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	for(unsigned int i = 0; i < number; i++) //Switch di tutti i nodi trovati a swtype
 		if( !this->switchAllChildByNode(fnvbn.getNodeByIndex(i).at(fnvbn.getNodeByIndex(i).size() - 1), retstr) )
@@ -398,7 +402,7 @@ std::string SceneModifier::switchAllChild(std::string action)
 
 	_SceneData->dirtyBound();
 
-	retstr = "SMODIF_COMMAND_OK";
+	retstr = "COMMAND_OK";
 
 	return retstr;
 }
@@ -409,7 +413,7 @@ bool SceneModifier::switchNamedChildByNode(osg::Node* parent, std::string childn
 
 	if(!swt.valid())
 	{
-		retstr = "SMODIF_CAST_ERROR";
+		retstr = "CAST_ERROR";
 		return false;
 	}
 
@@ -425,7 +429,7 @@ bool SceneModifier::switchNamedChildByNode(osg::Node* parent, std::string childn
 	
 	if(!found)
 	{
-		retstr = "SMODIF_SWITCH_CHILD_NOTFOUND";
+		retstr = "SWITCH_CHILD_NOTFOUND";
 		return false;
 	}
 
@@ -436,7 +440,7 @@ bool SceneModifier::switchNamedChildByNode(osg::Node* parent, std::string childn
 
 std::string SceneModifier::switchChildByName(std::string action)
 {
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 	std::string nodename, childname;
 	
 	this->splitActionCommand(action, nodename, childname); 
@@ -447,7 +451,7 @@ std::string SceneModifier::switchChildByName(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	for(unsigned int i = 0; i < number; i++) //Switch di tutti i nodi trovati a swtype
 		if( !this->switchNamedChildByNode(fnvbn.getNodeByIndex(i).at(fnvbn.getNodeByIndex(i).size() - 1), childname, retstr) )
@@ -455,14 +459,14 @@ std::string SceneModifier::switchChildByName(std::string action)
 
 	_SceneData->dirtyBound();
 
-	retstr = "SMODIF_COMMAND_OK";
+	retstr = "COMMAND_OK";
 
 	return retstr;
 }
 
 std::string SceneModifier::setMatrixIdentityByName(std::string action)
 {
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 	
 	Visitors::FindNodeVisitor fnvbn(action);
 	_SceneData->accept(fnvbn);
@@ -470,28 +474,28 @@ std::string SceneModifier::setMatrixIdentityByName(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	for(unsigned int i = 0; i < number; i++)
 	{
 		osg::ref_ptr<osg::MatrixTransform> mt = dynamic_cast<osg::MatrixTransform*>(fnvbn.getNodeByIndex(i).at(fnvbn.getNodeByIndex(i).size() - 1));
 		
 		if(!mt.valid())
-			return "SMODIF_CAST_ERROR";
+			return "CAST_ERROR";
 		
 		this->setMatrixToMatTrans(mt.get(), osg::Matrix::identity());
 	}
 	
 	_SceneData->dirtyBound();
 
-	retstr = "SMODIF_COMMAND_OK";
+	retstr = "COMMAND_OK";
 
 	return retstr;
 }
 
 std::string SceneModifier::setMatrixByName(std::string action)
 {
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 
 	std::string nodename, matrixstr;
 	
@@ -503,14 +507,14 @@ std::string SceneModifier::setMatrixByName(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	std::stringstream s(action);
     
     osg::ref_ptr<osgDB::ReaderWriter> reader = osgDB::Registry::instance()->getReaderWriterForExtension(std::string("osg"));
 	
 	if( !reader.valid() ) 
-		return "SMODIF_READERWRITER_ERROR";
+		return "READERWRITER_ERROR";
 	
 	osgDB::ReaderWriter::ReadResult res = reader->readObject( s, _options.get() );
 	
@@ -525,27 +529,27 @@ std::string SceneModifier::setMatrixByName(std::string action)
 				osg::ref_ptr<osg::MatrixTransform> mt = dynamic_cast<osg::MatrixTransform*>(fnvbn.getNodeByIndex(i).at(fnvbn.getNodeByIndex(i).size() - 1));
 		
 				if(!mt.valid())
-					return "SMODIF_CAST_ERROR";
+					return "CAST_ERROR";
 			
 				this->setMatrixToMatTrans(mt.get(), matrtransf->getMatrix());
 			}		
 		}
 		else
-			return "SMODIF_BAD_MATRIXTRANSFORM";
+			return "BAD_MATRIXTRANSFORM";
 	} 
 	else
-		return "SMODIF_STREAM_ERROR";
+		return "STREAM_ERROR";
 
 	_SceneData->dirtyBound();
 
-	retstr = "SMODIF_COMMAND_OK";
+	retstr = "COMMAND_OK";
 
 	return retstr;
 }
 
 std::string SceneModifier::setMatrixRotateByName(std::string action)
 {
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 
 	double deg, x, y, z;
 	std::istringstream instr;
@@ -559,7 +563,7 @@ std::string SceneModifier::setMatrixRotateByName(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	this->splitActionCommand(otherargs, multtype, otherargs);
 
@@ -592,7 +596,7 @@ std::string SceneModifier::setMatrixRotateByName(std::string action)
 		osg::ref_ptr<osg::MatrixTransform> mt = dynamic_cast<osg::MatrixTransform*>(fnvbn.getNodeByIndex(i).at(fnvbn.getNodeByIndex(i).size() - 1));
 		
 		if(!mt.valid())
-			return "SMODIF_CAST_ERROR";
+			return "CAST_ERROR";
 		
 		if(multtype == "PRE")
 			this->preMultMatrixToMatTrans(mt.get(), newmatr);
@@ -602,14 +606,14 @@ std::string SceneModifier::setMatrixRotateByName(std::string action)
 
 	_SceneData->dirtyBound();
 
-	retstr = "SMODIF_COMMAND_OK";
+	retstr = "COMMAND_OK";
 
 	return retstr;
 }
 
 std::string SceneModifier::setMatrixScaleByName(std::string action)
 {
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 
 	double x, y, z;
 	std::istringstream instr;
@@ -623,7 +627,7 @@ std::string SceneModifier::setMatrixScaleByName(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	this->splitActionCommand(otherargs, multtype, otherargs);
 
@@ -652,7 +656,7 @@ std::string SceneModifier::setMatrixScaleByName(std::string action)
 		osg::ref_ptr<osg::MatrixTransform> mt = dynamic_cast<osg::MatrixTransform*>(fnvbn.getNodeByIndex(i).at(fnvbn.getNodeByIndex(i).size() - 1));
 		
 		if(!mt.valid())
-			return "SMODIF_CAST_ERROR";
+			return "CAST_ERROR";
 		
 		if(multtype == "PRE")
 			this->preMultMatrixToMatTrans(mt.get(), newmatr);
@@ -662,14 +666,14 @@ std::string SceneModifier::setMatrixScaleByName(std::string action)
 
 	_SceneData->dirtyBound();
 
-	retstr = "SMODIF_COMMAND_OK";
+	retstr = "COMMAND_OK";
 
 	return retstr;
 }
 
 std::string SceneModifier::setMatrixTranslateByName(std::string action)
 {
-	std::string retstr("SMODIF_BAD_COMMAND");
+	std::string retstr("BAD_COMMAND");
 
 	double x, y, z;
 	std::istringstream instr;
@@ -683,7 +687,7 @@ std::string SceneModifier::setMatrixTranslateByName(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	this->splitActionCommand(otherargs, multtype, otherargs);
 
@@ -712,7 +716,7 @@ std::string SceneModifier::setMatrixTranslateByName(std::string action)
 		osg::ref_ptr<osg::MatrixTransform> mt = dynamic_cast<osg::MatrixTransform*>(fnvbn.getNodeByIndex(i).at(fnvbn.getNodeByIndex(i).size() - 1));
 		
 		if(!mt.valid())
-			return "SMODIF_CAST_ERROR";
+			return "CAST_ERROR";
 		
 		if(multtype == "PRE")
 			this->preMultMatrixToMatTrans(mt.get(), newmatr);
@@ -722,14 +726,14 @@ std::string SceneModifier::setMatrixTranslateByName(std::string action)
 
 	_SceneData->dirtyBound();
 
-	retstr = "SMODIF_COMMAND_OK";
+	retstr = "COMMAND_OK";
 
 	return retstr;
 }
 
 std::string SceneModifier::getMatrixByName(std::string action)
 {
-	std::string retstring("SMODIF_BAD_COMMAND");
+	std::string retstring("BAD_COMMAND");
 	std::stringstream s;
 	
 	Visitors::FindNodeVisitor fnvbn(action);
@@ -738,7 +742,7 @@ std::string SceneModifier::getMatrixByName(std::string action)
 	unsigned int number = fnvbn.getNodeFoundSize();
 
 	if(number == 0)
-		return "SMODIF_NODE_NOTFOUND";
+		return "NODE_NOTFOUND";
 
 	osg::ref_ptr<osg::MatrixTransform> mt = dynamic_cast<osg::MatrixTransform*>(fnvbn.getNodeByIndex(0).at(fnvbn.getNodeByIndex(0).size() - 1));
 	
@@ -758,7 +762,7 @@ std::string SceneModifier::getMatrixByName(std::string action)
 			retstring = s.str();
 	}
 	else
-		retstring = "SMODIF_CAST_ERROR";
+		retstring = "CAST_ERROR";
 	
 	return retstring;
 }

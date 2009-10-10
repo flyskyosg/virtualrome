@@ -51,7 +51,7 @@ public:
 	virtual void AddStartOptions(std::string str, bool erase = true);
 
 	//Ridefinisco l'handler per le azioni di loading
-	virtual std::string handleAction(std::string action, std::string argument);
+	virtual std::string handleAction(std::string argument);
 	
 protected:
 	//Carica un modello nella scena

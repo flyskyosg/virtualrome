@@ -40,7 +40,7 @@
       <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="800" height="800" type="application/osg4web-plugin" >
 	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
 	<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
-	<param name="ADVCoreStartOptions" value="CB_ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> 
+	<param name="ADVCoreStartOptions" value="COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> 
 <!--	<param name="ADVCoreInitOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
 <!--	<param name="LoadCoreOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
       </object>
@@ -57,13 +57,13 @@ function ExecCoreCommand(command)
     <td width="27%" valign="top" class="Stile5">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><a href="javascript:ExecCoreCommand('CB_ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a></td>
+    <td><a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a></td>
   </tr>
   <tr>
     <td>&nbsp;</td>
   </tr>
   <tr>
-    <td><a href="javascript:ExecCoreCommand('CB_VIEW_HOME')">Posizione Iniziale</a></td>
+    <td><a href="javascript:ExecCoreCommand('COREBASE VIEW_HOME')">Posizione Iniziale</a></td>
   </tr>
   <tr>
     <td>&nbsp;</td>

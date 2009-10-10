@@ -41,7 +41,7 @@ public:
 	//Inizializza le Opzioni del core successivamente all'inizializzazione
 	virtual void AddStartOptions(std::string str, bool erase = true);
 	//Ridefinizioni del Gestore dei Comandi
-	virtual std::string handleAction(std::string action, std::string argument);
+	virtual std::string handleAction(std::string argument);
 
 protected:
 	//Ridefinizione del Manipolatore

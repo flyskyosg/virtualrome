@@ -377,8 +377,8 @@ int ieOSG4Web_Ctrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if(m_ADVCore.IsEmpty() && m_ADVCoreSHA1Hash.IsEmpty())
 	{
 		//Setting Error Message
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Advanced Core SHA-1 HASH not set!");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Advanced Core SHA-1 HASH not set!");
 
 		m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::OnCreate -> Advanced Core SHA-1 HASH not set!"));
 
@@ -396,8 +396,8 @@ int ieOSG4Web_Ctrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		}
 
 		//Setting Error Message
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Initializing Advanced Core Failed!");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Initializing Advanced Core Failed!");
 
 		m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::OnCreate -> Initializing Advanced Core Failed!"));
 	}
@@ -1147,17 +1147,17 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 	if(m_ShellBase.checkAdvCorePresence())
 	{
 		//Attivo status bar
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
 		//Attivo il messaggio di Download del Core
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_BLUE");
-		this->loadingCoreCommand("LC_SETMESSAGE Core Found...");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Core Found...");
 
 		PR_Sleep(2000); ////Delay der far visualizzare il messaggio
 
 		//Loading Session
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
-		this->loadingCoreCommand("LC_SETMESSAGE "); //Spengo i messaggi
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
 
 		m_ShellBase.sendNotifyMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Loading Unpacked Core"));
 
@@ -1174,8 +1174,8 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 			}
 
 			//Setting Error Message
-			this->loadingCoreCommand("LC_SETMESSAGE_COLOR OSG_RED");
-			this->loadingCoreCommand("LC_SETMESSAGE Loading Advanced Core Failed!");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE Loading Advanced Core Failed!");
 		}
 		else
 			m_ShellBase.sendNotifyMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Advanced Core is up and running"));
@@ -1194,10 +1194,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 		{
 			m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Creating Downloading Temp Directory Failed."));
 
-			this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+			this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-			this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-			this->loadingCoreCommand("LC_SETMESSAGE Creating Temp Directory Failed!");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE Creating Temp Directory Failed!");
 
 			PR_Unlock(s_DlCoreThreadLocking);
 			return;
@@ -1213,10 +1213,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 			
 			if (outfile == NULL) 
 			{
-				this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-				this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LC_SETMESSAGE Opening temp file failed!");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE Opening temp file failed!");
 
 				curl_easy_cleanup(curl);
 
@@ -1231,10 +1231,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 			if (headerfile == NULL) 
 			{
 				//TODO: aggiungere i messaggi di errore al core e gestirli con curl_info
-				this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-				this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LC_SETMESSAGE Opening temp file failed!");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE Opening temp file failed!");
 
 				curl_easy_cleanup(curl);
 
@@ -1276,12 +1276,12 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 			curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, this);
 
 			//Attivo status bar
-			this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY TRUE");
-			this->loadingCoreCommand("LC_STATUSBAR_COLOR LC_OSG_BLUE");
+			this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY TRUE");
+			this->loadingCoreCommand("LOADCORE STATUSBAR_COLOR LC_OSG_BLUE");
 
 			//Attivo il messaggio di Download del Core
-			this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_BLUE");
-			this->loadingCoreCommand("LC_SETMESSAGE Downloading Core...");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE Downloading Core...");
 		
 			res = curl_easy_perform(curl);
 		
@@ -1290,10 +1290,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 
 			if(res != CURLE_OK)
 			{
-				this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-				this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LC_SETMESSAGE Downloading Failed!");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE Downloading Failed!");
 
 				curl_easy_cleanup(curl);
 
@@ -1319,10 +1319,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 
 					if(pos == std::string::npos) //Error in Downloading
 					{
-						this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+						this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-						this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-						this->loadingCoreCommand("LC_SETMESSAGE Server response: " + headline);
+						this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+						this->loadingCoreCommand("LOADCORE SETMESSAGE Server response: " + headline);
 
 						curl_easy_cleanup(curl);
 
@@ -1340,10 +1340,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 			}
 			else
 			{
-				this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-				this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LC_SETMESSAGE Checking server response failed!");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE Checking server response failed!");
 
 				curl_easy_cleanup(curl);
 				m_ShellBase.removingFile(tempdl);
@@ -1358,10 +1358,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 		}
 		else
 		{
-			this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+			this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-			this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-			this->loadingCoreCommand("LC_SETMESSAGE Download Initialization Failed!");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE Download Initialization Failed!");
 
 			m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Curl initialization Failed."));
 			PR_Unlock(s_DlCoreThreadLocking);
@@ -1372,15 +1372,15 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 	else
 		m_ShellBase.sendNotifyMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Temporary package is present, Skipping Downloading."));
 
-	this->loadingCoreCommand("LC_SETMESSAGE Checking Validity...");
+	this->loadingCoreCommand("LOADCORE SETMESSAGE Checking Validity...");
 	m_ShellBase.sendNotifyMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Check Package Validity."));
 
 	if(!m_ShellBase.checkFileValidity(tempdl, (LPCTSTR) m_ADVCoreSHA1Hash))
 	{
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Validity Control Failed!");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Validity Control Failed!");
 
 		m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Validity Control Failed!"));
 
@@ -1393,13 +1393,13 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 
 
 	//Unpacking Session
-	this->loadingCoreCommand("LC_STATUSBAR_COLOR LC_OSG_GREEN");
-	this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY TRUE");
-	this->loadingCoreCommand("LC_STATUSBARVALUE 0"); //Reset Status Bar Lenght
+	this->loadingCoreCommand("LOADCORE STATUSBAR_COLOR LC_OSG_GREEN");
+	this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY TRUE");
+	this->loadingCoreCommand("LOADCORE STATUSBARVALUE 0"); //Reset Status Bar Lenght
 	
 	//Attivo il messaggio di Download del Core
-	this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_GREEN");
-	this->loadingCoreCommand("LC_SETMESSAGE Unpacking Core...");
+	this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_GREEN");
+	this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Core...");
 
 	m_ShellBase.sendNotifyMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Unpacking Core."));
 	
@@ -1411,10 +1411,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 	if(filenumber < 0)
 	{
 		//TODO: messaggi di Errore
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Unpacking Failed! Error opening archive");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Failed! Error opening archive");
 
 		m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Unpacking Failed! Error opening archive"));
 
@@ -1428,10 +1428,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 	if(filenumber == 0)
 	{
 		//TODO: messaggi di Errore
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Unpacking Failed! Empty archive");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Failed! Empty archive");
 
 		m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Unpacking Failed! Empty archive"));
 
@@ -1448,7 +1448,7 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 		coreunpack = m_ShellBase.unpackCompressedCoreFile();
 
 		//FIXME: cotrollare che non servano le CS 
-		std::string statmsg("LC_STATUSBARVALUE ");
+		std::string statmsg("LOADCORE STATUSBARVALUE ");
 
 		std::ostringstream convstream; //creates an ostringstream object
 		convstream << (cicleno * 300.0 / filenumber) << std::flush; //Uso la dimensione 3x
@@ -1470,10 +1470,10 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 	if(coreunpack < 0)
 	{
 		//TODO: messaggi di Errore
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Unpacking Failed! Error during decompression");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Failed! Error during decompression");
 
 		m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Unpacking Failed! Error during decompression"));
 
@@ -1488,8 +1488,8 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 	m_ShellBase.freeCompressedCore();
 
 	//Loading Session
-	this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
-	this->loadingCoreCommand("LC_SETMESSAGE "); //Spengo i messaggi
+	this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
+	this->loadingCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
 
 	m_ShellBase.sendNotifyMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Loading Unpacked Core"));
 
@@ -1506,8 +1506,8 @@ void ieOSG4Web_Ctrl::doDownloadCore()
 		}
 
 		//Setting Error Message
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Loading Advanced Core Failed!");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Loading Advanced Core Failed!");
 	}
 	else
 		m_ShellBase.sendNotifyMessage(std::string("ieOSG4Web_Ctrl::doDownloadCore -> Advanced Core is up and running"));
@@ -1539,7 +1539,7 @@ int ieOSG4Web_Ctrl::doProgressDLStatus(double downtot, double downnow, double ul
 		return 1; //Condizione di uscita per il thread di Download
 	}
 
-	std::string statmsg("LC_STATUSBAR_VALUE ");
+	std::string statmsg("LOADCORE STATUSBAR_VALUE ");
 
 	std::ostringstream convstream; //creates an ostringstream object
 	convstream << (downnow * 300.0 / downtot) << std::flush; //Uso la dimensione 3x

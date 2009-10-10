@@ -35,12 +35,15 @@ CoreEdit::~CoreEdit()
 void CoreEdit::AddStartOptions(std::string str, bool erase)
 {
 	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
-	
+
 	//Pulisco il registry dei comandi per togliere commandbase
 	this->clearCommandRegistry();
+	this->clearCommandActions();
+
+	this->setCommandScheduleName( "COREEDIT" );
 
 	//Using: CEM_LOAD_TERRAIN fileaddress
-	this->setCommandAction("CEM_LOAD_TERRAIN");
+	this->setCommandAction("LOAD_TERRAIN");
 	
 	this->addCommandSchedule((CommandSchedule*) this);
 	this->addCommandSchedule((CommandSchedule*) _picker.get());
@@ -116,15 +119,15 @@ bool CoreEdit::initSceneData()
 
 
 // Ridefinisco la funzione che gestisce i comandi
-std::string CoreEdit::handleAction(std::string action, std::string argument)
+std::string CoreEdit::handleAction(std::string argument)
 {
 	std::string retstr = "CORE_DONE";
 
 	//this->sendNotifyMessage("handleAction -> Command Found");
 
-	switch(this->getCommandActionIndex(action))
+	switch(this->getCommandActionIndex(argument))
 	{
-	case 0: //CEM_LOAD_TERRAIN
+	case 0: //LOAD_TERRAIN
 		{
 			osg::ref_ptr<osg::Node> terreno = osgDB::readNodeFile( argument ); 
 	
