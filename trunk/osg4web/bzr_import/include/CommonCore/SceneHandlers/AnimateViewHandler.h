@@ -40,7 +40,10 @@ namespace SceneHandlers
 		void setAnimationTime(double animtime) { _animationTime = animtime; }
 
 		double getAnimationTime() { return _animationTime; }
-	    
+
+		void setAnimationPathSmoothness(double s){ _animationPathSmoothness = s; }
+		double getAnimationPathSmoothness(){ return _animationPathSmoothness; }
+
 		bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa);
 
 		// Catmull-Rom Interpolation (p1,p2)
@@ -71,7 +74,10 @@ namespace SceneHandlers
 		osg::ref_ptr<osgDB::ReaderWriter::Options> _options;
 
 		std::queue<osg::Matrix> _animationMatrixArray;
+		std::vector<osg::Matrix> _animationMatrixVector;
 		std::queue<double> _animationTimeArray;
+		std::vector<double> _animationTimeVector;
+		int _currentKey;
 
 		osg::Timer_t _startTime;
 		osg::Matrix _transitionMatrix, _oldMatrix;
@@ -79,8 +85,11 @@ namespace SceneHandlers
 
 		osg::Matrix _sequenceTransitionMatrix;
 		double _sequenceAnimationTime;
+		osg::Matrix _prevTensor, _nextTensor;
 
 		bool _activateTransition;
+		bool _duringAnimation;
+		double _animationPathSmoothness;		// Piu tende a 0, piu il percorso di animazione tende ad una spezzata. (default = 1.0)
 	};
 
 };

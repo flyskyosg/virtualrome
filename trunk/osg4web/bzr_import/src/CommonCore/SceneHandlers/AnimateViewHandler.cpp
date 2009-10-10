@@ -14,7 +14,12 @@ AnimateViewHandler::AnimateViewHandler(osgViewer::Viewer* viewer) : CommandSched
 	_mainViewer(viewer),
 	_options(new osgDB::ReaderWriter::Options),
 	_activateTransition(false),
+	_duringAnimation(false),
+	_currentKey(0),
+	_animationPathSmoothness(1.0),
 	_sequenceTransitionMatrix(osg::Matrix::identity()),
+	_prevTensor(osg::Matrix::identity()),
+	_nextTensor(osg::Matrix::identity()),
 	_transitionMatrix(osg::Matrix::identity()),
 	_animationTime(DEFAULT_ANIMATION_TIME)
 {
@@ -42,6 +47,7 @@ AnimateViewHandler::~AnimateViewHandler()
 		_options = NULL;
 }
 #include <iostream>
+
 bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 {
 	double ms = osg::Timer::instance()->delta_m( _startTime, osg::Timer::instance()->tick() );
@@ -54,7 +60,7 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 		osg::Quat rotation;
 		osg::Vec3 position, scale;
 
-		osg::Vec3 p1, p2;
+		osg::Vec3 p1,p2;
 
 		osg::Matrix matrix;
 		
@@ -70,17 +76,40 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 		//p3 = osg::Vec3(p2.x(),p2.y(),(p2.z()-D));
 		double t,tmp;
 		tmp = blend_factor - 1.0;
-		t = cos(tmp*tmp*osg::PI_2);
+
 		//t = 1.0 - (tmp*tmp);
 		//t = atan(blend_factor*5.0);
 
 		//double h = 1.0 - (2.0*(t-0.5)*(t-0.5));
-		double h = cos((t-0.5)*osg::PI);
-		position = ( p1 * (1.0 - t) + p2 * t);
-		position += osg::Vec3(0.0,0.0,h*D);
+		
+		if (!_duringAnimation){
+			t = cos(tmp*tmp*osg::PI_2);
+			position = ( p1 * (1.0 - t) + p2 * t);
+			}
+		else {
+			t = 0.5 * (cos(tmp*osg::PI) + 1.0);
 
-		rot_blend_factor = sqrt( t );			// Anticipa l'orientamento della camera rispetto al movimento camera
-		//rot_blend_factor = t*t;				// Ritarda l'orientamento della camera rispetto al movimento camera
+			osg::Vec3 p0,p3,A,B;
+
+			p0 = _prevTensor.getTrans();
+			p3 = _nextTensor.getTrans();
+			A = p0 - p1;
+			B = p3 - p2;
+			A *= _animationPathSmoothness;
+			B *= _animationPathSmoothness;
+
+			position = interpolateCR(t, (p1+A),p1,p2,(p2+B));
+			//position = interpolateCR(blend_factor, p0,p1,p2,p3);
+			}
+
+		if (!_duringAnimation){
+			double h = cos((t-0.5)*osg::PI);
+			position += osg::Vec3(0.0,0.0,h*D);
+
+			rot_blend_factor = sqrt( t );			// Anticipa l'orientamento della camera rispetto al movimento camera
+			//rot_blend_factor = t*t;				// Ritarda l'orientamento della camera rispetto al movimento camera
+			}
+		else rot_blend_factor = t;//t*t;
 
 		scale = _oldMatrix.getScale();
 		rotation.slerp(rot_blend_factor, _oldMatrix.getRotate(), animMatrix.getRotate());
@@ -119,13 +148,28 @@ bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActio
 					{
 						_mainViewer->getCameraManipulator()->setByMatrix( _sequenceTransitionMatrix );
 
-						if(!_animationMatrixArray.empty() && !_animationTimeArray.empty())
+						//if(!_animationMatrixArray.empty() && !_animationTimeArray.empty())
+						if(!_animationMatrixVector.empty() && !_animationTimeVector.empty() && _currentKey < (int)_animationMatrixVector.size())
 						{
+							/*
 							_sequenceTransitionMatrix.set( _animationMatrixArray.front() );
 							_sequenceAnimationTime = _animationTimeArray.front();
 
 							_animationMatrixArray.pop();
 							_animationTimeArray.pop();
+							*/
+							int prv = (_currentKey <= 1)? 0 : _currentKey-2;
+							int nxt = ((_currentKey+1) >= (int)_animationMatrixVector.size())? (_animationMatrixVector.size()-1) : (_currentKey+1);
+
+							_sequenceTransitionMatrix.set( _animationMatrixVector[_currentKey] );
+							_sequenceAnimationTime = _animationTimeVector[_currentKey];
+
+							//prv = _currentKey-1; nxt = (_currentKey+2);
+
+							_prevTensor.set( _animationMatrixVector[prv] );
+							_nextTensor.set( _animationMatrixVector[nxt] );
+
+							_currentKey++;
 
 							//Setto la posizione corrente della camera
 							_oldMatrix.set(_mainViewer->getCameraManipulator()->getMatrix() );
@@ -137,6 +181,7 @@ bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActio
 							_oldMatrix.set(osg::Matrix::identity());
 							_sequenceTransitionMatrix.set(osg::Matrix::identity());
 							_activateTransition = false;
+							_duringAnimation    = false;
 						}
 					}
 				}
@@ -296,52 +341,72 @@ bool AnimateViewHandler::setViewAnimationTime(std::string animtime)
 
 bool AnimateViewHandler::startAnimation()
 {
-	if( (_animationMatrixArray.size() < 1) || (_animationTimeArray.size() < 1) || _activateTransition)
+	//if( (_animationMatrixArray.size() < 1) || (_animationTimeArray.size() < 1) || _activateTransition)
+	if( (_animationMatrixVector.size() < 1) || (_animationTimeVector.size() < 1) || _activateTransition || _duringAnimation)
 		return false;
 
 	 //Setto la posizione corrente della camera
 	_oldMatrix.set(_mainViewer->getCameraManipulator()->getMatrix() );
 	
 	//Setto la prima matrice e il primo tempo 
+/*
 	_sequenceTransitionMatrix = _animationMatrixArray.front();
 	_sequenceAnimationTime = _animationTimeArray.front();
 
 	_animationMatrixArray.pop();
 	_animationTimeArray.pop();
+*/
+	_sequenceTransitionMatrix = _animationMatrixVector[0];
+	_sequenceAnimationTime = _animationTimeVector[0];
+
+	_currentKey++;
 
 	//Setto lo start time
 	_startTime = osg::Timer::instance()->tick();
 
 	_activateTransition = true;
+	_duringAnimation = true;
 
 	return true;
 }
 
 bool AnimateViewHandler::continueAnimation()
 {
-	if( (_animationMatrixArray.size() < 1) || (_animationTimeArray.size() < 1) || !_activateTransition)
+	//if( (_animationMatrixArray.size() < 1) || (_animationTimeArray.size() < 1) || !_activateTransition)
+	if( ( _currentKey < (int)_animationMatrixVector.size()) || !_activateTransition)
 		return false;
 
 	_activateTransition = true;
+	_duringAnimation = true;
+
 	return true;
 }
 
 bool AnimateViewHandler::stopAnimation()
 {
 	_activateTransition = false;
+	_duringAnimation = false;
+	_currentKey = 0;
+
 	return true;
 }
 
 void AnimateViewHandler::resetSettings()
 {
+/*
 	while(_animationMatrixArray.size())
 		_animationMatrixArray.pop();
 
 	while(_animationTimeArray.size())
 		_animationTimeArray.pop();
+*/
+	while(_animationMatrixVector.size()) _animationMatrixVector.pop_back();
+	while(_animationTimeVector.size()) _animationTimeVector.pop_back();
 
+	_currentKey = 0;
 	_animationTime = DEFAULT_ANIMATION_TIME;
 	_activateTransition = false;
+	_duringAnimation    = false;
 }
 
 bool AnimateViewHandler::setAnimationKey( std::string key )
@@ -382,8 +447,17 @@ bool AnimateViewHandler::setAnimationKey( std::string key )
 	{
 		osg::ref_ptr<osg::MatrixTransform> m1 = static_cast<osg::MatrixTransform *> (res.getObject());
 
+		/*
 		_animationMatrixArray.push( m1->getMatrix() );
 		_animationTimeArray.push(anitemp * 1000.0); //Riporto in millisecondi
+		*/
+
+		//_animationMatrixVector[_currentKey] = m1->getMatrix();
+		_animationMatrixVector.push_back( m1->getMatrix() );
+		//_animationMatrixVector.insert( _animationMatrixVector.begin(), m1->getMatrix() );
+		//_animationTimeVector[_currentKey] = (anitemp * 1000.0); //Riporto in millisecondi
+		_animationTimeVector.push_back( anitemp * 1000.0 );
+		//_animationTimeVector.insert( _animationTimeVector.begin(), (anitemp * 1000.0) );
 		
 		return true;
 	} 
