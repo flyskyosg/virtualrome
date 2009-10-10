@@ -44,10 +44,19 @@ IF(FIREFOX_EXE)
 
 ENDIF(FIREFOX_EXE)
 
+SET(IEXPLORE_DIR "" CACHE PATH "set to Internet Explorer install path")
+FIND_PROGRAM(IEXPLORE_EXE iexplore ${IEXPLORE_DIR})
+IF(IEXPLORE_EXE)
+	GET_FILENAME_COMPONENT(IEXPLORE_DIR ${IEXPLORE_EXE} PATH)
+	ENABLE_TESTING()
+ENDIF(IEXPLORE_EXE)
+
 # Common to all platforms:
 SET(OSG_DIR "" CACHE PATH "set to base osg install path")
 FIND_PACKAGE(OSG)
 
+
+#TODO finire internet explorer
 
 
 SET(CURL_ROOT ${OSG4WEB_ROOT}/var/dependancies/cmcurl CACHE PATH "base dir for cURL Library")
@@ -65,6 +74,7 @@ FOREACH(BTYPE Debug Release)
 	 SET(FIREFOX_STUFF_LIST_${BTYPE} "") 
 ENDFOREACH(BTYPE Debug Release)
 
+SET(IEXPLORE_STUFF_LIST_TEST "") 
 
 ADD_SUBDIRECTORY(src/Utilities)
 ADD_SUBDIRECTORY(src/CommonCore)
@@ -95,7 +105,7 @@ ENDIF(OSG_FOUND)
 
 
 IF(FIREFOX_EXE AND OSG_FOUND)
-	FOREACH(BTYPE Debug Release)  #TODO Release
+	FOREACH(BTYPE Debug Release)
 		ADD_CUSTOM_TARGET(Shell_npOSG4Web_Prepare_${BTYPE} )
 		ADD_DEPENDENCIES(Shell_npOSG4Web_Prepare_${BTYPE} Engine_LoadCore_Prepare_${BTYPE})	
 		ADD_DEPENDENCIES(Shell_npOSG4Web_Prepare_${BTYPE} Shell_npOSG4Web_Prepare_XPT)	
