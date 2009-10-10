@@ -461,8 +461,6 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 {
 	mShellBase.sendNotifyMessage("nsPluginInstance::init -> Initializing Window.");
 
-	std::string ogltest;
-
 	mInitialized = false;
 
 	if(!mInitOptionsSet)
@@ -484,48 +482,6 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 		s_PluginMessageError = "invalid window pointer!";
 		mShellBase.sendWarnMessage("nsPluginInstance::init -> window pointer is not valid.");
 		return mInitialized;
-	}
-
-	if(!mShellBase.getObjectShellOption(OBJECT_OPTION_DISABLEOPENGLCONF, ogltest))
-	{
-		mShellBase.sendNotifyMessage("nsPluginInstance::init -> configuring DC.");
-/* FIXME: RIPRISTINAAAA
-		PIXELFORMATDESCRIPTOR pixelFormat;
-
-		ZeroMemory( &pixelFormat, sizeof( pixelFormat ) );
-
-		pixelFormat.nSize = sizeof( pixelFormat );
-		pixelFormat.nVersion = 1;
-		pixelFormat.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-		pixelFormat.iPixelType = PFD_TYPE_RGBA;
-		pixelFormat.cColorBits = 24;
-		pixelFormat.cDepthBits = 16;
-		pixelFormat.iLayerType = PFD_MAIN_PLANE;
-	
-		//Retrieve DC Context
-		HDC hdc = ::GetDC(mhWnd);
-		if (hdc==0)
-		{
-			mShellBase.sendWarnMessage("nsPluginInstance::init -> GetDC Error.");
-		    return mInitialized;
-		}
-
-		int pixelFormatIndex = ::ChoosePixelFormat(hdc, &pixelFormat);
-		if (pixelFormatIndex==0)
-		{
-			mShellBase.sendWarnMessage("nsPluginInstance::init -> ChoosePixelFormat Error.");
-		    ::ReleaseDC(mhWnd, hdc);
-		    return mInitialized;
-		}
-
-		//Sets PixelFormat in Context
-		if (!::SetPixelFormat(hdc, pixelFormatIndex, &pixelFormat))
-		{
-			mShellBase.sendWarnMessage("nsPluginInstance::init -> SetPixelFormat Error.");
-		    ::ReleaseDC(mhWnd, hdc);
-		    return mInitialized;
-		}
-		*/
 	}
 
 	// subclass window so we can intercept window messages and
@@ -699,17 +655,6 @@ void nsPluginInstance::shut()
 	}
 	
 #if defined(WIN32)
-	if(!mShellBase.getObjectShellOption(OBJECT_OPTION_DISABLEOPENGLCONF, ogltest))
-	{
-		mShellBase.sendNotifyMessage("nsPluginInstance::shut -> release DC.");
-/* FIXME: RIPRISTINAAAA
-		HDC hdc = ::GetDC( mhWnd );
-		
-		if(hdc)
-			::ReleaseDC(mhWnd, hdc);
-			*/
-	}
-
 	// subclass it back
 	SubclassWindow(mhWnd, lpOldProc);
 	mhWnd = NULL;
@@ -1591,7 +1536,7 @@ LRESULT nsPluginInstance::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wP
 	case WM_SIZE:
 		if(this->checkRunning())
 		{
-			mShellBase.doRendering();
+			//mShellBase.doRendering();
 			return (0L); //Non passo l'erase signal
 		}
 		break;
@@ -1615,7 +1560,7 @@ LRESULT nsPluginInstance::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wP
 		break;
 	}
 
-	std::cout << eventmsg << std::endl;
+//	std::cout << eventmsg << std::endl;
 
 	return (::DefWindowProc(hWnd, eventmsg, wParam, lParam));
 }

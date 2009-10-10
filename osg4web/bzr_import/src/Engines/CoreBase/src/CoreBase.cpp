@@ -62,17 +62,11 @@ CoreBase::~CoreBase()
 	if(_KeySwitchManipulator.valid())
 		_KeySwitchManipulator = NULL;
 
-	/*
-#if defined(WIN32) //FIXME: cerca di risolvere il BUG dovuto all'utilizzo consequenziale dello stesso WinID
-	osgViewer::GraphicsWindowWin32::WindowData *windowData = _WinData.get() ? dynamic_cast<osgViewer::GraphicsWindowWin32::WindowData*>(_WinData.get()) : 0;
-    HWND hwnd = windowData ? windowData->_hwnd : 0;
-	HDC hdc = ::GetDC( hwnd );
+#if defined(WIN32)
 
-	::ReleaseDC(hwnd, hdc);
 #else
 	//TODO: Linux
-#endif 
-	*/
+#endif
 
 	if(_WinData.valid())
 		_WinData = NULL;
@@ -106,43 +100,6 @@ bool CoreBase::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string opt
 	_InstDir = instdir; //Directory di installazione del Core attuale
 
 	this->sendNotifyMessage("InitCore -> Starting Core Initialization.");
-
-	PIXELFORMATDESCRIPTOR pixelFormat;
-
-	ZeroMemory( &pixelFormat, sizeof( pixelFormat ) );
-
-	pixelFormat.nSize = sizeof( pixelFormat );
-	pixelFormat.nVersion = 1;
-	pixelFormat.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pixelFormat.iPixelType = PFD_TYPE_RGBA;
-	pixelFormat.cColorBits = 24;
-	pixelFormat.cDepthBits = 16;
-	pixelFormat.iLayerType = PFD_MAIN_PLANE;
-	
-	//Retrieve DC Context
-	HDC hdc = ::GetDC(mhWnd);
-    if (hdc==0)
-	{
-		this->sendWarnMessage("InitCore -> GetDC Error.");
-	    return false;
-	}
-
-	int pixelFormatIndex = ::ChoosePixelFormat(hdc, &pixelFormat);
-	if (pixelFormatIndex==0)
-	{
-		this->sendWarnMessage("InitCore -> ChoosePixelFormat Error.");
-	    ::ReleaseDC(mhWnd, hdc);
-	    return false;
-	}
-
-	//Sets PixelFormat in Context
-	if (!::SetPixelFormat(hdc, pixelFormatIndex, &pixelFormat))
-	{
-		this->sendWarnMessage("InitCore -> SetPixelFormat Error.");
-	    ::ReleaseDC(mhWnd, hdc);
-	    return false;
-	}
-
 
 	// Local Variable to hold window size data
 	RECT rect;
@@ -254,6 +211,8 @@ bool CoreBase::initManipulators()
 bool CoreBase::initCameraConfig()
 {
 	this->sendNotifyMessage("initCameraConfig -> Initializing Camera Settings.");
+	
+	double ratio = ((double) _Traits->height) / ((double) _Traits->width);
 
 	osg::DisplaySettings::instance()->setMinimumNumAlphaBits(8);
 	osg::ref_ptr<osg::GraphicsContext> gc = osg::GraphicsContext::createGraphicsContext(_Traits.get());
@@ -262,8 +221,10 @@ bool CoreBase::initCameraConfig()
 	_MainCamera->setViewport( new osg::Viewport( _Traits->x, _Traits->y, _Traits->width, _Traits->height ) );
 
 	_Viewer->addEventHandler(new osgViewer::StatsHandler);
-	_Viewer->addSlave(_MainCamera.get());
 	_Viewer->setCameraManipulator(_KeySwitchManipulator.get());
+
+	//Workaround per modificare la projection visto che non riseco a farlo da nessun altra parte
+	_Viewer->addSlave(_MainCamera.get(), osg::Matrix::scale(osg::Vec3(ratio, 1.0, 1.0)), osg::Matrix::identity()); //FIXME: continua ad essere sbagliata la proporzione
 
 	return true;
 }
@@ -428,7 +389,11 @@ std::string CoreBase::handleAction(std::string argument)
 void CoreBase::setDone() 
 { 
 	if(_Viewer.valid())
+	{
 		_Viewer->setDone(true); 
+		Sleep(1000);
+		_Viewer->stopThreading();
+	}
 }
 
 //Ritorna lo stato di osgViewer
