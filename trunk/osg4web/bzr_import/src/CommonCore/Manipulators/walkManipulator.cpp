@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2007/12/17 17:26:24 $
-Version:   $Revision: 1.5 $
+Date:      $Date: 2007/12/18 19:09:59 $
+Version:   $Revision: 1.6 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -73,6 +73,7 @@ walkManipulator::walkManipulator() : CommandSchedule("WALK"),
 
 	//Using: WALK_MANIP nomecomando
 	this->setCommandAction("WALK_MANIP");
+  _autoComputeHomePosition = false;
 }
 
 #if _USE_VISMAN_
@@ -125,7 +126,7 @@ void walkManipulator::setByMatrix(const osg::Matrixd& matrix)
 
 	_position = matrix.getTrans(); 
 
-    IntersectTerrain();
+  IntersectTerrain();
 }
 //--------------------------------------------------------------------
 osg::Matrixd walkManipulator::getMatrix() const
@@ -1115,6 +1116,22 @@ double walkManipulator::calcNextAngle(double StartingAngle, double *phi, double 
 }
 
 //--------------------------------------------------------------------
+void walkManipulator::setNearFar(double Near, double Far)
+//--------------------------------------------------------------------
+{
+  double lensaspect, fovy, oldnear, oldfar;
+  
+  if ((Near > 0.0f) && (Far > 0.0f))
+  {
+    _viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+    _viewer->getCamera()->getProjectionMatrixAsPerspective(fovy, lensaspect, oldnear, oldfar);
+    _viewer->getCamera()->setProjectionMatrixAsPerspective(fovy, lensaspect, Near, Far);
+  }
+  else
+    _viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::ComputeNearFarMode::COMPUTE_NEAR_FAR_USING_BOUNDING_VOLUMES);
+}
+
+//--------------------------------------------------------------------
 void walkManipulator::moveLights(osg::Light **Sun, osg::LightSource **Sun_ls, float *scene_radius)
 //--------------------------------------------------------------------
 {
@@ -1195,6 +1212,14 @@ std::string walkManipulator::ExecCommand(std::string lcommand, std::string rcomm
     double step_h, step_v;
     if (sscanf(rcommand.c_str(), "%lf %lf", &step_h, &step_v) == 2)
       this->setStepAmount(step_h, step_v);
+    else
+      return retstr_fail;
+  }
+  else if (lcommand.compare("SETNEARFAR") == 0)
+  {
+    double near, far;
+    if (sscanf(rcommand.c_str(), "%lf %lf", &near, &far) == 2)
+      this->setNearFar(near, far);
     else
       return retstr_fail;
   }
