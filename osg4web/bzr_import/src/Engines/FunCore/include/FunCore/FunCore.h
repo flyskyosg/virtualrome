@@ -39,7 +39,8 @@ public:
 		DEACTIVATE_JSMAP_MESSAGES,
 		GET_JSMAP_COORDINATES,
 		SETHOMEPOSITION,
-		SETBOUNDS
+		SETBOUNDS,
+		SETBACKGROUNDCOLOR
 	};
 
 	//Costruttore/Distruttore
@@ -83,6 +84,7 @@ protected:
 	//Manipolatori
 	bool setHomePosition(std::string arguments);
 	bool setBounds(std::string arguments);
+	bool setBackgroundColor(std::string arguments);
 	osg::ref_ptr<Manipulators::walkManipulator> _WalkManip;
 	osg::ref_ptr<Manipulators::ViroManipulator> _ViRoMan;
 
@@ -116,6 +118,9 @@ protected:
 
 	//Environment
 	bool _envdone;
+
+	//BackgroundColor
+	osg::Vec4f _bgcolor;
 };
 
 #endif //__OSG4WEB_FUNCORE__
