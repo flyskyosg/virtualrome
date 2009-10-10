@@ -13,6 +13,8 @@
 
 #if defined (WIN32) //Windows DEBUG
 
+//#define		_WIN32_WINNT		0x0400
+
 #define		NPOSG4WEB_DIRECTORY		NS_OS_CURRENT_PROCESS_DIR //FIXME: ripristinare
 #define		NPOSG4WEB_DIRECTORY_LOCAL		"ProfD"
 
@@ -40,8 +42,6 @@
 #define		DLCORE_DELAY				10
 #define		EXITDLCORE_DELAY			1000
 
-//Gestisce il Rendering tramite Timer o Threads
-//#define		RENDER_WITH_TIMER_EVENT	1
 
 #endif //__NPOSG4WEB_DEFINES__
 

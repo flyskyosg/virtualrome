@@ -126,6 +126,10 @@ public:
 	void SetTimerId( XtIntervalId timeid ) { mXttimeid = timeid; }
 #endif
 
+#if defined(WIN32)
+	LRESULT handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam);
+#endif
+
 private:
 	//restituisce la directory dove è presente il plugin
 	nsresult getCurrPlugDir(std::string* dir, const char* diropt);
@@ -167,14 +171,11 @@ private:
 	NPBool mLoading;
 
 #if defined(WIN32)
+	//Vecchio Window Procedure
 	WNDPROC lpOldProc;
 	//ID di finestra di Windows
 	HWND mhWnd;
 
-#if defined(RENDER_WITH_TIMER_EVENT)
-	//Timer Delay variable
-	unsigned int mTimer;
-#endif
 #else
 	//ID di finestra di X11
 	Window mhWnd;

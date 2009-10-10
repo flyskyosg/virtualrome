@@ -107,6 +107,7 @@ bool CoreBase::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string opt
 
 	this->sendNotifyMessage("InitCore -> Starting Core Initialization.");
 
+	/*
 	PIXELFORMATDESCRIPTOR pixelFormat;
 
 	ZeroMemory( &pixelFormat, sizeof( pixelFormat ) );
@@ -142,6 +143,8 @@ bool CoreBase::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string opt
 	    ::ReleaseDC(mhWnd, hdc);
 	    return false;
 	}
+
+	*/
 
 	// Local Variable to hold window size data
 	RECT rect;
