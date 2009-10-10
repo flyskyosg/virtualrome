@@ -31,7 +31,7 @@ ShellBase::ShellBase() : m_DynLoad(NULL),
 	m_fout(NULL),
 	m_advancedcore("dummy_core_run")
 {
-
+	initializeErrorMessages();
 }
 
 ShellBase::~ShellBase()
@@ -156,8 +156,8 @@ bool ShellBase::configuringInitialOptions()
 
 	if( !checkOrCreateDirectory(instdir) ||  !checkOrCreateDirectory(locinstdir) || !checkOrCreateDirectory(tempdir) || !checkOrCreateDirectory(coredir))
 	{
-		this->sendWarnMessage( "ShellBase::configuringInitialOptions -> makeDirectory failed!" );
-		m_errorcode = 1;
+		this->setErrorCode( 1 );
+		this->sendWarnMessage( "ShellBase::configuringInitialOptions -> " + this->getErrorString());
 		return false;
 	}
 
@@ -302,8 +302,8 @@ std::string ShellBase::execCoreCommand(std::string str)
 		return m_CoreInterface->DoCommand(str);
 	else
 	{
-		this->sendWarnMessage( "ShellBase::execCoreCommand -> core not initialized!" );
-		m_errorcode = 10;
+		this->setErrorCode( 10 );
+		this->sendWarnMessage( "ShellBase::execCoreCommand -> " + this->getErrorString() );
 	}
 
 	return std::string("CORENOTINITIALIZED");
@@ -313,8 +313,8 @@ bool ShellBase::doRendering()
 {
 	if(m_CoreInterface == NULL)
 	{
-		this->sendWarnMessage( "ShellBase::doRendering -> core interface not initialized!" );
-		m_errorcode = 20;
+		this->setErrorCode( 20 );
+		this->sendWarnMessage( "ShellBase::doRendering -> " + this->getErrorString() );
 		return false;
 	}
 
@@ -327,8 +327,8 @@ bool ShellBase::doRendering()
 	}
 	else
 	{
-		this->sendWarnMessage( "ShellBase::doRendering -> core not initialized!" );
-		m_errorcode = 10;
+		this->setErrorCode( 10 );
+		this->sendWarnMessage( "ShellBase::doRendering -> " + this->getErrorString() );
 	}
 	
 	this->sendWarnMessage( "ShellBase::doRendering -> doRendering Failed!" );
@@ -339,8 +339,8 @@ bool ShellBase::startRendering()
 {
 	if(m_CoreInterface == NULL)
 	{
-		this->sendWarnMessage( "ShellBase::startRendering -> core interface not initialized!" );
-		m_errorcode = 20;
+		this->setErrorCode( 20 );
+		this->sendWarnMessage( "ShellBase::startRendering -> " + this->getErrorString() );
 		return false;
 	}
 
@@ -366,14 +366,14 @@ bool ShellBase::startRendering()
 		}
 		else
 		{
-			this->sendWarnMessage( "ShellBase::startRendering -> Instance class pointer not initialized!" );
-			m_errorcode = 11;
+			this->setErrorCode( 11 );
+			this->sendWarnMessage( "ShellBase::startRendering -> " + this->getErrorString() );
 		}
 	}
 	else
 	{
-		this->sendWarnMessage( "ShellBase::startRendering -> core not initialized!" );
-		m_errorcode = 10;
+		this->setErrorCode( 10 );
+		this->sendWarnMessage( "ShellBase::startRendering -> " + this->getErrorString() );
 	}
 
 	return false;
@@ -385,8 +385,8 @@ bool ShellBase::stopRendering()
 
 	if(m_CoreInterface == NULL)
 	{
-		this->sendWarnMessage( "ShellBase::stopRendering -> core interface not present!" );
-		m_errorcode = 20;
+		this->setErrorCode( 20 );
+		this->sendWarnMessage( "ShellBase::stopRendering -> " + this->getErrorString());
 		return false;
 	}
 
@@ -411,8 +411,8 @@ bool ShellBase::stopRendering()
 		}
 		else
 		{
-			this->sendWarnMessage( "ShellBase::stopRendering -> Instance class pointer not initialized!" );
-			m_errorcode = 12;
+			this->setErrorCode( 12 );
+			this->sendWarnMessage( "ShellBase::stopRendering -> " + this->getErrorString() );
 
 			return false;
 		}
@@ -440,8 +440,8 @@ bool ShellBase::stopRendering()
 		}
 		else
 		{
-			this->sendWarnMessage( "ShellBase::stopRendering -> Instance class pointer not initialized!" );
-			m_errorcode = 12;
+			this->setErrorCode( 12 );
+			this->sendWarnMessage( "ShellBase::stopRendering -> " + this->getErrorString() );
 
 			return false;
 		}
@@ -488,16 +488,16 @@ bool ShellBase::checkLoadCorePresence()
 
 		if(!Utilities::FileUtils::fileExists(s))
 		{
-			this->sendWarnMessage( "ShellBase::checkLoadCorePresence-> LoadCore library not present!" );
-			m_errorcode = 4;
+			this->setErrorCode( 4 );
+			this->sendWarnMessage( "ShellBase::checkLoadCorePresence-> " + this->getErrorString() );
 			return false;
 		}
 	}
 
 	if(!m_Environm.addDirectoryToPath(coredirectory))
 	{
-		this->sendWarnMessage( "ShellBase::checkLoadCorePresence-> error setting path env var!" );
-		m_errorcode = 5;
+		this->setErrorCode( 5 );
+		this->sendWarnMessage( "ShellBase::checkLoadCorePresence-> " + this->getErrorString() );
 		return false;
 	}
 
@@ -547,15 +547,15 @@ bool ShellBase::startLoadingBaseCore()
 {
 	if(m_loadcorename.empty())
 	{
-		this->sendWarnMessage( "ShellBase::startLoadingBaseCore -> loadcore name not specified!" );
-		m_errorcode = 2;
+		this->setErrorCode( 2 );
+		this->sendWarnMessage( "ShellBase::startLoadingBaseCore -> " + this->getErrorString() );
 		return false;
 	}
 
 	if(m_hWnd == NULL)
 	{
-		this->sendWarnMessage( "ShellBase::startLoadingBaseCore-> window pointer not initialized!" );
-		m_errorcode = 3;
+		this->setErrorCode( 3 );
+		this->sendWarnMessage( "ShellBase::startLoadingBaseCore-> " + this->getErrorString() );
 		return false;
 	}
 
@@ -596,8 +596,8 @@ bool ShellBase::startLoadingBaseCore()
 	}
 	else
 	{
-		this->sendWarnMessage( "ShellBase::startLoadingBaseCore -> core not initialized!" );
-		m_errorcode = 10;
+		this->setErrorCode( 10 );
+		this->sendWarnMessage( "ShellBase::startLoadingBaseCore -> " + this->getErrorString() );
 		return false;
 	}
 
@@ -612,8 +612,8 @@ bool ShellBase::checkAdvCorePresence()
 	{
 		if( !Utilities::FileUtils::makeDirectory(dir) )
 		{
-			this->sendWarnMessage( "ShellBase::checkAdvCorePresence-> makeDirectory failed!" );
-			m_errorcode = 30; //FIXME: messaggio di errore al loadcore
+			this->setErrorCode( 30 ); //FIXME: messaggio di errore al loadcore
+			this->sendWarnMessage( "ShellBase::checkAdvCorePresence-> " + this->getErrorString() );
 			return false;
 		}
 	}
@@ -689,8 +689,8 @@ bool ShellBase::initializeAdvancedCore()
 		if( !requestCoreDownloading(m_instanceclassptr) )
 		{
 			//TODO: il thread non è partito
-			this->sendWarnMessage( "ShellBase::initializeAdvancedCore-> request dowloading core message failed!" );
-			m_errorcode = 31; //FIXME: messaggio di errore al loadcore
+			this->setErrorCode( 31 );
+			this->sendWarnMessage( "ShellBase::initializeAdvancedCore-> " + this->getErrorString() );
 			return false;
 		}
 	}
@@ -768,8 +768,8 @@ bool ShellBase::startLoadingAdvancedCore()
 	}
 	else
 	{
-		this->sendWarnMessage( "ShellBase::startLoadingAdvancedCore -> core not initialized!" );
-		m_errorcode = 10;
+		this->setErrorCode( 10 );
+		this->sendWarnMessage( "ShellBase::startLoadingAdvancedCore -> " + this->getErrorString() );
 		return false;
 	}
 
@@ -791,8 +791,8 @@ bool ShellBase::loadDynamicCore(std::string loadcore)
 
 	if(m_DynLoad == NULL)
 	{
-		this->sendWarnMessage( "ShellBase::loadDynamicCore -> loading runtime library failed! Error: " + errmsg );
-		m_errorcode = 21;
+		this->setErrorCode( 21 );
+		this->sendWarnMessage( "ShellBase::loadDynamicCore -> " + this->getErrorString() + " Error: " + errmsg );
 		return false;
 	}
 
@@ -800,8 +800,8 @@ bool ShellBase::loadDynamicCore(std::string loadcore)
 	
 	if (createClassInstance == NULL) 
 	{
-		this->sendWarnMessage( "ShellBase::loadDynamicCore -> get library process address failed!" );
-		m_errorcode = 22;
+		this->setErrorCode( 22 );
+		this->sendWarnMessage( "ShellBase::loadDynamicCore -> " + this->getErrorString() );
 		return false;
 	}
 
@@ -809,8 +809,8 @@ bool ShellBase::loadDynamicCore(std::string loadcore)
 
 	if(m_CoreInterface == NULL)
 	{
-		this->sendWarnMessage( "ShellBase::loadDynamicCore -> class instance creation failed!" );
-		m_errorcode = 23;
+		this->setErrorCode( 23 );
+		this->sendWarnMessage( "ShellBase::loadDynamicCore -> " + this->getErrorString() );
 		return false;
 	}
 
@@ -821,8 +821,8 @@ bool ShellBase::deleteCurrentCore()
 {
 	if(m_DynLoad == NULL)
 	{
-		this->sendWarnMessage( "ShellBase::deleteCurrentCore -> dynamic library not present!" );
-		m_errorcode = 24;
+		this->setErrorCode( 24 );
+		this->sendWarnMessage( "ShellBase::deleteCurrentCore -> " + this->getErrorString() );
 		return false;
 	}
 
@@ -832,8 +832,8 @@ bool ShellBase::deleteCurrentCore()
 	deleteClassInstance = (CommonCore::deleteCoreInterfaceFunction*) m_DynLoad->getProcAddress("deleteClassInstance");
 	if (deleteClassInstance == NULL) 
 	{
-		this->sendWarnMessage( "ShellBase::deleteCurrentCore -> error deleting class instance!" );
-		m_errorcode = 25;
+		this->setErrorCode( 25 );
+		this->sendWarnMessage( "ShellBase::deleteCurrentCore -> " + this->getErrorString() );
 		return false;
 	}
 	
@@ -995,8 +995,8 @@ int ShellBase::unpackCompressedCoreFile()
 			if(data_ptr != NULL) 
 				free(data_ptr);
 
-			m_errorcode = 35;
-			this->sendWarnMessage( "ShellBase::unpackCompressedCoreFile -> Rar open archive failed!" );
+			this->setErrorCode( 35 );
+			this->sendWarnMessage( "ShellBase::unpackCompressedCoreFile -> " + this->getErrorString() );
 
 			return -1; //Return UnPacking Error
 		}
@@ -1024,8 +1024,8 @@ bool ShellBase::writeCoreFileToDisk(char* filename, char* data, unsigned long da
 
 		if(count != datasize)
 		{
-			m_errorcode = 34;
-			this->sendWarnMessage( "ShellBase::writeCoreFileToDisk -> Writing File Failed!" );
+			this->setErrorCode( 34 );
+			this->sendWarnMessage( "ShellBase::writeCoreFileToDisk -> " + this->getErrorString() );
 		}
 
 		fclose(datafp);
@@ -1034,8 +1034,8 @@ bool ShellBase::writeCoreFileToDisk(char* filename, char* data, unsigned long da
 	}
 	else
 	{
-		m_errorcode = 32;
-		this->sendWarnMessage( "ShellBase::writeCoreFileToDisk -> Open File Failed!" );
+		this->setErrorCode( 32 );
+		this->sendWarnMessage( "ShellBase::writeCoreFileToDisk -> " + this->getErrorString() );
 	}
 	
 	return ret;
@@ -1094,92 +1094,94 @@ bool ShellBase::checkFileValidity(std::string fname, std::string hexhash)
 		}
 		else
 		{
-			m_errorcode = 33;
-			this->sendWarnMessage( "ShellBase::checkFileValidity -> Validity Check Failed!" );
+			this->setErrorCode( 33 );
+			this->sendWarnMessage( "ShellBase::checkFileValidity -> " + this->getErrorString() );
 		}
 	}
 	else
 	{
-		m_errorcode = 32;
-		this->sendWarnMessage( "ShellBase::checkFileValidity -> Open File Failed!" );
+		this->setErrorCode( 32 );
+		this->sendWarnMessage( "ShellBase::checkFileValidity -> " + this->getErrorString() );
 	}
 	
 	return ret;
 }
 
-std::string ShellBase::getErrorString()
-{
-	std::string retstr;
 
-	switch(m_errorcode)
+void ShellBase::initializeErrorMessages()
+{
+	this->sendNotifyMessage("ShellBase::initializeErrorMessages -> initializing error messages" );
+
+	m_errormessage.push_back("Unknown error - Default Message"); //0
+	m_errormessage.push_back("Making directory failed"); //1
+	m_errormessage.push_back("LoadCore name not present"); //2
+	m_errormessage.push_back("Window pointer not initialized"); //3
+	m_errormessage.push_back("LoadCore library not present"); //4
+	m_errormessage.push_back("Accessing environment vars failed"); //5
+	m_errormessage.push_back(std::string()); //6
+	m_errormessage.push_back(std::string()); //7
+	m_errormessage.push_back(std::string()); //8
+	m_errormessage.push_back(std::string()); //9
+	m_errormessage.push_back("Core not initialized"); //10
+	m_errormessage.push_back("Preparing core rendering process failed"); //11
+	m_errormessage.push_back("Deinitialize core rendering process failed"); //12
+	m_errormessage.push_back(std::string()); //13
+	m_errormessage.push_back(std::string()); //14
+	m_errormessage.push_back(std::string()); //15
+	m_errormessage.push_back(std::string()); //16
+	m_errormessage.push_back(std::string()); //17
+	m_errormessage.push_back(std::string()); //18
+	m_errormessage.push_back(std::string()); //19
+	m_errormessage.push_back("Core Interface not initialized"); //20
+	m_errormessage.push_back("Loading Run-Time library failed"); //21
+	m_errormessage.push_back("Getting process library failed"); //22
+	m_errormessage.push_back("Creating library class instance failed"); //23
+	m_errormessage.push_back("Run-Time library not present"); //24
+	m_errormessage.push_back("Deleting library class instance failed"); //25
+	m_errormessage.push_back(std::string()); //26
+	m_errormessage.push_back(std::string()); //27
+	m_errormessage.push_back(std::string()); //28
+	m_errormessage.push_back(std::string()); //29
+	m_errormessage.push_back("Advanced Core not initialized"); //30
+	m_errormessage.push_back("Request dowloading core message failed"); //31
+	m_errormessage.push_back("Opening file failed"); //32
+	m_errormessage.push_back("Validity check failed"); //33
+	m_errormessage.push_back("Writing file failed"); //34
+	m_errormessage.push_back("Rar open archive failed!"); //35
+	m_errormessage.push_back(std::string()); //36
+	m_errormessage.push_back(std::string()); //37
+	m_errormessage.push_back(std::string()); //38
+	m_errormessage.push_back(std::string()); //39
+	m_errormessage.push_back("retrieve proxy info failed!"); //40
+	m_errormessage.push_back("retrieve plugin directory failed!"); //41
+	m_errormessage.push_back("retrieve local plugin directory failed!"); //42
+	m_errormessage.push_back("retrieve temp directory failed!"); //43
+	m_errormessage.push_back("retrieve core directory failed!"); //44
+	m_errormessage.push_back("window pointer is not valid!"); //45
+	m_errormessage.push_back("window pointer is not present!"); //46
+	m_errormessage.push_back(std::string()); //47
+	m_errormessage.push_back(std::string()); //48
+	m_errormessage.push_back(std::string()); //49
+}
+
+std::string ShellBase::getErrorString(unsigned int no)
+{
+	this->sendNotifyMessage("ShellBase::getErrorString -> getting error by index: " );
+
+	if(no < m_errormessage.size())
 	{
-	case 0:
-		retstr = "ShellBase works correctly";
-		break;
-	case 1:
-		retstr = "Making directory failed";
-		break;
-	case 2:
-		retstr = "LoadCore name not present";
-		break;
-	case 3:
-		retstr = "Window pointer not initialized";
-		break;
-	case 4:
-		retstr = "LoadCore library not present";
-		break;
-	case 5:
-		retstr = "Accessing environment vars failed";
-		break;
-	case 10:
-		retstr = "Core not initialized";
-		break;
-	case 11:
-		retstr = "Preparing core rendering process failed";
-		break;
-	case 12:
-		retstr = "Deinitialize core rendering process failed";
-		break;
-	case 20:
-		retstr = "Core Interface not initialized";
-		break;
-	case 21:
-		retstr = "Loading Run-Time library failed";
-		break;
-	case 22:
-		retstr = "Getting process library failed";
-		break;
-	case 23:
-		retstr = "Creating library class instance failed";
-		break;
-	case 24:
-		retstr = "Run-Time library not present";
-		break;
-	case 25:
-		retstr = "Deleting library class instance failed";
-		break;
-	case 30:
-		retstr = "Advanced Core not initialized";
-		break;
-	case 31:
-		retstr = "Request dowloading core message failed";
-		break;
-	case 32:
-		retstr = "Opening file failed";
-		break;
-	case 33:
-		retstr = "Validity check failed";
-		break;
-	case 34:
-		retstr = "Writing file failed";
-		break;
-	case 35:
-		retstr = "Rar open archive failed!";
-		break;
-	default:
-		retstr = "Unknown error - Default Message";
-		break;
+		if(!m_errormessage.at(no).empty())
+			return m_errormessage.at(no);
 	}
 
-	return retstr;
+	this->sendWarnMessage("ShellBase::getErrorString -> error code not presents or messages not sets, sending default message" );
+	
+	return m_errormessage.at(0);
+}
+
+std::string ShellBase::getErrorString()
+{
+	this->sendNotifyMessage("ShellBase::getErrorString -> getting error by errorcode: " ); //TODO: aggiungere il codice d'errore
+
+	return getErrorString(m_errorcode);
 }

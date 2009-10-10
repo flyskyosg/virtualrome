@@ -37,11 +37,14 @@ public:
 	bool closeAllLibraries();
 
 	bool isRunning(){ return m_coreInit; }
-	bool isThereErrors(){ return m_errorcode != 0; }
-
+	
 	bool doRendering();
 
 	std::string getErrorString();
+	std::string getErrorString(unsigned int no);
+
+	bool isThereErrors(){ return m_errorcode != 0; }
+	void setErrorCode(unsigned int no) { m_errorcode = no; }
 
 	std::string getEnvironmentTempDirectory();
 	std::string getEnvironmentAppDirectory();
@@ -89,6 +92,7 @@ public:
 	
 protected:
 	bool initializeLogMessages(std::string logname);
+	void initializeErrorMessages();
 	bool restoreLogMessages();
 	bool isLogMessagesInitialized()	{ return (m_coutbuf || m_cerrbuf); }
 
@@ -137,6 +141,7 @@ protected:
 
 	//Stato di errore
 	unsigned int m_errorcode;
+	std::vector<std::string> m_errormessage;
 	
 #if defined(WIN32)
 	//ID di finestra di Windows
