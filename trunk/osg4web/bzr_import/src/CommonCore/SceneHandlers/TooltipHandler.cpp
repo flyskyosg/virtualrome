@@ -19,8 +19,9 @@ using namespace SceneHandlers;
 /** Costruttore del ToolTips Handler */
 
 
-TooltipHandler::TooltipHandler(osg::Node::NodeMask nm) : NodeParserHandler(nm),
+TooltipHandler::TooltipHandler(osg::Node::NodeMask allowmask) : NodeParserHandler(allowmask),
 	_tooltipcommandname("show_tooltip"), //TODO: spostare in defines
+	_hudgrp(new osg::Group),
 	_matrtrans(new osg::MatrixTransform),
 	_switchnd(new osg::Switch),
 	_textnd(new osgText::Text),
@@ -28,39 +29,21 @@ TooltipHandler::TooltipHandler(osg::Node::NodeMask nm) : NodeParserHandler(nm),
 	_geodend(new osg::Geode),
 	_currentactivetooltip(NULL),
 	_xMaxResolution(500), //TODO:
-	_yMaxResolution(500), //TODO:
-	_hudgrp(NULL)
+	_yMaxResolution(500) //TODO:
 {
 	this->createTooltipSceneGraph();
 	
 	this->registerCommand(_tooltipcommandname);
 }
 
-
-TooltipHandler::TooltipHandler(osg::Group* hudgrp, osg::Node::NodeMask nm) : NodeParserHandler(nm),
-	_tooltipcommandname("show_tooltip"), //TODO: spostare in defines
-	_matrtrans(new osg::MatrixTransform),
-	_switchnd(new osg::Switch),
-	_textnd(new osgText::Text),
-	_geombox(new osg::Geometry),
-	_geodend(new osg::Geode),
-	_currentactivetooltip(NULL),
-	_xMaxResolution(500), //TODO:
-	_yMaxResolution(500), //TODO:
-	_hudgrp(hudgrp)
+osg::Node* TooltipHandler::createTooltipHUD(osg::Node::NodeMask negatemask)
 {
-	this->createTooltipSceneGraph();
+	_hudgrp->setName("TooltipHandler_HUD_Group");
+	_hudgrp->setNodeMask(negatemask);
+
 	this->createTooltipCamera2D();
 
-	this->registerCommand(_tooltipcommandname);
-}
-
-/** Setta il nodo di scena globale nel Tooltip */
-void TooltipHandler::setMainSceneNode(osg::Node* node)
-{
-	_hudgrp = (osg::Group*) node;
-
-	this->createTooltipCamera2D();
+	return (osg::Node*) _hudgrp.get();
 }
 
 void TooltipHandler::createTooltipSceneGraph()
