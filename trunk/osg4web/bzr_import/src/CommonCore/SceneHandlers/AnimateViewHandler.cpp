@@ -6,6 +6,7 @@
 #include <osgDB/ReaderWriter>
 #include <osgDB/Registry>
 
+//#include <CommonCore/Manipulators/ViroManipulator.h>
 
 
 using namespace SceneHandlers;
@@ -36,6 +37,13 @@ AnimateViewHandler::AnimateViewHandler(osgViewer::Viewer* viewer) : CommandSched
 	this->setCommandAction( "CONTINUE_ANIMATION" );
 	this->setCommandAction( "STOP_ANIMATION" );
 	this->setCommandAction( "RESET_DEFAULT" );
+
+	if ( _mainViewer.get() ){
+		this->_sequenceTransitionMatrix.set( _mainViewer->getCameraManipulator()->getMatrix() );
+		this->_prevTensor.set( _mainViewer->getCameraManipulator()->getMatrix() );
+		this->_nextTensor.set( _mainViewer->getCameraManipulator()->getMatrix() );
+		this->_transitionMatrix.set( _mainViewer->getCameraManipulator()->getMatrix() );
+		}
 }
         
 AnimateViewHandler::~AnimateViewHandler()
@@ -56,8 +64,6 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 	
 	if( ms < animTime)
 	{
-		//animMatrix.makeRotate(90.0, osg::X_AXIS);
-
 		double blend_factor = ms / animTime;
 		double rot_blend_factor;	//FIXME: trovare il modo fi anticipare la rotazione
 				
@@ -126,6 +132,12 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 
 		_mainViewer->getCameraManipulator()->setByMatrix( matrix );
 
+/*
+		if ( dynamic_cast<Manipulators::ViroManipulator *>(_mainViewer->getCameraManipulator()) ){
+			Manipulators::ViroManipulator* V = dynamic_cast<Manipulators::ViroManipulator *>( _mainViewer->getCameraManipulator() );
+			V->bAutoControlLock = true;
+			}
+*/		
 		return true;
 		}
 	else

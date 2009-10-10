@@ -12,6 +12,7 @@
 //#include <CommonCore/Manipulators/BoostHotspot.h>
 #include <CommonCore/Manipulators/Mixer.h>
 #include <CommonCore/CommandSchedule.h>
+#include <osg/Fog>
 
 using namespace osgGA;
 
@@ -143,7 +144,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		bool getHoldLock(){ return _bHoldCTRL; };
 		bool getHardImpact(){ return _bImpact; };
 		bool getSoftImpact(){ return _bAvoidanceZone; };
-		bool getZlock(){ return _bLockZ; };
+		//bool getZlock(){ return _bLockZ; };
 
 		void tuneDistances(double mult){
 			BumpDistance *= mult;
@@ -161,6 +162,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		void setAvoidanceDistance(double d){
 			AvoidanceDistance = d;
 			}
+		bool getTumble(){ return _bTumble; };
 
 		// Get Framing Time (UNUSED)
 		void UpdateFrameTime(double now){
@@ -175,6 +177,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 			};
 
 		void setGlassPrison(osg::BoundingBox BB){ _GlassPrison = BB; };
+		void setEnvFog(osg::Fog* F){ _envFog = F; _envFogDensity = F->getDensity(); };
 
 		std::string handleAction(std::string argument);
 		std::string ExecCommand(std::string lcommand, std::string rcommand);	// 4 Luglio
@@ -206,7 +209,9 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 			// Cannot escape from model bounds
 			GLASS_PRISON      = (1<<10),
 			// Auto-Scale steps
-			AUTO_SCALE_STEP   = (1<<11)
+			AUTO_SCALE_STEP   = (1<<11),
+			// Height Lock
+			Z_LOCK            = (1<<12)
 			};
 
 		void ClearOptions(){ ViroOptions = 0; };	
@@ -242,6 +247,8 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		~ViroManipulator();
 
 		osg::ref_ptr<osg::Node> _NODE;	// Root node of Manipulator
+		osg::ref_ptr<osg::Fog> _envFog;
+		float _envFogDensity;
 		
 		/** The main function for auto-correction, collision detection & avoidance.*/
 		void AutoControl(double callTime);
@@ -254,6 +261,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		bool isMouseMoving();
 		bool handlePick(double dx,double dy,float A=0.4);
 		bool handleRelease(const GUIEventAdapter& ea);
+		void handleFlyToTransition(double calltime);
 
 		/** Mouse Listener */
 		bool MouseListener();
@@ -318,8 +326,11 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		bool _bImpact;
 		bool _bAvoidanceZone;
 		bool _bReqHome;
-		bool _bLockZ;
+		//bool _bLockZ;
+		bool _bTumble;
 		bool _bMidButton;
+		bool _bTurning;
+		bool _bDirtyScale;
 
 		// Web NavPad
 		unsigned short _padEvent;

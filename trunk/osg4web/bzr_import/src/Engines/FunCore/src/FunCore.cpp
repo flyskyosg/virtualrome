@@ -337,9 +337,8 @@ bool FunCore::loadModel(std::string nodename, bool erase)
 		_LoaderThreadHandler->setServerPrefix(address + "/");
 	}
 	
-	return _LoaderThreadHandler->requestLoading(nodename); 
+	return _LoaderThreadHandler->requestLoading(nodename);
 }
-
 
 bool FunCore::loadModelToNode(std::string arguments)
 {
@@ -476,12 +475,12 @@ void FunCore::handleEnvironment()
 	EnvNode->setNodeMask( NOT_SOLID_MASK );
 	EnvSS = EnvNode->getOrCreateStateSet();
 	
-	EnvFog->setMode(osg::Fog::EXP);
+	EnvFog->setMode(osg::Fog::EXP2);
 
 #ifdef _NITE_
 	EnvFog->setColor( osg::Vec4f(0.0,0.0,0.0, 1.0) );
 #else
-	EnvFog->setColor( osg::Vec4f(0.9,1.0,1.0, 1.0) );
+	EnvFog->setColor( osg::Vec4f(0.95,1.0,1.0, 1.0) );
 #endif
 
 	EnvSS->setAttributeAndModes( EnvFog.get() );
@@ -555,9 +554,9 @@ void FunCore::handleEnvironment()
 	if (_MainNode.get() ){
 		//_MainNode->addChild( WaterNode.get() );
 		_MainNode->addChild( EnvNode.get() );
-		EnvFog->setDensity( 500.0 / _MainNode.get()->getBound().radius() );			// Formula da testare con differenti modelli
+		EnvFog->setDensity( 400.0 / _MainNode.get()->getBound().radius() );			// Formula da testare con differenti modelli
 		_MainNode->getOrCreateStateSet()->setAttributeAndModes( EnvFog.get() );
-
+		if ( _ViRoMan.get() ) _ViRoMan->setEnvFog( EnvFog.get() );
 	}
 }
 
@@ -609,13 +608,18 @@ void FunCore::handleLoadingThreads()
 			if ( _ViRoMan.get() ){
 				// Crea HUD
 				_HUD = new ViroHud( _ViRoMan.get() );
-				_HUD->Init();
+				//_HUD->setViewportSize(this->getCurrentWinWidth(),this->getCurrentWinHeight());
+				_HUD->setViewportSize(1400,700);
+				_HUD->Realize();
 				
 				_MainNode->addChild( _HUD.get()->getHUD() );
 
 				// Crea Callback di aggiornamento HUD
 				ViroHudUpdater* hupd = new ViroHudUpdater( _HUD.get() );
 				_HUD->getHUD()->setUpdateCallback( hupd );
+
+				// setup
+				_HUD->setServerPrefix( _LoaderThreadHandler->getServerPrefix() );
 				}
 
 			_Viewer->home();

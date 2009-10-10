@@ -63,7 +63,8 @@ void PickerHandler::mouseRayIntersection(osgViewer::Viewer* viewer, const osgGA:
             ++hitr)
         {
 			osg::Vec3d hitpoint = hitr->getLocalIntersectPoint(); //Punto di Hit
-			double lenght = sqrt( pow(center.x() - hitpoint.x(), 2) + pow(center.y() - hitpoint.y(), 2) + pow(center.z() - hitpoint.z(), 2) ); //distanza euclidea
+			//double lenght = sqrt( pow(center.x() - hitpoint.x(), 2) + pow(center.y() - hitpoint.y(), 2) + pow(center.z() - hitpoint.z(), 2) ); //distanza euclidea
+			double lenght = (eye - hitpoint).length();
 
 			if(distance == -1.0 || lenght < distance) //Se punto più vicino faccio store
 			{

@@ -66,7 +66,10 @@ ViroManipulator::ViroManipulator() : CommandSchedule("WALK") {
 	_bReqHome                = false;
 	_bSatMode                = false;
 	_bHoldCTRL               = false;
+	_bTumble                 = false;
+	_bTurning                = false;
 	bAutoControlLock         = false;
+	_bDirtyScale             = true;
 	_AvoidanceReaction       = 1e-5;
 	_modelScale				 = 0.01;
 	_tLastAvoidanceWarn      = -1.0;
@@ -85,7 +88,7 @@ ViroManipulator::ViroManipulator() : CommandSchedule("WALK") {
 	//_HeadLight = new osg::LightSource;
 
 	_padEvent   = NAVPAD_NONE;
-	_bLockZ   = false;
+	//_bLockZ   = false;
 	_bMidButton = false;
 }
 
@@ -407,7 +410,7 @@ void ViroManipulator::boost(int mode){
 		case(BOOST):{
 			if (_speed != 0.0){
 				vD = _vLook * F;
-				if (_bLockZ) vD[2] = 0.0;
+				if ( isEnabled(Z_LOCK) ) vD[2] = 0.0;
 
 				_vEye    += vD;
 				_vTarget += vD;		// FIXME?
@@ -433,8 +436,11 @@ void ViroManipulator::boost(int mode){
 // Turn
 void ViroManipulator::turn(double dx, double dy){
 	double dt     = getDtime();
+	_bTumble      = false;
+	//_bTurning     = false;
 
 	if (!_bHoldCTRL){
+		//_bTurning = true;
 		double dPitch = -inDegrees(dy * PeripheralSensibility * dt);
 		double dYaw   =  inDegrees(dx * PeripheralSensibility * dt);
 		double dRoll  = dYaw * RollWithYaw;
@@ -475,12 +481,14 @@ void ViroManipulator::turn(double dx, double dy){
 		Slide.normalize();
 		Slide *= -Fx;
 
-		double rx,ry,X,Y,a;
+		//double rx,ry,X,Y,a;
 		//a = osg::DegreesToRadians( VecAngle(osg::X_AXIS, _vLook) );
+		/*
 		X = _vLastPickedPoint.x() - _vEye.x();
 		Y = _vLastPickedPoint.y() - _vEye.y();
 		rx = X*cos(a) - Y*sin(a);
 		ry = X*sin(a) + Y*cos(a);
+		*/
 
 		Vec3d V1 = _vLastPickedPoint - _vEye;
 		double rad = V1.length();
@@ -493,7 +501,9 @@ void ViroManipulator::turn(double dx, double dy){
 		//rx = X*cos(a) - Y*sin(a);
 		//ry = X*sin(a) + Y*cos(a);
 
-		if (T.length() < 0.2){
+		#define VIRO_TUMBLESNAPSENSIBILITY	0.1
+		if (T.length() < VIRO_TUMBLESNAPSENSIBILITY){
+			_bTumble = true;
 			osg::Vec3d tmp;
 			_qRotation = qTumble;
 			//M = Vec3d(X,Y,-Fy);
@@ -532,8 +542,34 @@ void ViroManipulator::FlyTo(double callTime){
 		}
 }
 
-// Provides a smooth Self-Correction of Position, ensuring that 
-// StrafeVector lies on XY-Plane + Automatic-Avoidance + Collision Detection.
+// Manage transition during Fly-To
+void ViroManipulator::handleFlyToTransition(double calltime){
+	if (_bFlying){
+		// Time based percentage
+		double t = (calltime - _FlyToCallTime)/FlyToDurationTime;
+				
+		// New interpolated Position
+		_vEye = _Mix.interpolate(t,_vStoredEye[ViroManipulator::FROM],
+					                        _vStoredEye[ViroManipulator::TO],
+											_Mix.BOOST_TO);
+
+		// New interpolated Rotation
+		_qRotation = _Mix.interpolate(t,_qStoredRotation[ViroManipulator::FROM],
+					                             _qStoredRotation[ViroManipulator::TO],
+												 _Mix.SQUARE);
+				
+		// Flight terminated. Unset bool & release Mouse-Control Locks..
+		if (t > 1.0){
+			_bFlying  = false;
+			_bReqHome = false;
+			_speed    = 0.0;
+			//SyncData();
+			}
+		}
+}
+
+// Provides a set of smooth Self-Corrections about Position, Attitude,
+// Automatic-Avoidance, Collision Detection and other.
 void ViroManipulator::AutoControl(double callTime){
 	if (bAutoControlLock) return;
 
@@ -629,7 +665,7 @@ void ViroManipulator::AutoControl(double callTime){
 		double R = _NODE->getBound().radius();
 
 		// Check for surface attraction
-		if ( Intersect(_vEye+Vec3d(0.0,0.0,(_tFallTimer*R*0.5)),_vEye-Vec3d(0.0,0.0,R), P,N) ){
+		if ( Intersect(_vEye +Vec3d(0.0,0.0,(_tFallTimer*R*0.2)),_vEye-Vec3d(0.0,0.0,R), P,N) ){
 			_currentGroundDistance = _vEye.z()-P.z();
 			if ( _vEye.z() > P.z() + GroundDistance ){
 				_bSurfaceImpact = false;
@@ -714,7 +750,7 @@ void ViroManipulator::AutoControl(double callTime){
 	*/
 
 	// Roll Correction
-	if ( _vStrafe.z()!=0.0 && (!isEnabled(SPIDERMAN_PICKING) || !isEnabled(PERIPHERAL_LOCK))){
+	if ( /*!_bTurning && */_vStrafe.z()!=0.0 && (!isEnabled(SPIDERMAN_PICKING) || !isEnabled(PERIPHERAL_LOCK))){
 		osg::Quat qCorrection;
 		double r = _vStrafe.z() * RollAutoCorrection;	// Gran classe
 		//r *= getDtime();
@@ -770,24 +806,37 @@ void ViroManipulator::AutoControl(double callTime){
 
 		if (_currentGroundDistance > 0.0) autoStepFactor = _currentGroundDistance/2000;
 		else autoStepFactor = (_vEye.z()-10.0) / 2500; //(max-min);
-		//autoStepFactor -= 0.3;
 
-		double R = 2;
-
-		if (autoStepFactor < 0.1){
+		#define VIRO_LOWHEIGHT	0.1
+		if (autoStepFactor < VIRO_LOWHEIGHT){
+			double l,r,t,b,z,Z;
+			_Viewer->getCamera()->getProjectionMatrixAsFrustum(l,r,b,t,z,Z);
 			//_Viewer->getCamera()->setNearFarRatio( autoStepFactor * 0.001 );
 			double Zfar;
-			Zfar = _Mix.interpolate(autoStepFactor/0.1, 1000,20000);
-			//_Viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+			Zfar = _Mix.interpolate(autoStepFactor/VIRO_LOWHEIGHT, 2000,20000);
+			_Viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 			//_Viewer->getCamera()->setProjectionMatrixAsPerspective(30.0,R, 0.01,Zfar);
 			_Viewer->getCamera()->setNearFarRatio( 0.00001 );
-			//_Viewer->getCamera()->setProjectionMatrixAsFrustum(-0.0,10.0, 0.0,10.0, 0.01,Zfar);
-			RollWithYaw = _Mix.interpolate(autoStepFactor/0.1, 0.01,1.5); // 0.01;
+
+			//double zf = 1.0 + (0.05*autoStepFactor/VIRO_LOWHEIGHT);
+			_Viewer->getCamera()->setProjectionMatrixAsFrustum(l,r,b,t, z,Zfar);
+			
+			RollWithYaw = _Mix.interpolate(autoStepFactor/VIRO_LOWHEIGHT, 0.01,1.5); // 0.01;
+			if ( _envFog.get() ){
+				_envFog->setDensity( _Mix.interpolate(autoStepFactor/VIRO_LOWHEIGHT, (_envFogDensity*3),_envFogDensity) );
+				_envFog->setMode(osg::Fog::EXP2);
+				}
+			_bDirtyScale = true;
 			}
-		else {
+		else if (_bDirtyScale){
 			_Viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::COMPUTE_NEAR_FAR_USING_PRIMITIVES);
-			RollWithYaw = 1.5;
 			_Viewer->getCamera()->setNearFarRatio( 0.01 );
+			RollWithYaw = 1.5;
+			if ( _envFog.get() ){
+				_envFog->setDensity( _envFogDensity );
+				_envFog->setMode(osg::Fog::EXP2);
+				}
+			_bDirtyScale = false;
 			}
 
 		autoStepFactor *= 5.0;
@@ -905,30 +954,14 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 		case(GUIEventAdapter::FRAME):{
 			addMouseEvent(ea);
 
+			// Main auto-management engine
 			if (RollWithYaw >0.0 || isEnabled(COLLISIONS)) AutoControl( ea.time() );
+			
+			// Check if Trace is needed
 			if ( _bNeedUpdateTrace ) Trace();
-			if (_bFlying){
-				// Time based percentage
-				double t = (ea.time() - _FlyToCallTime)/FlyToDurationTime;
-				
-				// New interpolated Position
-				_vEye = _Mix.interpolate(t,_vStoredEye[ViroManipulator::FROM],
-					                        _vStoredEye[ViroManipulator::TO],
-											_Mix.BOOST_TO);
-
-				// New interpolated Rotation
-				_qRotation = _Mix.interpolate(t,_qStoredRotation[ViroManipulator::FROM],
-					                             _qStoredRotation[ViroManipulator::TO],
-												 _Mix.SQUARE);
-				
-				// Flight terminated. Unset bool & release Mouse-Control Locks..
-				if (t > 1.0){
-					_bFlying  = false;
-					_bReqHome = false;
-					_speed    = 0.0;
-					//SyncData();
-					}
-				}
+			
+			// Handle Fly-To if any
+			if (_bFlying) handleFlyToTransition( ea.time() );
 
 			if ( MouseListener() ) us.requestRedraw();
 			us.requestContinuousUpdate(true);
@@ -1114,6 +1147,7 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				us.requestContinuousUpdate(false);
 				return true;
 				}
+			/*
 			if (ea.getKey()== 'c'){
 				flushMouseEventStack();
 				osg::notify(ALWAYS) << "Recalled stored position.\n";
@@ -1125,6 +1159,7 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				us.requestContinuousUpdate(false);
 				return true;
 				}
+			*/
 			if (ea.getKey()== 'S'){
 				flushMouseEventStack();
 				Invert(SPIDERMAN_PICKING);
@@ -1167,16 +1202,17 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				
 				return true;
 				}
-			if (ea.getKey()== 'l'){
+			if (ea.getKey()== 'l' || ea.getKey()== 'L'){
 				/*
 				_HeadLight->getLight()->setLightNum(3);
 				_HeadLight->getLight()->setDiffuse( Vec4(1,1,1, 0) );
 				_HeadLight->getLight()->setDirection( _vLook );
 				_HeadLight->getLight()->setPosition( Vec4(_vEye.x(),_vEye.y(),_vEye.z(), 0) );
 				*/
-				_bLockZ = !_bLockZ;
-				
-				if (_bLockZ){
+				//_bLockZ = !_bLockZ;
+				Invert(Z_LOCK);
+
+				if ( isEnabled(Z_LOCK) ){
 					_zLock = _vEye.z();
 					/*
 					SyncData();
@@ -1190,7 +1226,7 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				return true;
 				}
 				
-			if (ea.getKey()== 'k'){
+			if (ea.getKey()== 'c' || ea.getKey()== 'C'){
 				flushMouseEventStack();
 				Invert(COLLISIONS);
 				//if (isEnabled(COLLISIONS)) osg::notify(ALWAYS) << "Model Collision ON.\n";
@@ -1198,13 +1234,15 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				us.requestContinuousUpdate(false);
 				return true;
 				}
+			/*
 			if (ea.getKey()== 'i'){
 				flushMouseEventStack();
 				_Viewer->getCamera()->setProjectionMatrixAsPerspective(30.0,3, 0.01,50);
 				us.requestContinuousUpdate(false);
 				return true;
 				}
-			if (ea.getKey()== 'g'){
+			*/
+			if (ea.getKey()== 'g' || ea.getKey()== 'w'){
 				flushMouseEventStack();
 				Invert(GRAVITY);
 				//if (isEnabled(GRAVITY)) osg::notify(ALWAYS) << "Gravity ON.\n";
@@ -1236,7 +1274,7 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				us.requestContinuousUpdate(false);
 				return true;
 			}
-			if (ea.getKey()== 'w'){
+			if (0&& ea.getKey()== 'w'){
 				/*
 				//flushMouseEventStack();
 				Enable(PERIPHERAL_LOCK);
@@ -1264,6 +1302,28 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				boost();
 				SyncData();
 				*/
+				us.requestContinuousUpdate(false);
+				return true;
+				}
+			if (ea.getKey()== '+'){
+				double l,r,b,t,z,Z;
+				_Viewer->getCamera()->getProjectionMatrixAsFrustum(l,r,b,t,z,Z);
+				l *= 0.9;
+				r *= 0.9;
+				b *= 0.9;
+				t *= 0.9;
+				_Viewer->getCamera()->setProjectionMatrixAsFrustum(l,r,b,t,z,Z);
+				us.requestContinuousUpdate(false);
+				return true;
+				}
+			if (ea.getKey()== '-'){
+				double l,r,b,t,z,Z;
+				_Viewer->getCamera()->getProjectionMatrixAsFrustum(l,r,b,t,z,Z);
+				l *= 1.1;
+				r *= 1.1;
+				b *= 1.1;
+				t *= 1.1;
+				_Viewer->getCamera()->setProjectionMatrixAsFrustum(l,r,b,t,z,Z);
 				us.requestContinuousUpdate(false);
 				return true;
 				}
@@ -1523,7 +1583,7 @@ std::string ViroManipulator::ExecCommand(std::string lcommand, std::string rcomm
 	else if ((lcommand.compare("YAW") == 0)&& (rcommand.compare("LEFT") == 0))   _padEvent = NAVPAD_TURNLEFT;
 	else if ((lcommand.compare("YAW") == 0)&& (rcommand.compare("RIGHT") == 0))  _padEvent = NAVPAD_TURNRIGHT;
 	else if (lcommand.compare("STOP") == 0){
-		_speed = 0.0;
+		_speed    = 0.0;
 		_padEvent = NAVPAD_NONE;
 		}
 	else if ((lcommand.compare("LIFT") == 0)&& (rcommand.compare("UP") == 0)){
@@ -1574,6 +1634,9 @@ std::string ViroManipulator::ExecCommand(std::string lcommand, std::string rcomm
 	else if (lcommand.compare("COLLISIONS") == 0){
 		Invert( COLLISIONS );
 		}
+	else if (lcommand.compare("HEIGHTLOCK") == 0){
+		Invert( Z_LOCK );
+		}
 	else if (lcommand.compare("GET_GRAVITY") == 0){
 		std::string G;
 		if ( this->isEnabled(GRAVITY) )		G = std::string("ON");
@@ -1585,6 +1648,12 @@ std::string ViroManipulator::ExecCommand(std::string lcommand, std::string rcomm
 		if ( this->isEnabled(COLLISIONS) )	C = std::string("ON");
 		else								C = std::string("OFF");
 		return C;
+		}
+	else if (lcommand.compare("GET_HEIGHTLOCK") == 0){
+		std::string H;
+		if ( this->isEnabled(Z_LOCK) )	H = std::string("ON");
+		else							H = std::string("OFF");
+		return H;
 		}
 
 	else return retstr_fail;
