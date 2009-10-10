@@ -120,7 +120,7 @@ bool FunCore::initSceneHandlers()
 	_TooltipsSceneModifier = new SceneHandlers::TooltipsSceneModifier(_Traits->width, _Traits->height);
 	_TooltipsParserHandler = new SceneHandlers::NodeParserHandler;
 	_TooltipsParserHandler->setTraversalNodeMask( _TooltipsSceneModifier->getAllowNodeMask() );
-	_TooltipsParserHandler->addCommand( osgGA::GUIEventAdapter::MOVE, _TooltipsSceneModifier.get());
+	_TooltipsParserHandler->addCommand( osgGA::GUIEventAdapter::FRAME, _TooltipsSceneModifier.get());
 	
 	this->addCommandSchedule((CommandSchedule*) _SceneModifier.get());
 	this->addCommandSchedule((CommandSchedule*) _AnimateHandler.get());
