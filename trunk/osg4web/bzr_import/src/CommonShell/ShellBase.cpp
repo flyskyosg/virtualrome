@@ -504,9 +504,6 @@ bool ShellBase::startLoadingBaseCore()
 	if(!Utilities::FileUtils::fileExists(s))
 	{
 		this->sendWarnMessage( "ShellBase::startLoadingBaseCore-> LoadCore library not present!" );
-		FILE *f = fopen("pippo_log","w");
-		fprintf(f,"carico dll -->%s<--",s.c_str());
-		fclose(f);
 		m_errorcode = 4;
 		return false;
 	}

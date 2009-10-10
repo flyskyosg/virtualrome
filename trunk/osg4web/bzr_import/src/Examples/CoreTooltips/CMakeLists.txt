@@ -47,10 +47,10 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommonCore)
     			DEPENDS ${PROJECT_NAME}
     		)
 
-		ADD_CUSTOM_TARGET(Engine_${PROJECT_NAME}_Prepare_Debug
+		ADD_CUSTOM_TARGET(Example_${PROJECT_NAME}_Prepare_Debug
 			DEPENDS ${OUTPUT_Debug_DIR}/${MYNAME_Debug}
 			)
-		ADD_CUSTOM_TARGET(Engine_${PROJECT_NAME}_Prepare_Release
+		ADD_CUSTOM_TARGET(Example_${PROJECT_NAME}_Prepare_Release
 			DEPENDS ${OUTPUT_Release_DIR}/${MYNAME_Release}
 			)
 
