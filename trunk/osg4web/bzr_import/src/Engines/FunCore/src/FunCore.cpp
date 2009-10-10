@@ -61,8 +61,10 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	this->setCommandAction("GET_JSMAP_COORDINATES");
 	this->setCommandAction("SETHOMEPOSITION");
 	this->setCommandAction("SETBOUNDS");
+	this->setCommandAction("SETBACKGROUNDCOLOR");
 
 	this->addCommandSchedule((CommandSchedule*) this);
+	_bgcolor=osg::Vec4f(OSG4WEB_VROME_ENVCOLOR);
 }
 
 //FunCore Distruttore
@@ -105,7 +107,7 @@ FunCore::~FunCore()
 void FunCore::AddStartOptions(std::string str, bool erase)
 {
 	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
-	MessageBox(NULL,  str.c_str(), "Adding Starting Options", MB_OK);
+	//MessageBox(NULL,  str.c_str(), "Adding Starting Options", MB_OK);
 	std::string line=std::string(str);
 	std::string largs;
 	std::string::size_type pos = line.find( "\n" );
@@ -326,6 +328,13 @@ std::string FunCore::handleAction(std::string argument)
 		}
 		break;
 
+	case SETBACKGROUNDCOLOR:
+		{
+			if ( this->setBackgroundColor( rcommand ) ) retstr = "BACKGROUNDCOLOR_SET";
+			else retstr = "INVALID_BACKGROUNDCOLOR";
+		}
+		break;
+
 	default: //UNKNOWN_ACTION
 		retstr = "UNKNOWN_ACTION";
 		break;
@@ -442,6 +451,18 @@ bool FunCore::setBounds( std::string arguments ){
 	return false;
 }
 
+bool FunCore::setBackgroundColor( std::string arguments ){
+	if ( _ViRoMan.get() ){
+		double r,g,b,a;
+		if ( sscanf(arguments.c_str(), "%lf %lf %lf %lf", &r,&g,&b,&a) == 4 ){
+				//MessageBox(NULL,  arguments.c_str(), "Setting BackGround color", MB_OK);
+				_bgcolor=osg::Vec4f(r,g,b,a);
+			return true;
+			}
+		}
+	return false;
+}
+
 void FunCore::handleTooltips()
 {
 	if(_TooltipsSceneModifier.valid())
@@ -523,7 +544,12 @@ void FunCore::handleEnvironment()
 #ifdef _NITE_
 	EnvFog->setColor( osg::Vec4f(0.0,0.0,0.0, 1.0) );
 #else
-	EnvFog->setColor( osg::Vec4f(OSG4WEB_VROME_ENVCOLOR) );
+	EnvFog->setColor( _bgcolor );
+	std::stringstream s;
+	s<<"Setting BackGround colore "<<_bgcolor;	
+	this->sendNotifyMessage("FunCore -> Setting FOG BackGround color -->" + s.str());
+	//MessageBox(NULL,  s.str().c_str(), "Setting FOG BackGround color", MB_OK);
+
 #endif
 
 	EnvSS->setAttributeAndModes( EnvFog.get() );
@@ -642,7 +668,15 @@ void FunCore::handleLoadingThreads()
 			osg::ref_ptr<osg::ClearNode> clearNode = new osg::ClearNode;
 			clearNode->setName("Environment_Map_Clear_Node");
 			//clearNode->setClearColor(osg::Vec4(54.0/255.0, 137.0/255.0, 152.0/255.0 , 1.0));
-			clearNode->setClearColor(osg::Vec4(1,1,1,1));
+
+			std::stringstream s;
+			s<<"Setting BackGround colore "<<_bgcolor;
+			this->sendNotifyMessage("FunCore -> Setting clearnode BackGround color -->" + s.str());
+			//MessageBox(NULL,  s.str().c_str(), "Setting clearnode BackGround color", MB_OK);
+
+
+
+			clearNode->setClearColor(_bgcolor);
 
 			clearGroup->addChild(clearNode.get());
 			_ModiSceneGraph->addChild(clearGroup.get());
