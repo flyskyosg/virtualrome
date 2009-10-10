@@ -150,18 +150,8 @@ void NS_DestroyPluginInstance(nsPluginInstanceBase * aPlugin)
 nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
   	mInstance(aInstance),
   	mInitialized(false),
+	mInitOptionsSet(false),
 	mScriptablePeer(NULL),
-	mADVCore(NULL),
-	mADVCoreSHA1Hash(NULL),
-	mADVCoreDep(NULL),
-	mADVCoreDepSHA1Hash(NULL),
-	mADVInitOptions(new std::string( "useOriginalExternalReferences noLoadExternalReferenceFiles" )),
-	mADVStartOptions(NULL),
-	mLoadCBOptions(new std::string( "useOriginalExternalReferences noLoadExternalReferenceFiles" )),
-	mInstDir(new std::string()),
-	mLocalInstDir(new std::string()),
-	mTempDir(new std::string()),
-	mCoreInstallDir(new std::string()),
 	mThread(NULL),
 	mShutdownThread(false),
 	mDlCoreThread(NULL),
@@ -186,91 +176,84 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	mShellBase.sendNotifyMessage("nsPluginInstance::nsPluginInstance -> Default Constructor");
 	mShellBase.sendNotifyMessage("nsPluginInstance::nsPluginInstance -> Discovering Firefox settings");
 
-	nsresult rv = getProxySettings(mProxyHName, mProxyPort);
+	std::string tempstr, tempstr2;
+	std::string* reftempstr = new std::string;
+
+	nsresult rv = getProxySettings(tempstr, tempstr2);
 	if(rv != NS_OK)
 	{
 		s_PluginMessageError = "retrieve proxy info failed!";
 		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve proxy info failed!");
+		delete reftempstr;
 		return;
 	}
 
-	rv = getCurrPlugDir(mInstDir, NPOSG4WEB_DIRECTORY);
+	if(!tempstr.empty())
+	{
+		mShellBase.setInitOption(INIT_OPTION_PROXYHNAME, tempstr);
+		mShellBase.setInitOption(INIT_OPTION_PROXYHPORT, tempstr2);
+	}
+	
+	rv = getCurrPlugDir(reftempstr, NPOSG4WEB_DIRECTORY);
 	if(rv != NS_OK)
 	{
 		s_PluginMessageError = "retrieve plugin directory failed!";
 		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve plugin directory failed!");
-		delete mInstDir; //Serve per il non far inizializzare il ciclo di rendering... FIXME: da rifare 
+		delete reftempstr;
 		return;
 	}
 
-	rv = getCurrPlugDir(mLocalInstDir, NPOSG4WEB_DIRECTORY_LOCAL);
+	reftempstr->append(APPEND_NPOSG4WEB_DIRECTORY);
+	mShellBase.setInitOption(INIT_OPTION_INSTALLDIR, *reftempstr);
+	reftempstr->clear();
+
+	rv = getCurrPlugDir(reftempstr, NPOSG4WEB_DIRECTORY_LOCAL);
 	if(rv != NS_OK)
 	{
 		s_PluginMessageError = "retrieve plugin directory failed!";
 		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve local plugin directory failed!");
+		delete reftempstr;
 		return;
 	}
 
-	mInstDir->append(APPEND_NPOSG4WEB_DIRECTORY);
-	mLocalInstDir->append(APPEND_NPOSG4WEB_DIRECTORY);
+	reftempstr->append(APPEND_NPOSG4WEB_DIRECTORY);
+	mShellBase.setInitOption(INIT_OPTION_LOCALINSTDIR, *reftempstr);
+	reftempstr->clear();
 
-	rv = getCurrPlugDir(mTempDir, NS_OS_TEMP_DIR);
+	rv = getCurrPlugDir(reftempstr, NS_OS_TEMP_DIR);
 	if(rv != NS_OK)
 	{
 		s_PluginMessageError = "retrieve temp directory failed!";
 		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve temp directory failed!");
+		delete reftempstr;
 		return;
 	}
 
-	mTempDir->append(APPEND_TEMP_DIRECTORY);
+	reftempstr->append(APPEND_TEMP_DIRECTORY);
+	mShellBase.setInitOption( INIT_OPTION_TEMPDIR, *reftempstr);
+	reftempstr->clear();
 
 #if defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
-	rv = getCurrPlugDir(mCoreInstallDir, NPOSG4WEB_DIRECTORY); 
+	rv = getCurrPlugDir(reftempstr, NPOSG4WEB_DIRECTORY); 
 #else
-	rv = getCurrPlugDir(mCoreInstallDir, COREINSTALL_DIRECTORY);
+	rv = getCurrPlugDir(reftempstr, COREINSTALL_DIRECTORY);
 #endif
 
 	if(rv != NS_OK)
 	{
 		s_PluginMessageError = "retrieve core directory failed!";
 		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve core directory failed!");
+		delete reftempstr;
 		return;
 	}
 
-	mCoreInstallDir->append(APPEND_CORES_DIRECTORY);
+	reftempstr->append(APPEND_CORES_DIRECTORY);
+	mShellBase.setInitOption( INIT_OPTION_COREINSTDIR, *reftempstr );
+	reftempstr->clear();
 
+	//Check dei parametri iniziali
 	mShellBase.sendNotifyMessage("nsPluginInstance::nsPluginInstance -> configuring ShellBase with firefox settings");
-
-	if(!mShellBase.setInstallDirectory(*mInstDir))
-	{
-		s_PluginMessageError = mShellBase.getErrorString();
-		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> setting install directory failed!");
-		return;
-	}
-
-	if(!mShellBase.setLocalInstallDirectory(*mLocalInstDir))
-	{
-		s_PluginMessageError = mShellBase.getErrorString();
-		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> setting local install directory failed!");
-		return;
-	}
-
-	if(!mShellBase.setTempDirectory(*mTempDir))
-	{
-		s_PluginMessageError = mShellBase.getErrorString();
-		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> setting temp directory failed!");
-		return;
-	}
-		
-	if(!mShellBase.setCoreAppDirectory(*mCoreInstallDir))
-	{
-		s_PluginMessageError = mShellBase.getErrorString();
-		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> setting core install directory failed!");
-		return;
-	}
-
-	if( !mProxyHName.empty() )
-		mShellBase.setProxyParameters(mProxyHName, mProxyPort);
+	mInitOptionsSet = mShellBase.configuringInitialOptions();
 }
 
 //////////////////////////////////////
@@ -286,39 +269,6 @@ nsPluginInstance::~nsPluginInstance()
   		mScriptablePeer->SetInstance(NULL);
 	  	NS_IF_RELEASE(mScriptablePeer);
 	}
-
-  	if( mADVCore )
-		delete mADVCore;
-
-	if( mADVCoreSHA1Hash )
-		delete mADVCoreSHA1Hash;
-
-	if( mADVCoreDep )
-		delete mADVCoreDep;
-
-	if( mADVCoreDepSHA1Hash )
-		delete mADVCoreDepSHA1Hash;
-
-	if( mADVInitOptions )
-		delete mADVInitOptions;
-
-	if( mADVStartOptions )
-		delete mADVStartOptions;
-
-	if( mLoadCBOptions )
-		delete mLoadCBOptions;
-
-	if( mInstDir )
-		delete mInstDir;
-
-	if( mLocalInstDir )
-		delete mLocalInstDir;
-
-	if( mTempDir )
-		delete mTempDir;
-
-	if( mCoreInstallDir )
-		delete mCoreInstallDir;
 }
 
 #if defined(WIN32)
@@ -337,132 +287,27 @@ static void xt_timer_draw_proc(XtPointer clientdata, XtIntervalId* id);
 //
 NPError nsPluginInstance::SetInitialData(PRUint16 argc, char* argn[], char* argv[])
 {
-	mShellBase.sendNotifyMessage("nsPluginInstance::SetInitialData -> getting plugin HTML initial parameters.");
-
-	char* advcoreptr = NULL;
-	char* advcorestr = "ADVCore"; //Parametri di Init
-
-	char* advcorestartoptptr = NULL;
-	char* advcorestartoptstr = "ADVCoreStartOptions";
-
-	char* advcoreinitoptptr = NULL;
-	char* advcoreinitoptstr = "ADVCoreInitOptions";
-
-	char* advcorehashptr = NULL;
-	char* advcorehashstr = "ADVCoreSHA1";
-
-	char* loadcbopteptr = NULL;
-	char* loadcboptestr = "LoadCoreOptions";
-
-	char* advcoredepptr = NULL;
-	char* advcoredepstr = "ADVCoreDep";
-
-	char* advcoredephashptr = NULL;
-	char* advcoredephashstr = "ADVCoreDepSHA1";
-
 	NPError rv = NPERR_NO_ERROR;
+
+	mShellBase.sendNotifyMessage("nsPluginInstance::SetInitialData -> getting plugin HTML initial parameters.");
 
 	if (argn != NULL && argv != NULL) 
 	{
-		for (int i = 0; i < argc; i++)   
+		for (int i = 0; i < argc; i++)
 		{
-#if defined(XP_UNIX) || defined(XP_MAC)
-			if (strcasecmp(advcorestr, argn[i]) == 0)
-#else
-			if (stricmp(advcorestr, argn[i]) == 0) 
-#endif
+			if(argn[i] != NULL)
 			{
-				advcoreptr = (char*) argv[i];
-			}
-#if defined(XP_UNIX) || defined(XP_MAC)
-			if (strcasecmp(advcoreinitoptstr, argn[i]) == 0)
-#else
-			if (stricmp(advcoreinitoptstr, argn[i]) == 0) 
-#endif
-			{
-				advcoreinitoptptr = (char*) argv[i];
-			}
-#if defined(XP_UNIX) || defined(XP_MAC)
-			if (strcasecmp(advcorestartoptstr, argn[i]) == 0)
-#else
-			if (stricmp(advcorestartoptstr, argn[i]) == 0) 
-#endif
-			{
-				advcorestartoptptr = (char*) argv[i];
-			}
-#if defined(XP_UNIX) || defined(XP_MAC)
-			if (strcasecmp(advcorehashstr, argn[i]) == 0)
-#else
-			if (stricmp(advcorehashstr, argn[i]) == 0) 
-#endif
-			{
-				advcorehashptr = (char*) argv[i];
-			}
-#if defined(XP_UNIX) || defined(XP_MAC)
-			if (strcasecmp(advcoredepstr, argn[i]) == 0)
-#else
-			if (stricmp(advcoredepstr, argn[i]) == 0) 
-#endif
-			{
-				advcoredepptr = (char*) argv[i];
-			}
-#if defined(XP_UNIX) || defined(XP_MAC)
-			if (strcasecmp(advcoredephashstr, argn[i]) == 0)
-#else
-			if (stricmp(advcoredephashstr, argn[i]) == 0) 
-#endif
-			{
-				advcoredephashptr = (char*) argv[i];
-			}
-#if defined(XP_UNIX) || defined(XP_MAC)
-			if (strcasecmp(loadcboptestr, argn[i]) == 0)
-#else
-			if (stricmp(loadcboptestr, argn[i]) == 0) 
-#endif
-			{
-				loadcbopteptr = (char*) argv[i];
+				std::string command(argn[i]);
+				if(argv[i] != NULL)
+				{
+					std::string value(argv[i]);
+					mShellBase.setObjectShellOption(command, value);
+				}
 			}
 		}
 	}
 	else
-	{
 		return NPERR_GENERIC_ERROR;
-	}
-
-	if(advcoreptr)
-		mADVCore = new std::string(advcoreptr);
-	else
-		mADVCore = new std::string();
-
-	if(advcorehashptr)
-		mADVCoreSHA1Hash = new std::string(advcorehashptr);
-	else
-		mADVCoreSHA1Hash = new std::string();
-
-	if(advcoreinitoptptr)
-		mADVInitOptions = new std::string(advcoreinitoptptr);
-	else
-		mADVInitOptions = new std::string();
-
-	if(advcorestartoptptr)
-		mADVStartOptions = new std::string(advcorestartoptptr);
-	else
-		mADVStartOptions = new std::string();
-
-	if(loadcbopteptr)
-		mLoadCBOptions = new std::string(loadcbopteptr);
-	else
-		mLoadCBOptions = new std::string();
-
-	if(advcoredepptr)
-		mADVCoreDep = new std::string(advcoredepptr);
-	else
-		mADVCoreDep = new std::string();
-
-	if(advcoredephashptr)
-		mADVCoreDepSHA1Hash = new std::string(advcoredephashptr);
-	else
-		mADVCoreDepSHA1Hash = new std::string();
 
 	return rv;
 }
@@ -623,7 +468,13 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 
 	mInitialized = false;
 
-	if(aWindow == NULL || mInstDir == NULL)
+	if(!mInitOptionsSet)
+	{
+		mShellBase.sendWarnMessage("nsPluginInstance::init -> Error retrieving inititialization options.");
+		return mInitialized;
+	}
+
+	if(aWindow == NULL)
 	{
 		mShellBase.sendWarnMessage("nsPluginInstance::init -> window pointer is not present.");
 		return mInitialized;
@@ -676,91 +527,7 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 
 NPBool nsPluginInstance::initLoadCore()
 {
-	mShellBase.sendNotifyMessage("nsPluginInstance::initLoadCore -> setting Core Options.");
-
-	std::string str("LOADCORE_OPTIONS=");
-
 	mInitialized = true;
-
-	if(!mLoadCBOptions->empty())
-	{
-		str += *mLoadCBOptions;
-
-		if(mShellBase.execShellCommand(str) != std::string("DONE"))
-		{
-			s_PluginMessageError = "ShellBase - setting loading core options failed!";
-			mShellBase.sendWarnMessage("nsPluginInstance::initLoadCore -> setting loading core options failed.");
-			return false;
-		}
-	}
-
-	//Sets Advanced core through Init Parameters
-	if(!mADVCore->empty())
-	{
-		str = "SET_COREADV=";
-		str += *mADVCore;
-	
-		if(mShellBase.execShellCommand(str) != std::string("DONE"))
-		{
-			s_PluginMessageError = std::string("ShellBase - setting ") + *mADVCore + std::string(" failed!");
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + std::string("setting ") + *mADVCore + std::string(" failed!"));
-			return false;
-		}
-
-		str = "SET_COREADV_INIT_OPTIONS=";
-		str += *mADVInitOptions;
-
-		if(mShellBase.execShellCommand(str) != std::string("DONE"))
-		{
-			s_PluginMessageError = std::string("ShellBase - setting ") + *mADVInitOptions + std::string(" init options failed!");
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + std::string("setting ") + *mADVInitOptions + std::string(" init options failed!"));
-			return false;
-		}
-
-		str = "SET_COREADV_START_OPTIONS=";
-		str += *mADVStartOptions;
-
-		if(mShellBase.execShellCommand(str) != std::string("DONE"))
-		{
-			s_PluginMessageError = std::string("ShellBase - setting ") + *mADVStartOptions + std::string(" start options failed!");
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + std::string("setting ") + *mADVStartOptions + std::string(" start options failed!"));
-			return false;
-		}
-
-		str = "SET_COREADV_SHA1HASH=";
-		str += *mADVCoreSHA1Hash;
-
-		if(mShellBase.execShellCommand(str) != std::string("DONE"))
-		{
-			s_PluginMessageError = std::string("ShellBase - setting SHA-1 Hash string failed!");
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> setting SHA-1 Hash string failed!"));
-			return false;
-		}
-
-		//Richiesta di un pacchetto di dipendenza da parte del core
-		if(!mADVCoreDep->empty())
-		{
-			str = "SET_COREADVDEP=";
-			str += *mADVCoreDep;
-	
-			if(mShellBase.execShellCommand(str) != std::string("DONE"))
-			{
-				s_PluginMessageError = std::string("ShellBase - setting dep. ") + *mADVCoreDep + std::string(" failed!");
-				mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + std::string("setting dep. ") + *mADVCoreDep + std::string(" failed!"));
-				return false;
-			}
-
-			str = "SET_COREADVDEP_SHA1HASH=";
-			str += *mADVCoreDepSHA1Hash;
-
-			if(mShellBase.execShellCommand(str) != std::string("DONE"))
-			{
-				s_PluginMessageError = std::string("ShellBase - setting dep. SHA-1 Hash string failed!");
-				mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> setting dep. SHA-1 Hash string failed!"));
-				return false;
-			}
-		}
-	}
 
 	mShellBase.sendNotifyMessage("nsPluginInstance::initLoadCore -> starting the Loading Core.");
 	if(!mShellBase.startLoadingBaseCore())
@@ -770,8 +537,21 @@ NPBool nsPluginInstance::initLoadCore()
 		return false;
 	}
 
+	mShellBase.sendNotifyMessage("nsPluginInstance::initLoadCore -> configuring Object Core Options.");
+	if(!mShellBase.configuringObjectOptions())
+	{
+		//Setting Error Message
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Configuring Shell Options Failed!");
+
+		mShellBase.sendWarnMessage(std::string("nsPluginInstance::configuringObjectOptions -> Configuring Shell Options Failed!"));
+
+		return mInitialized;
+	}
+
 	//Return if CoreString is inizialized and SHA-1 isn't
-	if(!mADVCore->empty() && mADVCoreSHA1Hash->empty())
+	std::string test;
+	if(mShellBase.getObjectShellOption(OBJECT_OPTION_ADVCORE, test) && !mShellBase.getObjectShellOption(OBJECT_OPTION_ADVCORESHA1, test))
 	{
 		//Setting Error Message
 		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
@@ -781,6 +561,8 @@ NPBool nsPluginInstance::initLoadCore()
 
 		return mInitialized;
 	}
+
+	//TODO: finire da qui 
 
 	if(!mShellBase.initializeAdvancedCore())
 	{
@@ -1255,24 +1037,35 @@ void nsPluginInstance::doDownloadCore()
 
 	mLoading = true;
 
+	std::string coresha1str;
+	mShellBase.getObjectShellOption(OBJECT_OPTION_ADVCORESHA1, coresha1str); //FIXME: controllare se sono qua è certa la presenza di SHA1
+
 	std::string fdlcoreaddress = mShellBase.getAdvancedCoreAddress();
 	std::string fdlcorename = mShellBase.getAdvancedCoreFileName();
 	std::string tempdl; 
-	std::string tempdldir( *mTempDir );
+	std::string tempdldir;
 	std::string tempheaderdl;
 
+	if(!mShellBase.getInitOption( INIT_OPTION_TEMPDIR , tempdldir))
+	{
+		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Creating Downloading Temp Directory Failed."));
+
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Temp Directory not Present!");
+
+		return;
+	}
+
+//TODO: rifare chiedendo a mSHellBase per compatilità di path con SO
 #if defined(WIN32)
 	#define PATH_SEP "\\"
-//	tempdldir = tempdldir + "\\" + *mADVCoreSHA1Hash;
-//	tempdl = tempdldir + "\\" + fdlcorename;
-//	tempheaderdl = tempdldir + "\\" + "headerdl.html";
 #else
 	#define PATH_SEP "/"
-//	tempdldir = tempdldir + "/" + mShellBase.getAdvancedCoreSHA1();
-//	tempdl = tempdldir + "/" + fdlcorename;
-//	tempheaderdl = tempdldir + "/" + "headerdl.html";
 #endif
-	tempdldir = tempdldir + PATH_SEP + *mADVCoreSHA1Hash;
+
+	
+	tempdldir = tempdldir + PATH_SEP + coresha1str;
 	tempdl = tempdldir + PATH_SEP + fdlcorename;
 	tempheaderdl = tempdldir + PATH_SEP + "headerdl.html";
 
@@ -1392,15 +1185,16 @@ void nsPluginInstance::doDownloadCore()
 			//curl_easy_setopt(curl, CURLOPT_HEADER, 1);
 			curl_easy_setopt(curl, CURLOPT_URL, fdlcoreaddress.c_str());
 	
+			std::string purl, pport;
 			//Proxy Settings
-			if(!mProxyHName.empty())
+			if(mShellBase.getInitOption(INIT_OPTION_PROXYHNAME, purl))
 			{
-				proxy = mProxyHName;
+				proxy = purl;
 
-				if(!mProxyPort.empty())
+				if(mShellBase.getInitOption(INIT_OPTION_PROXYHPORT, pport))
 				{
 					proxy += ":";
-					proxy += mProxyPort;
+					proxy += pport;
 				}
 
 				curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str()); 
@@ -1516,7 +1310,7 @@ void nsPluginInstance::doDownloadCore()
 	this->loadingCoreCommand("LOADCORE SETMESSAGE Checking Validity...");
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Check Package Validity."));
 
-	if(!mShellBase.checkFileValidity(tempdl, *mADVCoreSHA1Hash))
+	if(!mShellBase.checkFileValidity(tempdl, coresha1str))
 	{
 		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 

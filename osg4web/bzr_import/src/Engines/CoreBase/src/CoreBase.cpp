@@ -77,12 +77,11 @@ CoreBase::~CoreBase()
 	if(_WinData.valid())
 		_WinData = NULL;
 
-#if defined(_DEBUG)
-	this->sendNotifyMessage("~CoreBase -> Stopping Log Redirection.");
+	this->sendNotifyMessage("~CoreBase -> Stopping Log Redirection if Present.");
 
-	if(! this->restoreLogMessages() )
-		this->sendWarnMessage("~CoreBase -> Error closing messages redirection."); 
-#endif
+	if(this->isLogMessagesInitialized())
+		if(! this->restoreLogMessages() )
+			this->sendWarnMessage("~CoreBase -> Error closing messages redirection."); 
 		
 	//FIXME: Controllare il delete... aggiunto solo per fare testing
 	//Killing Registry instance (ovviamente mi si inchioda tutto!!!)

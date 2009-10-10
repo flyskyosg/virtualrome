@@ -1,6 +1,10 @@
 
 Change Log
 
+06/02/2008
+- Riscritta la parte di gestione dei parametri di init della shell e dei parametri da object
+- Finita implementazione dei log forzati su file da parametri Object
+
 29/01/2008
 - Finita la release per nposg e core
 

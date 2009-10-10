@@ -6,7 +6,6 @@
 #include <Utilities/StringUtils.h>
 #include <Utilities/FileUtils.h>
 #include <Utilities/SHA1.h>
-#include <CommonShell/Defines.h>
 #include <CommonCore/DynamicLoad.h>
 #include <CommonCore/CoreInterface.h>
 #include <CommonShell/ShellCommandParser.h>
@@ -16,7 +15,6 @@
 
 ShellBase::ShellBase() : m_DynLoad(NULL),
 	m_CoreInterface(NULL),
-	m_initloadcoreoptions("useOriginalExternalReferences noLoadExternalReferenceFiles"),
 	m_loadcorename(OSG4WEB_LOADCORE_NAME),
 	m_hWnd(NULL),
 	m_eventfuncptr(NULL),
@@ -40,10 +38,9 @@ ShellBase::~ShellBase()
 {
 	freeCompressedCore();
 
-#if defined(_DEBUG)
-	if(! this->restoreLogMessages() )
-		this->sendWarnMessage("ShellBase::~ShellBase -> Error closing messages redirection."); 
-#endif
+	if(this->isLogMessagesInitialized())
+		if(! this->restoreLogMessages() )
+			this->sendWarnMessage("ShellBase::~ShellBase -> Error closing messages redirection."); 
 }
 
 void ShellBase::initializeLog(std::string logname)
@@ -115,67 +112,95 @@ bool ShellBase::restoreLogMessages()
 	return false;
 }
 
-bool ShellBase::setInstallDirectory(std::string insdir) 
-{ 
-	if( !Utilities::FileUtils::fileExists(insdir) )
-	{
-		if( !Utilities::FileUtils::makeDirectory(insdir) )
-		{
-			this->sendWarnMessage( "ShellBase::setInstallDirectory -> makeDirectory failed!" );
-			m_errorcode = 1;
-			return false;
-		}
-	}
-
-	m_installdir = insdir; 
-	return true;
-}
-
-bool ShellBase::setLocalInstallDirectory(std::string insdir) 
-{ 
-	if( !Utilities::FileUtils::fileExists(insdir) )
-	{
-		if( !Utilities::FileUtils::makeDirectory(insdir) )
-		{
-			this->sendWarnMessage( "ShellBase::setLocalInstallDirectory -> makeDirectory failed!" );
-			m_errorcode = 1;
-			return false;
-		}
-	}
-
-	m_localinstalldir = insdir; 
-	return true;
-}
-
-bool ShellBase::setTempDirectory(std::string insdir)
+bool ShellBase::getInitOption(std::string name, std::string& value)
 {
-	if( !Utilities::FileUtils::fileExists(insdir) )
+	value.clear(); //Resetto
+	std::map<std::string, std::string>::iterator itr = m_initOptionsMap.begin();
+	for( ; itr != m_initOptionsMap.end(); ++itr)
 	{
-		if( !Utilities::FileUtils::makeDirectory(insdir) )
+		if( itr->first == name )
 		{
-			this->sendWarnMessage( "ShellBase::setTempDirectory -> makeDirectory failed!" );
-			m_errorcode = 1;
-			return false;
+			value = itr->second;
+			return true;
 		}
 	}
 
-	m_tempdir = insdir; 
+	return false;
+}
+
+bool ShellBase::getObjectShellOption(std::string name, std::string& value)
+{
+	value.clear(); //Resetto
+	std::map<std::string, std::string>::iterator itr = m_objectShellOptionsMap.begin();
+	for( ; itr != m_objectShellOptionsMap.end(); ++itr)
+	{
+		if( itr->first == name )
+		{
+			value = itr->second;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ShellBase::configuringInitialOptions()
+{
+	std::string instdir, locinstdir, tempdir, coredir;
+
+	//Se sono qui sicuramente ci sono le dir. Test skipped
+	getInitOption(INIT_OPTION_INSTALLDIR, instdir); 
+	getInitOption(INIT_OPTION_LOCALINSTDIR, locinstdir);
+	getInitOption(INIT_OPTION_TEMPDIR, tempdir);
+	getInitOption(INIT_OPTION_COREINSTDIR, coredir);
+
+	if( !checkOrCreateDirectory(instdir) ||  !checkOrCreateDirectory(locinstdir) || !checkOrCreateDirectory(tempdir) || !checkOrCreateDirectory(coredir))
+	{
+		this->sendWarnMessage( "ShellBase::configuringInitialOptions -> makeDirectory failed!" );
+		m_errorcode = 1;
+		return false;
+	}
+
 	return true;
 }
 
-bool ShellBase::setCoreAppDirectory(std::string insdir)
+bool ShellBase::configuringObjectOptions()
 {
-	if( !Utilities::FileUtils::fileExists(insdir) )
+	std::string temp;
+	if(this->getObjectShellOption(OBJECT_OPTION_ENABLELOGS, temp)) //Se è presente l'indirizzo del core da caricare
 	{
-		if( !Utilities::FileUtils::makeDirectory(insdir) )
+		if(!this->isLogMessagesInitialized())
+			if(! this->initializeLogMessages(temp) )
+				this->sendWarnMessage("ShellBase::ShellBase -> Error redirecting messages."); 
+	}
+
+	if(!this->getAdvancedCoreAddress().empty()) //Se è presente l'indirizzo del core da caricare
+	{
+		std::string fileName( this->getAdvancedCoreFileName() );
+
+		//Trovo il nome della DLL da caricare
+		std::string::size_type dotpos = fileName.find_last_of('.'); 
+		if (dotpos == std::string::npos) 
+			m_advancedcore = fileName;
+		else
+			m_advancedcore = std::string(fileName.begin(), fileName.begin() + dotpos);
+
+		if(!this->getObjectShellOption(OBJECT_OPTION_ADVCORESHA1, temp)) //Controllo la presenza anche dello SHA1 del pacchetto Core
 		{
-			this->sendWarnMessage( "ShellBase::setCoreAppDirectory -> makeDirectory failed!" );
-			m_errorcode = 1;
+			this->sendWarnMessage( "ShellBase::configuringObjectOptions -> Advanced Core SHA1 Option not set. Check your web page!" );
 			return false;
+		}
+
+		if(this->getObjectShellOption(OBJECT_OPTION_ADVCOREDEP, temp)) //Se è presente il nome del pacchetto di dipendenze
+		{
+			if(!this->getObjectShellOption(OBJECT_OPTION_ADVCOREDEPSHA1, temp)) //Controllo se è stato settato lo sha1
+			{
+				this->sendWarnMessage( "ShellBase::configuringObjectOptions -> Advanced Core Dependancies SHA1 Option not set. Check your web page!" );
+				return false;
+			}
 		}
 	}
 
-	m_coreinstalldir = insdir; 
 	return true;
 }
 
@@ -200,44 +225,6 @@ std::string ShellBase::execShellCommand(std::string str)
 
 	switch(scommandp.getShellCommand())
 	{
-	case ShellCommand::SC_SET_COREADV: //Core da caricare
-		{
-			m_advancedcoreaddress = scommandp.getShellArgument();
-			std::string fileName( getAdvancedCoreFileName() );
-
-			std::string::size_type dot = fileName.find_last_of('.');
-			if (dot==std::string::npos) 
-				m_advancedcore = fileName;
-			else
-				m_advancedcore = std::string(fileName.begin(),fileName.begin()+dot);
-	
-			retstr = "DONE";
-		}
-		break;
-	case ShellCommand::SC_SET_COREADV_INIT_OPTIONS: //Opzioni di inizializzazione all'advanced core
-		{
-			m_initadvancedcoreinitoptions = scommandp.getShellArgument();
-			retstr = "DONE";
-		}
-		break;
-	case ShellCommand::SC_SET_COREADV_START_OPTIONS: //Opzioni dell'avanced core post start
-		{
-			m_initadvancedcorestartoptions = scommandp.getShellArgument();
-			retstr = "DONE";
-		}
-		break;
-	case ShellCommand::SC_SET_COREADV_SHA1HASH:
-		{
-			m_advancedcorehash = scommandp.getShellArgument();
-			retstr = "DONE";
-		}
-		break;
-	case ShellCommand::SC_LOADCORE_OPTIONS: //Opzioni del core da caricare
-		{
-			m_initloadcoreoptions = scommandp.getShellArgument();
-			retstr = "DONE";
-		}
-		break;
 	case ShellCommand::SC_RELOAD_LCORE: //TODO: finire il caricamento del base core
 		{
 			if(!m_loadcorename.empty())
@@ -255,15 +242,16 @@ std::string ShellBase::execShellCommand(std::string str)
 				retstr = "ERROR"; //TODO
 		}
 		break;
-	case ShellCommand::SC_FORCE_COREADV_LOAD: //TODO: finire il caricamento del core advanced
+	case ShellCommand::SC_FORCE_COREADV_LOAD: //TODO: DA RIFARE... sono scritte solo CAZZATE
 		{
-			if(!m_advancedcorehash.empty() || !m_advancedcoreaddress.empty())
+			std::string advcoreaddress, advancedcorehash;
+			if(!this->getAdvancedCoreSHA1().empty() || !this->getAdvancedCoreAddress().empty())
 			{
 				if(this->isRunning())
 					if(!this->closeAllLibraries())
 						return "ERROR"; //TODO
 	
-				if(!m_advancedcorehash.empty())
+				if(!this->getAdvancedCoreSHA1().empty())
 				{
 					if(!this->initializeAdvancedCore())
 					{
@@ -297,18 +285,6 @@ std::string ShellBase::execShellCommand(std::string str)
 	case ShellCommand::SC_SHELL_VERSION:
 		{
 			retstr = this->getShellVersion();
-		}
-		break;
-	case ShellCommand::SC_SET_COREADVDEP: //Core da caricare
-		{
-			m_advancedcoredepaddress = scommandp.getShellArgument();
-			retstr = "DONE";
-		}
-		break;
-	case ShellCommand::SC_SET_COREADVDEP_SHA1HASH:
-		{
-			m_advancedcoredephash = scommandp.getShellArgument();
-			retstr = "DONE";
 		}
 		break;
 	default:
@@ -483,7 +459,10 @@ bool ShellBase::stopRendering()
 
 bool ShellBase::checkLoadCorePresence()
 {
-	std::string coredirectory(Utilities::FileUtils::convertFileNameToWindowsStyle(m_localinstalldir));
+	std::string coredirectory;
+
+	getInitOption(INIT_OPTION_LOCALINSTDIR , coredirectory); //FIXME: controllare se fare i test
+	coredirectory = Utilities::FileUtils::convertFileNameToNativeStyle(coredirectory);
 
 	//Check library presence
 	std::string s = Utilities::FileUtils::convertFileNameToNativeStyle(
@@ -495,8 +474,10 @@ bool ShellBase::checkLoadCorePresence()
 	if(!Utilities::FileUtils::fileExists(s))
 	{
 		this->sendNotifyMessage( "ShellBase::checkLoadCorePresence-> LoadCore library not presentin local install dir. Serching in base install dir." );
-	
-		coredirectory = Utilities::FileUtils::convertFileNameToWindowsStyle(m_installdir);
+
+
+		getInitOption(INIT_OPTION_INSTALLDIR , coredirectory); //FIXME: controllare se fare i test
+		coredirectory = Utilities::FileUtils::convertFileNameToNativeStyle(coredirectory);
 
 		//Check library presence
 		s = Utilities::FileUtils::convertFileNameToNativeStyle(
@@ -525,15 +506,33 @@ bool ShellBase::checkLoadCorePresence()
 	return true;
 }
 
+std::string ShellBase::getAdvancedCoreSHA1()
+{
+	std::string temp;
+	this->getObjectShellOption(OBJECT_OPTION_ADVCORESHA1, temp);
+	return temp;
+}
+
+std::string ShellBase::getAdvancedCoreAddress() 
+{ 
+	std::string temp;
+	this->getObjectShellOption(OBJECT_OPTION_ADVCORE, temp);
+	return temp;
+}
+
 std::string ShellBase::getAdvancedCoreFileName() 
 { 
-	return Utilities::FileUtils::getSimpleFileName(m_advancedcoreaddress); 
+	return Utilities::FileUtils::getSimpleFileName(this->getAdvancedCoreAddress());
 }
 
 std::string ShellBase::getAdvancedCoreDirectory() 
 { 
-	if( m_advancedcoredir.empty() ) {
-		m_advancedcoredir = Utilities::FileUtils::convertFileNameToNativeStyle(	m_coreinstalldir + "/" + m_advancedcorehash);
+	if( m_advancedcoredir.empty() ) 
+	{
+		std::string coredir;
+		getInitOption(INIT_OPTION_COREINSTDIR, coredir); //FIXME: controllare se va fatto test
+
+		m_advancedcoredir = Utilities::FileUtils::convertFileNameToNativeStyle(	coredir + "/" + this->getAdvancedCoreSHA1());
 	}
 	return m_advancedcoredir;
 }
@@ -572,6 +571,10 @@ bool ShellBase::startLoadingBaseCore()
 		this->sendWarnMessage( "ShellBase::startLoadingBaseCore -> runtime library loading failed!" );
 		return false;
 	}
+
+	std::string logname;
+	if(this->getObjectShellOption(OBJECT_OPTION_ENABLELOGS, logname)) //Se è presente l'indirizzo del core da caricare
+		m_CoreInterface->forcingLogMessages();
 
 	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr);
 
@@ -627,7 +630,7 @@ bool ShellBase::checkAdvCorePresence()
 
 bool ShellBase::initializeAdvancedCore()
 {
-	if(!m_advancedcoreaddress.empty())
+	if(!this->getAdvancedCoreAddress().empty())
 	{
 		typedef bool (requestCoreDownloadingDefinition)(void*);
 	
@@ -696,6 +699,10 @@ bool ShellBase::startLoadingAdvancedCore()
 
 	//TODO: reset di finestra
 
+	std::string logname;
+	if(this->getObjectShellOption(OBJECT_OPTION_ENABLELOGS, logname)) //Se è presente l'indirizzo del core da caricare
+		m_CoreInterface->forcingLogMessages();
+
 	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr);
 	
 	m_coreInit = m_CoreInterface->InitCore(m_hWnd, advcoredir, this->getInitAdvancedCoreOptions());
@@ -718,8 +725,10 @@ bool ShellBase::startLoadingAdvancedCore()
 	}
 
 	//Applico la stringa di start se presente
-	if(!m_initadvancedcorestartoptions.empty())
-		m_CoreInterface->AddStartOptions(m_initadvancedcorestartoptions);
+	std::string startadvcoreopt;
+	this->getObjectShellOption(OBJECT_OPTION_ADVCSTARTOPT, startadvcoreopt);
+	if(!startadvcoreopt.empty())
+		m_CoreInterface->AddStartOptions(startadvcoreopt);
 
 	return ret;
 }
@@ -821,11 +830,16 @@ std::string ShellBase::getShellVersion()
 	return std::string(SHELL_VERSION_STRING);
 }
 
+// Formattazione Stringa di Options al LoadCore:
+// "Stringa arg di Object" "PROXY_HOSTNAME=url" <"PROXY_PORT=port">
 std::string ShellBase::getInitLoadCoreOptions()
 {
-	std::string retstr(m_initloadcoreoptions);
+	std::string purl, pport;
+	std::string retstr;
 
-	if(!m_proxyurl.empty())
+	this->getObjectShellOption(OBJECT_OPTION_LOADCOREOPT, retstr);
+
+	if( getInitOption(INIT_OPTION_PROXYHNAME, purl) )
 	{
 		if(!retstr.empty())
 		{
@@ -833,24 +847,29 @@ std::string ShellBase::getInitLoadCoreOptions()
 		}
 
 		retstr += "PROXY_HOSTNAME=";
-		retstr += m_proxyurl;
+		retstr += purl;
 		
-		if(!m_proxyport.empty())
+		if(!getInitOption(INIT_OPTION_PROXYHPORT, pport))
 		{
 			retstr += " PROXY_PORT=";
-			retstr += m_proxyport;
+			retstr += pport;
 		}
 	}
 
 	return retstr;
 }
 
+// Formattazione Stringa di Options a AdvancedCore:
+// "Stringa arg di Object" "PROXY_HOSTNAME=url" <"PROXY_PORT=port">
 std::string ShellBase::getInitAdvancedCoreOptions()
 {
-	std::string retstr(m_initadvancedcoreinitoptions);
+	std::string purl, pport;
+	std::string retstr;
+
+	this->getObjectShellOption(OBJECT_OPTION_ADVCINITOPT, retstr);
 
 	//FIXME: rendere indipendente dal core
-	if(!m_proxyurl.empty())
+	if( getInitOption(INIT_OPTION_PROXYHNAME, purl) )
 	{
 		if(!retstr.empty())
 		{
@@ -858,12 +877,12 @@ std::string ShellBase::getInitAdvancedCoreOptions()
 		}
 
 		retstr += "PROXY_HOSTNAME=";
-		retstr += m_proxyurl;
+		retstr += purl;
 		
-		if(!m_proxyport.empty())
+		if(!getInitOption(INIT_OPTION_PROXYHPORT, pport))
 		{
 			retstr += " PROXY_PORT=";
-			retstr += m_proxyport;
+			retstr += pport;
 		}
 	}
 
