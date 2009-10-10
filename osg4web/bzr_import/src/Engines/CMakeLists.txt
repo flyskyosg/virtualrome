@@ -4,16 +4,18 @@
 #
 ############################################################
 
-SUBDIRS(
-	CoreOpenGL
-	LoaderOpenGL
+	SUBDIRS(
+		CoreOpenGL
 	)
-
 IF(OSG_FOUND)
 	SUBDIRS(
 		CoreBase
-		Loader
 		FunCore
 	)
+	IF(USE_OPENGL_LOADER)
+		SUBDIRS( LoaderOpenGL )
+	ELSE(USE_OPENGL_LOADER)
+		SUBDIRS( Loader )
+	ENDIF(USE_OPENGL_LOADER)
 ENDIF(OSG_FOUND)
 

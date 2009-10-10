@@ -51,7 +51,7 @@ ENDIF(USER_DEFINED_MODULE_PATH)
 ############################################################
 
 OPTION(PLACE_IN_PLUGIN "If on place output files into Firefox/plugin" ON)
-OPTION(USE_OPENGL_LOADER "The loader is Opengl only" ON)
+OPTION(USE_OPENGL_LOADER "The loader is based on Opengl otherwise is based on osg" ON)
 
 SET(EXTENSION_NAME "OSG4Web_test@cineca.it" CACHE STRING "Name of the extension")
 
@@ -197,7 +197,15 @@ IF(FIREFOX_PLUGIN_DIR)
 	ADD_SUBDIRECTORY(src/npOSG4Web)
 	SET(RUNTIME_OUTPUT_DIRECTORY ${FIREFOX_PLUGIN_DIR})
 	SET(LIBRARY_OUTPUT_DIRECTORY ${FIREFOX_PLUGIN_DIR})
-
+	OSG_COPY_MODULE_CUSTOM_COMMAND("OpenThreads;osg;osgDB;osgGA;osgUtil;osgViewer;osgTerrain;osgText" ${FIREFOX_PLUGIN_DIR} copylist)
+	#message("file da copiare -->${copylist1} <--")
+	OSG_COPY_PLUGIN_CUSTOM_COMMAND("osg;ive;freetype;jpeg;png;rgb;osgviewer;osgterrain;osgtext" ${FIREFOX_PLUGIN_DIR} copylist)
+	message("file da copiare -->${copylist} <--")
+	ADD_CUSTOM_TARGET(
+		osg_copy_stuff 
+		DEPENDS ${copylist}
+	)
+	
 ELSE(FIREFOX_PLUGIN_DIR)
 	MESSAGE("Firefox NOT FOUND: specify a Firefox Directory in order to compile OSG4Web Firefox Plugin")
 ENDIF(FIREFOX_PLUGIN_DIR)
