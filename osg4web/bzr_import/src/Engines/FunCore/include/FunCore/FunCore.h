@@ -13,6 +13,7 @@
 #include <CommonCore/SceneHandlers/GetBackHandler.h>
 
 #include <CommonCore/Manipulators/walkManipulator.h>
+#include <CommonCore/Manipulators/ViroManipulator.h>
 
 using namespace CommonCore;
 
@@ -78,6 +79,7 @@ protected:
 
 	//Manipolatori
 	osg::ref_ptr<Manipulators::walkManipulator> _WalkManip;
+	osg::ref_ptr<Manipulators::ViroManipulator> _ViRoMan;
 
 	//Scene Handlers
 	osg::ref_ptr<SceneHandlers::GetBackHandler> _GetBackHandler;
