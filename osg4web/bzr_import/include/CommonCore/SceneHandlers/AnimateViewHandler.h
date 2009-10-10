@@ -40,7 +40,6 @@ namespace SceneHandlers
 
 		bool setViewMatrix( std::string viewstring );
 
-
 		osg::Timer_t _startTime;
 		osg::Matrix _transitionMatrix, _oldMatrix;
 		double _animationTime;

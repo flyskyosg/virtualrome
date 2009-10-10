@@ -32,11 +32,17 @@ protected:
 	//Inizializzo l'albero di scena
 	bool initSceneData();
 
+	//Abilito i controlli per 
+	virtual void preFrameUpdate();
+
 	//Crea lo SceneGraph per i Tooltip
 	osg::Node* createScene();
 
+	//Handler NodeParser per Tooltips
+	osg::ref_ptr<SceneHandlers::NodeParserHandler> _TooltipsParserHandler;
+
 	//Handler Tooltips
-	osg::ref_ptr<SceneHandlers::TooltipHandler> _TooltipsHandler;
+	osg::ref_ptr<SceneHandlers::TooltipsSceneModifier> _TooltipsSceneModifier;
 };
 
 #endif //__OSG4WEB_CORETOOLTIPS__

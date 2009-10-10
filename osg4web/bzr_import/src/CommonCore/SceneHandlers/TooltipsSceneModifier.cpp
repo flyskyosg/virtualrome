@@ -12,15 +12,13 @@ using namespace SceneHandlers;
 
 /********************************************************************
  *
- *  Metodi Classe Tooltip Handler
+ *  Metodi Classe TooltipsSceneModifier
  *
  ********************************************************************/
 
-/** Costruttore del ToolTips Handler */
+/** Costruttore del TooltipsSceneModifier */
 
-
-TooltipHandler::TooltipHandler(osg::Node::NodeMask allowmask) : NodeParserHandler(allowmask),
-	_tooltipcommandname("show_tooltip"), //TODO: spostare in defines
+TooltipsSceneModifier::TooltipsSceneModifier() : CommandStubb("show_tooltip"), //TODO: spostare in defines
 	_hudgrp(new osg::Group),
 	_matrtrans(new osg::MatrixTransform),
 	_switchnd(new osg::Switch),
@@ -28,25 +26,32 @@ TooltipHandler::TooltipHandler(osg::Node::NodeMask allowmask) : NodeParserHandle
 	_geombox(new osg::Geometry),
 	_geodend(new osg::Geode),
 	_currentactivetooltip(NULL),
-	_xMaxResolution(500), //TODO:
-	_yMaxResolution(500) //TODO:
+	_negatemask(0xfffffffe),
+	_allowmask(0x0000001),
+	_startTime(0),
+	_maxTime(500.0), //TODO:
+	_xMaxResolution(500),
+	_yMaxResolution(500)
 {
 	this->createTooltipSceneGraph();
-	
-	this->registerCommand(_tooltipcommandname);
 }
 
-osg::Node* TooltipHandler::createTooltipHUD(osg::Node::NodeMask negatemask)
+TooltipsSceneModifier::~TooltipsSceneModifier()
+{
+
+}
+
+osg::Node* TooltipsSceneModifier::createTooltipHUD()
 {
 	_hudgrp->setName("TooltipHandler_HUD_Group");
-	_hudgrp->setNodeMask(negatemask);
+	_hudgrp->setNodeMask(_negatemask);
 
 	this->createTooltipCamera2D();
 
 	return (osg::Node*) _hudgrp.get();
 }
 
-void TooltipHandler::createTooltipSceneGraph()
+void TooltipsSceneModifier::createTooltipSceneGraph()
 {
 	//Inizializzo la Matrice di Posizionamento del Tooltip nella screen 2D
 	_matrtrans->setMatrix(osg::Matrix::identity());
@@ -81,7 +86,7 @@ void TooltipHandler::createTooltipSceneGraph()
 	_switchnd->addChild(_matrtrans.get(), false);
 }
 
-void TooltipHandler::createTooltipCamera2D()
+void TooltipsSceneModifier::createTooltipCamera2D()
 {
 	osg::ref_ptr<osg::Camera> camera = new osg::Camera;
 	
@@ -101,94 +106,31 @@ void TooltipHandler::createTooltipCamera2D()
 	_hudgrp->addChild(camera.get());
 }
 
-/** Riscrittura della gestione dell'evento FRAME */
-
-void TooltipHandler::callmethodqueue(osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea)
-{
-	//Richiamo la sotto funzione per la gestione del Parsing del NodePath intersecato
-	NodeParserHandler::callmethodqueue(viewer, ea);
-
-	//Controllo se esistono comandi di tooltip in coda
-	if(this->getNodeCommandListSize() != 0)
-	{
-		//Prendo il primo comando in coda 
-		NodeCommandList::NodeCommand ndc;
-
-		if(this->findNodeCommandByName(_tooltipcommandname, ndc))
-		{
-			if(ndc.getNode() != _currentactivetooltip) //c'è intersezione con nodo diverso. Setto Tooltip con nuovo testo
-			{
-				_currentactivetooltip = ndc.getNode();
-				switchOnTooltip(ndc, ea);
-			}
-
-			moveTooltip(ea); //Aggiorno la posizione della MT
-		}
-		else
-			switchOffTooltip();
-	}
-	else
-		switchOffTooltip(); //nessun comando per il nodepath di intersezione
-
-
-
-	NodeCommandList::NodeCommand ndc;
-
-	/*
-	if(this->findNodeCommandByRegister(ndc))
-	{
-		if(ndc.getNode() != _currentactivetooltip) //c'è intersezione con nodo diverso. Setto Tooltip con nuovo testo
-		{
-			_currentactivetooltip = ndc.getNode();
-			switchOnTooltip(ndc, ea);
-		}
-		moveTooltip(ea); //Aggiorno la posizione della MT
-	}
-	else
-		switchOffTooltip();
-	*/
-}
-
 /** Spenge la visualizzazione del Tooltip */
-
-void TooltipHandler::switchOffTooltip()
+void TooltipsSceneModifier::switchOffTooltip()
 {
 	//Resetto la copia di controllo tooltip
 	_currentactivetooltip = NULL;
 	//Spengo la visualizzazione del tooltip
 	_switchnd->setAllChildrenOff();
+	//Resetto il counter
+	_startTime = 0;
 }
 
 /** Inizializza e Attiva il Tooltip */
-
-void TooltipHandler::switchOnTooltip(NodeCommandList::NodeCommand ndc, const osgGA::GUIEventAdapter& ea)
+void TooltipsSceneModifier::switchOnTooltip(std::string argument)
 {
 	//Rimuovo le geometry di sfondo per calcolare la bbox del testo
 	_geodend->removeDrawable(_geombox.get());
 
-	//Richiamo il testo per il tooltip dal NodeCommand
-	std::string text;
-	std::vector<std::string> desclist;
-
-	if(ndc.getDescListWithoutCommand(desclist))
-	{
-		for(unsigned int i = 0; i < desclist.size(); i++)
-		{
-			text += desclist.at(i);
-			text += "\n";
-		}
-	}
-	
 	//Setto il nuovo testo della tooltip
-	_textnd->setText(text);
+	_textnd->setText(argument);
 	
 	//Ricalcolo la BBox del testo
 	osg::BoundingBox bb;
 	for(unsigned int i = 0; i < _geodend->getNumDrawables(); ++i)
-	{
 		bb.expandBy(_geodend->getDrawable(i)->getBound());
-	}
-
+	
 	//Creo lo sfondo in base alla BBox del testo
 	createTooltipBackgroud(bb);
 
@@ -199,9 +141,10 @@ void TooltipHandler::switchOnTooltip(NodeCommandList::NodeCommand ndc, const osg
 	_switchnd->setAllChildrenOn();
 }
 
+
 /** Aggiorna la MT del tooltip in base alle coordinate del mouse */
 
-void TooltipHandler::moveTooltip(const osgGA::GUIEventAdapter& ea)
+void TooltipsSceneModifier::moveTooltip(const osgGA::GUIEventAdapter& ea)
 {
 	//Calcolo la posizione effettiva del tooltip (in coordinate Camera 2D) in base alla posizione del mouse sulla finestra
 	float x = (ea.getXnormalized()+1.0f) * 0.5f * _xMaxResolution;
@@ -213,7 +156,7 @@ void TooltipHandler::moveTooltip(const osgGA::GUIEventAdapter& ea)
 
 /** Creo la geometria di sfondo al testo del Tooltip in base alla BBox */
 
-void TooltipHandler::createTooltipBackgroud(osg::BoundingBox bb)
+void TooltipsSceneModifier::createTooltipBackgroud(osg::BoundingBox bb)
 {
 	float depth = bb.zMin() - 0.1; //Profondità
 	float scar = 0.1; //Adder sulla dimensione della BBox
@@ -256,29 +199,51 @@ void TooltipHandler::createTooltipBackgroud(osg::BoundingBox bb)
 }
 
 /** Setta il nodo per ricevere l'evento tooltip, ritorna nodo da attaccare alla scena */
-osg::Node* TooltipHandler::setTooltipsProperties(osg::Node* node, osg::Node::DescriptionList desclist)
+osg::Node* TooltipsSceneModifier::setTooltipsProperties(osg::Node* node, std::string descstr)
 {
 	/************************************************************************
 	 *
 	 * Per far funzionare il Tooltip Handler si deve aggiungere nei nodi:
 	 *
-	 * Campo DESCRIPTIONLIST(0): "showtooltip"
-	 * Campo DESCRIPTIONLIST(n): testo da visualizzare nel tooltip
+	 * Campo DESCRIPTIONLIST(n): "show_tooltip 'testo da visualizzare nel tooltip'"
 	 */
 
 	osg::ref_ptr<osg::Group> grp = new osg::Group;
 
-	osg::Node::DescriptionList ndesclist;
-	ndesclist.push_back(_tooltipcommandname);
+	std::string totstr = this->getCommand() + " " + descstr;
 
-	osg::Node::DescriptionList::iterator itr = desclist.begin();
-	for( ; itr != desclist.end(); itr++ )
-		ndesclist.push_back(*itr);
+	osg::Node::DescriptionList desclist = grp->getDescriptions();
+	desclist.push_back(totstr);
 
-	grp->setDescriptions(ndesclist);
+	grp->setDescriptions(desclist);
 	grp->setName("Nodo_Parsing_Tooltip");
 	grp->addChild(node);
-	grp->setNodeMask( this->getTraversalNodeMask() );
+	grp->setNodeMask( _allowmask );
 
 	return grp.release();
+}
+
+/** Handling evento show_tooltip */
+
+bool TooltipsSceneModifier::commandBridge(std::string argument, osg::Node* node, osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea)
+{
+	if(node != _currentactivetooltip) //c'è intersezione con nodo diverso. Setto Tooltip con nuovo testo
+	{
+		_currentactivetooltip = node;
+		switchOnTooltip(argument);
+	}
+	
+	moveTooltip(ea); //Aggiorno la posizione della MT
+
+	//Setto il timer di start
+	_startTime = osg::Timer::instance()->tick();
+
+	return false; //Consento agli altri parser di continuare
+}
+
+void TooltipsSceneModifier::checkTooltipsTiming()
+{
+	if(_startTime != 0)
+		if(osg::Timer::instance()->tick() > _startTime + _maxTime)
+			switchOffTooltip();
 }

@@ -69,6 +69,15 @@ using namespace SceneHandlers;
  *
  *		MOVE_NODE
  *			"Nodo_To_Move"	"New_Parent_Node"
+  *
+ *		RENAME_NODE
+ *			"Old_Node_Name"	"New_Nome_Node"
+ *
+ *		CLEAR_DESCRIPTION
+ *			"Nome_Node"
+ *
+ *		ADD_DESCRIPTION
+ *			"Nome_Node"		"Command"	"Description"
  *
  */
 
@@ -111,6 +120,9 @@ void SceneModifier::initCommandActions()
 	this->setCommandAction("SET_MATRIX_TRANSLATE");
 	this->setCommandAction("GET_MATRIX");
 	this->setCommandAction("MOVE_NODE");
+	this->setCommandAction("RENAME_NODE");
+	this->setCommandAction("ADD_DESCRIPTION_COMMAND");
+	this->setCommandAction("CLEAR_DESCRIPTION");
 }
 
 
@@ -164,6 +176,15 @@ std::string SceneModifier::handleAction(std::string argument)
 	case MOVE_NODE:
 		retstr = this->moveNode(rcommand);
 		break;
+	case RENAME_NODE:
+		retstr = this->renameNode(rcommand);
+		break;
+	case ADD_DESCRIPTION_COMMAND:
+		retstr = this->addCommandDescription(rcommand);
+		break;
+	case CLEAR_DESCRIPTION:
+		retstr = this->clearDescription(rcommand);
+		break;
 	default: //UNKNOWN_CORE_COMMAND
 		retstr = "UNKNOWN_CORE_COMMAND"; //FIXME: qua non ci può finire. Da togliere
 		break;
@@ -189,6 +210,104 @@ std::string SceneModifier::createMatrixTransform(std::string action)
 	osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform;
 	mt->setMatrix(osg::Matrix::identity()); //Setto la matrice d'identità per default
 	return this->addNodeToSceneParsingAction(mt.get(), action);
+}
+
+
+std::string SceneModifier::renameNode(std::string action)
+{
+	std::string nodename, newnodename;
+	std::string retstr("BAD_COMMAND");
+
+	this->splitActionCommand(action, nodename, newnodename);
+
+	if(newnodename.empty())
+		return retstr;
+
+	Visitors::FindNodeVisitor fnvbn(nodename);
+	_SceneData->accept(fnvbn);
+
+	unsigned int number = fnvbn.getNodeFoundSize();
+
+	if(number == 0)
+		return "NODE_NOTFOUND";
+
+	osg::ref_ptr<osg::Node> node = dynamic_cast<osg::Node*>(fnvbn.getNodeByIndex(0).at(fnvbn.getNodeByIndex(0).size() - 1));
+
+	if(node.valid())
+		node->setName(newnodename);
+	else
+		return "CAST_ERROR";
+
+	retstr = "COMMAND_OK";
+
+	return retstr;
+}
+
+std::string SceneModifier::addCommandDescription(std::string action)
+{
+	std::string nodename, caction, commandarg;
+	std::string retstr("BAD_COMMAND");
+
+	this->splitActionCommand(action, nodename, caction);
+	this->splitActionCommand(caction, caction, commandarg);
+
+	if(nodename.empty() || caction.empty() || commandarg.empty())
+		return retstr;
+
+	Visitors::FindNodeVisitor fnvbn(nodename);
+	_SceneData->accept(fnvbn);
+
+	unsigned int number = fnvbn.getNodeFoundSize();
+
+	if(number == 0)
+		return "NODE_NOTFOUND";
+
+	osg::ref_ptr<osg::Node> node = dynamic_cast<osg::Node*>(fnvbn.getNodeByIndex(0).at(fnvbn.getNodeByIndex(0).size() - 1));
+
+	if(node.valid())
+	{
+		osg::Node::DescriptionList desclist = node->getDescriptions();
+		desclist.push_back(caction);
+		desclist.push_back(commandarg);
+		node->setDescriptions(desclist);
+	}
+	else
+		return "CAST_ERROR";
+
+	retstr = "COMMAND_OK";
+
+	return retstr;
+}
+
+std::string SceneModifier::clearDescription(std::string action)
+{
+	std::string retstr("BAD_COMMAND");
+
+	if(action.empty())
+		return retstr;
+
+	Visitors::FindNodeVisitor fnvbn(action);
+	_SceneData->accept(fnvbn);
+
+	unsigned int number = fnvbn.getNodeFoundSize();
+
+	if(number == 0)
+		return "NODE_NOTFOUND";
+
+	osg::ref_ptr<osg::Node> node = dynamic_cast<osg::Node*>(fnvbn.getNodeByIndex(0).at(fnvbn.getNodeByIndex(0).size() - 1));
+
+	if(node.valid())
+	{
+		osg::Node::DescriptionList desclist = node->getDescriptions();
+		desclist.clear();
+		node->setDescriptions(desclist);
+	}
+	else
+		return "CAST_ERROR";
+
+	retstr = "COMMAND_OK";
+
+	return retstr;
 }
 
 std::string SceneModifier::moveNode(std::string action)

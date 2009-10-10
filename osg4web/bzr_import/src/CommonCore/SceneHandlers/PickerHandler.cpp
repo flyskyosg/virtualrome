@@ -17,19 +17,17 @@ using namespace SceneHandlers;
 
 bool PickerHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa)
 {
-    switch(ea.getEventType()) //Switch degli eventi
-    {
-        case(osgGA::GUIEventAdapter::FRAME): //Catch evento FRAME
-        {
-            osgViewer::Viewer* viewer = dynamic_cast<osgViewer::Viewer*>(&aa);
-            if (viewer)
-				callmethodqueue(viewer,ea); //Funzione virtuale di gestione evento FRAME
-			
-			return false;
-        }    
-        default:
-            return false;
-    }
+	for(unsigned int i = 0; i < _eventtypevector.size(); i++)
+	{
+		if(ea.getEventType() == _eventtypevector.at(i)) //Catch evento
+		{
+			osgViewer::Viewer* viewer = dynamic_cast<osgViewer::Viewer*>(&aa);
+			if (viewer)
+				callmethodqueue(viewer,ea);
+		}
+	}
+	
+	return false; //FIXME: Controllare se deve rispondere sempre false
 }
 
 /** Funzione Virtuale per la gestione dell'evento FRAME - può essere ridefinita */
@@ -45,6 +43,7 @@ void PickerHandler::callmethodqueue(osgViewer::Viewer* viewer, const osgGA::GUIE
 void PickerHandler::mouseRayIntersection(osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea)
 {
 	_savenp.clear(); //Pulisco il nodepath di store
+	_saveeventtype = osgGA::GUIEventAdapter::NONE;
 
 	osgUtil::LineSegmentIntersector::Intersections intersections;
 
@@ -73,10 +72,22 @@ void PickerHandler::mouseRayIntersection(osgViewer::Viewer* viewer, const osgGA:
 			}
         }
 
-		//Salvo il nodepath dell'intersezione più vicina
+		//Salvo il nodepath dell'intersezione più vicina e l'evento che l'ha scatenato
 		_savenp = savedhitr->nodePath;
+		_saveeventtype = ea.getEventType();
     }
 }	
 
+
+bool PickerHandler::addUniquePickingEventType(osgGA::GUIEventAdapter::EventType evnt)
+{ 
+	for(unsigned int i = 0; i < _eventtypevector.size(); i++)
+		if(_eventtypevector.at(i) == evnt)
+			return false;
+
+	_eventtypevector.push_back( evnt );
+	
+	return true;
+}
 
 

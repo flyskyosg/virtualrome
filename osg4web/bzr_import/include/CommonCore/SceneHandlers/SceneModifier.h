@@ -34,7 +34,10 @@ namespace SceneHandlers
 			SET_MATRIX_SCALE,
 			SET_MATRIX_TRANSLATE,
 			GET_MATRIX,
-			MOVE_NODE
+			MOVE_NODE,
+			RENAME_NODE,
+			ADD_DESCRIPTION_COMMAND,
+			CLEAR_DESCRIPTION
 		};
 
 		//Costruttore
@@ -78,6 +81,9 @@ namespace SceneHandlers
 
 		//Funzioni avanzate
 		std::string moveNode(std::string action);
+		std::string renameNode(std::string action);
+		std::string clearDescription(std::string action);
+		std::string addCommandDescription(std::string action);
 
 		
 		//Funzioni di Supporto 

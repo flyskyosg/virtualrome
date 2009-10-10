@@ -4,6 +4,7 @@ SUBDIRS(
 	CoreAsyncLoad
 	CoreEdit
 	CoreFly
+	CoreJSCall
 	CorePick
 	CoreSceneModifier
 	CoreScribe

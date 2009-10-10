@@ -1,4 +1,3 @@
-
 #if defined(WIN32)
 	#include <windows.h>
 	#include <windowsx.h>
@@ -28,7 +27,6 @@
 
 #include <npOSG4Web/npOSG4Web_Defines.h>
 #include <npOSG4Web/npOSG4Web_plugin.h>
-
 
 /////////////////////////////////////
 //
@@ -158,9 +156,6 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	mDlCoreShutdownThread(false),
 	mLoading(false),
 #if defined(WIN32)
-#if defined(RENDER_WITH_TIMER_EVENT)
-	mTimer(RENDER_DELAY),
-#endif
 	lpOldProc(NULL),
   	mhWnd(NULL)
 #else
@@ -466,6 +461,8 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 {
 	mShellBase.sendNotifyMessage("nsPluginInstance::init -> Initializing Window.");
 
+	std::string ogltest;
+
 	mInitialized = false;
 
 	if(!mInitOptionsSet)
@@ -487,6 +484,47 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 		s_PluginMessageError = "invalid window pointer!";
 		mShellBase.sendWarnMessage("nsPluginInstance::init -> window pointer is not valid.");
 		return mInitialized;
+	}
+
+	if(!mShellBase.getObjectShellOption(OBJECT_OPTION_DISABLEOPENGLCONF, ogltest))
+	{
+		mShellBase.sendNotifyMessage("nsPluginInstance::init -> configuring DC.");
+
+		PIXELFORMATDESCRIPTOR pixelFormat;
+
+		ZeroMemory( &pixelFormat, sizeof( pixelFormat ) );
+
+		pixelFormat.nSize = sizeof( pixelFormat );
+		pixelFormat.nVersion = 1;
+		pixelFormat.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+		pixelFormat.iPixelType = PFD_TYPE_RGBA;
+		pixelFormat.cColorBits = 24;
+		pixelFormat.cDepthBits = 16;
+		pixelFormat.iLayerType = PFD_MAIN_PLANE;
+	
+		//Retrieve DC Context
+		HDC hdc = ::GetDC(mhWnd);
+		if (hdc==0)
+		{
+			mShellBase.sendWarnMessage("nsPluginInstance::init -> GetDC Error.");
+		    return mInitialized;
+		}
+
+		int pixelFormatIndex = ::ChoosePixelFormat(hdc, &pixelFormat);
+		if (pixelFormatIndex==0)
+		{
+			mShellBase.sendWarnMessage("nsPluginInstance::init -> ChoosePixelFormat Error.");
+		    ::ReleaseDC(mhWnd, hdc);
+		    return mInitialized;
+		}
+
+		//Sets PixelFormat in Context
+		if (!::SetPixelFormat(hdc, pixelFormatIndex, &pixelFormat))
+		{
+			mShellBase.sendWarnMessage("nsPluginInstance::init -> SetPixelFormat Error.");
+		    ::ReleaseDC(mhWnd, hdc);
+		    return mInitialized;
+		}
 	}
 
 	// subclass window so we can intercept window messages and
@@ -647,6 +685,8 @@ void nsPluginInstance::sendWarnMessage(std::string message)
 //
 void nsPluginInstance::shut()
 {
+	std::string ogltest;
+
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::shut -> Shutting down plugin instance"));
 
 	this->releaseDownloadCore();
@@ -658,6 +698,16 @@ void nsPluginInstance::shut()
 	}
 	
 #if defined(WIN32)
+	if(!mShellBase.getObjectShellOption(OBJECT_OPTION_DISABLEOPENGLCONF, ogltest))
+	{
+		mShellBase.sendNotifyMessage("nsPluginInstance::shut -> release DC.");
+
+		HDC hdc = ::GetDC( mhWnd );
+		
+		if(hdc)
+			::ReleaseDC(mhWnd, hdc);
+	}
+
 	// subclass it back
 	SubclassWindow(mhWnd, lpOldProc);
 	mhWnd = NULL;
@@ -862,16 +912,6 @@ bool nsPluginInstance::prepareRendering()
 {
 	bool ret = false;
 
-#if defined(RENDER_WITH_TIMER_EVENT)
-#if defined(WIN32)
-	SetTimer(mhWnd, 0, mTimer, NULL);
-#else
-	//TODO: linux
-	//FIXME: da rifare completamente
-#endif
-
-	ret = true;
-#else
 	assert(this->getThread() == NULL);
 
 	mShutdownThread = false;
@@ -893,20 +933,11 @@ bool nsPluginInstance::prepareRendering()
 		ret = true;
 	}
 
-#endif
 	return ret;
 }
 
 bool nsPluginInstance::closeRendering()
 {
-#if defined(RENDER_WITH_TIMER_EVENT)
-#if defined(WIN32)
-	KillTimer(mhWnd, NULL);
-#else
-	//TODO: linux
-	//FIXME: da rifare completamente
-#endif
-#else
 	if (this->getThread())
 	{
 		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::closeRendering -> Join Rendering Thread."));
@@ -924,7 +955,6 @@ bool nsPluginInstance::closeRendering()
 	}
 	else
 		return false;
-#endif
 
 	return true;
 }
@@ -1529,90 +1559,103 @@ bool nsPluginInstance::releaseDownloadCore()
 
 #if defined(WIN32)
 
-//////////////////////////////////////
-//
-// Plug-In Event Handler Function
-//
-static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam)
+LRESULT nsPluginInstance::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam)
 {
-	LRESULT lr;
-
-	nsPluginInstance *plugin = (nsPluginInstance *)(LONG_PTR) GetWindowLong(hWnd, GWL_USERDATA);
-
 	switch (eventmsg) 
 	{
-	case WM_TIMER:
-		if (plugin)
-			if(plugin->checkRunning())
-				plugin->doRenderFrame();
-		break;
-    case WM_PAINT: //TODO: finire
+	case WM_PAINT:
 		{
-			if (!plugin)
+			if( this->checkErrorPresence() )
 			{
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(hWnd, &ps);
 				RECT rc;
 				GetClientRect(hWnd, &rc);
 				FrameRect(hdc, &rc, GetStockBrush(BLACK_BRUSH));
-				std::string errormsg("OSG4Web Instance Error: Windows pointer error");
-				DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+				std::string errormsg("OSG4Web Instance Error: " + s_PluginMessageError);//TODO: this->getErrorMessage());
+				DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);	
 				EndPaint(hWnd, &ps);
 
-				return 0;
+				return (0L);
 			}
-			else
-			{
-				if( plugin->checkErrorPresence() )
-				{
-					PAINTSTRUCT ps;
-					HDC hdc = BeginPaint(hWnd, &ps);
-					RECT rc;
-					GetClientRect(hWnd, &rc);
-					FrameRect(hdc, &rc, GetStockBrush(BLACK_BRUSH));
-					std::string errormsg("OSG4Web Instance Error: " + s_PluginMessageError);
-					DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);	
-					EndPaint(hWnd, &ps);
-
-					return 0;
-				}
-			}
-
-			//return 0;
 		}
 		break;
 	case WM_ERASEBKGND: //Corregge il problema di flickering durante il ridimensionamento e la selezione
-		if (plugin)
-			if(plugin->checkRunning())
-			{
-				return 0;
-			}
-		break;
-/*	case WM_KEYUP: //FIXME: non ne grabba nessuno... non vengono passati dall'handler di firefox
-		Beep(1000,100);
-		break;
-	case WM_KEYDOWN:
-		Beep(1000,100);
+		if(this->checkRunning())
+			return (0L); //Non passo l'erase signal
 		break;
 
-	case WM_NCACTIVATE:
-		Beep(1000,100);
+	case WM_MOVE:
+	case WM_SIZE:
+		if(this->checkRunning())
+		{
+			mShellBase.doRendering();
+			return (0L); //Non passo l'erase signal
+		}
 		break;
-	case WM_SETFOCUS:
-		Beep(1000,100);
+	
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_RBUTTONDBLCLK:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_MBUTTONDBLCLK:
+#if (_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)
+	case WM_MOUSEWHEEL:
+#endif
+		SetFocus(hWnd);
 		break;
-	case WM_KILLFOCUS:
-		Beep(1000,100);
-		break;
-*/
+	
 	default:
 		break;
 	}
- 
-	//forward windows messages to producer
-	lr = DefWindowProc(hWnd, eventmsg, wParam, lParam);
 
-	return lr;
+	std::cout << eventmsg << std::endl;
+
+	return (::DefWindowProc(hWnd, eventmsg, wParam, lParam));
+}
+
+
+
+//////////////////////////////////////
+//
+// Plug-In Event Handler Function
+//
+static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam)
+{
+	nsPluginInstance *plugin = (nsPluginInstance *)(LONG_PTR) GetWindowLong(hWnd, GWL_USERDATA);
+
+	if (!plugin)
+	{
+		switch (eventmsg) 
+		{
+		case WM_MOVE:
+		case WM_SIZE:
+		case WM_PAINT:
+			{
+				std::string errormsg("OSG4Web Instance Error: Plugin has not been initialized");
+
+				PAINTSTRUCT ps;
+				RECT rc;
+				HDC hdc = BeginPaint(hWnd, &ps);
+
+				GetClientRect(hWnd, &rc);
+				FrameRect(hdc, &rc, GetStockBrush(BLACK_BRUSH));
+				DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+				EndPaint(hWnd, &ps);
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	else
+		return plugin->handleWindowEvents(hWnd, eventmsg, wParam, lParam);
+
+	return (0L);
 }
 
 #else
@@ -1723,11 +1766,15 @@ bool nsPluginInstance::checkRunning()
 
 bool nsPluginInstance::checkErrorPresence()
 {
-	if(mShellBase.isThereErrors())
-		return true;
-	
-	return false;
+	return mShellBase.isThereErrors();
 }
+
+/* TODO: finire di sistemare i messaggi in un unico posto 
+std::string nsPluginInstance::getErrorMessage()
+{
+	
+}
+*/
 
 
 // ==============================

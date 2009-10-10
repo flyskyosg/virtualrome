@@ -24,7 +24,8 @@ using namespace OSG4WebCC;
 /** CoreTooltips Costruttore */
 
 CoreTooltips::CoreTooltips(std::string corename) : CoreBase(corename),
-	_TooltipsHandler(NULL)
+	_TooltipsParserHandler(NULL),
+	_TooltipsSceneModifier(NULL)
 {
 	this->sendNotifyMessage("CoreTooltips -> Costructing CoreTooltips Instance."); //Log di Notify
 }
@@ -36,8 +37,11 @@ CoreTooltips::~CoreTooltips()
 {
 	this->sendNotifyMessage("~CoreTooltips -> Destructing CoreTooltips Instance."); //Log di Notify
 
-	if(_TooltipsHandler.valid())
-		_TooltipsHandler = NULL;
+	if(_TooltipsParserHandler.valid())
+		_TooltipsParserHandler = NULL;
+
+	if(_TooltipsSceneModifier.valid())
+		_TooltipsSceneModifier = NULL;
 }
 
 
@@ -47,12 +51,17 @@ bool CoreTooltips::initSceneData()
 {
 	this->sendNotifyMessage("initSceneData -> Building the SceneGraph.");
 
-	//Creo il Tooltip Handler
-	_TooltipsHandler = new SceneHandlers::TooltipHandler();
+	/***************************************************************
+	 *
+	 * CREO IL TOOLTIPSCENEMODIFIER
+	 */
+
+	//Creo il Tooltip Scene Modifier
+	_TooltipsSceneModifier = new SceneHandlers::TooltipsSceneModifier();
 
 	// add the HUD subgraph.
 	osg::ref_ptr<osg::Group> parent = new osg::Group;
-	osg::ref_ptr<osg::Node> tooltipnode = _TooltipsHandler->createTooltipHUD();
+	osg::ref_ptr<osg::Node> tooltipnode = _TooltipsSceneModifier->createTooltipHUD();
 
 	parent->setName("Root_SceneGraph_Node");
 	parent->addChild(_LocalSceneGraph.get());
@@ -64,11 +73,22 @@ bool CoreTooltips::initSceneData()
 
     /***************************************************************
 	 *
-	 * ATTACCO IL TOOLTIP HANDLER
+	 * CREO IL TOOLIPS HANDLER
+	 */
+
+	//Creo il Tooltip Handler
+	_TooltipsParserHandler = new SceneHandlers::NodeParserHandler;
+	//Setto la maschera di attraversamento dei Tooltips
+	_TooltipsParserHandler->setTraversalNodeMask( _TooltipsSceneModifier->getAllowNodeMask() );
+
+		
+	/***************************************************************
+	 *
+	 * ATTACCO IL TOOLTIP ALLA SCENA
 	 */
 	
-	_Viewer->addEventHandler(_TooltipsHandler.get());
-
+	_TooltipsParserHandler->addCommand( osgGA::GUIEventAdapter::FRAME, _TooltipsSceneModifier.get()); //FIXME: controllare se usare MOUSEMOVE
+	_Viewer->addEventHandler(_TooltipsParserHandler.get());
 	_Viewer->setSceneData(parent.get());
 
 	//Azzero alla posizione iniziale
@@ -134,28 +154,19 @@ osg::Node* CoreTooltips::createScene()
 	 * - Utilizzo il TooltipsHandler per creare i nodi necessari
 	 * - Ritorna un nuovo nodo da attaccare alla scena
 	 */
-	osg::Node::DescriptionList desclist;
-
-	desclist.push_back("I'm a Sphere");
-	grp->addChild( _TooltipsHandler->setTooltipsProperties(geodesphere.get(), desclist) );
-	desclist.clear();
-
-	desclist.push_back("I'm a Box");
-	grp->addChild( _TooltipsHandler->setTooltipsProperties(geodebox.get(), desclist) );
-	desclist.clear();
-
-	desclist.push_back("I'm a Cone");
-	grp->addChild( _TooltipsHandler->setTooltipsProperties(geodecone.get(), desclist) );
-	desclist.clear();
-
-	desclist.push_back("I'm a Cylinder");
-	grp->addChild( _TooltipsHandler->setTooltipsProperties(geodecyl.get(), desclist) );
-	desclist.clear();
-
-	desclist.push_back("I'm a big Cylinder");
-	grp->addChild( _TooltipsHandler->setTooltipsProperties(geodecapsule.get(), desclist) );
-	desclist.clear();
+	
+	grp->addChild( _TooltipsSceneModifier->setTooltipsProperties(geodesphere.get(), "I'm a Sphere") );
+	grp->addChild( _TooltipsSceneModifier->setTooltipsProperties(geodebox.get(), "I'm a Box") );
+	grp->addChild( _TooltipsSceneModifier->setTooltipsProperties(geodecone.get(), "I'm a Cone") );
+	grp->addChild( _TooltipsSceneModifier->setTooltipsProperties(geodecyl.get(), "I'm a Cylinder") );
+	grp->addChild( _TooltipsSceneModifier->setTooltipsProperties(geodecapsule.get(), "I'm a big Cylinder") );
  
 	return grp.release();
+}
+
+void CoreTooltips::preFrameUpdate()
+{
+	if(_TooltipsSceneModifier.valid())
+		_TooltipsSceneModifier->checkTooltipsTiming();
 }
  
