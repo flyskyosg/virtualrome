@@ -8,7 +8,7 @@
   	SET(URL "http://3d.cineca.it/storage/plugin/test_rc1/test.php")
   ENDIF(NOT URL)
   IF(NOT ADD_FIREFOX_ARGS)
-        SET(ADD_FIREFOX_ARGS "-no-remote")
+        SET(ADD_FIREFOX_ARGS " -no-remote -P osg4web_test_profile")
   ENDIF(NOT ADD_FIREFOX_ARGS)
 
   EXEC_PROGRAM(
