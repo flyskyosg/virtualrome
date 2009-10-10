@@ -27,9 +27,7 @@ FIND_PATH(CURL_INCLUDE_DIR curl/curl.h
     /usr/freeware/include
 )
 
-FIND_LIBRARY(CURL_LIBRARY
-	NAMES cmcurl libcurl
-        PATHS
+SET(CURL_FIND_PATHS 
 				${CURL_ROOT}/lib
         $ENV{CURL_DIR}/lib
         $ENV{CURLK_DIR}
@@ -46,7 +44,22 @@ FIND_LIBRARY(CURL_LIBRARY
         /opt/lib
         [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session\ Manager\\Environment;CURL_ROOT]/lib
         /usr/freeware/lib64
-    )
+)
+FIND_LIBRARY(CURL_LIBRARY
+	NAMES cmcurl libcurl
+        PATHS ${CURL_FIND_PATHS}
+)
+
+FIND_LIBRARY(CURL_LIBRARY_DEBUG
+	NAMES cmcurld libcurld
+        PATHS ${CURL_FIND_PATHS}
+)
+
+    IF( NOT CURL_LIBRARY_DEBUG)
+    	IF(CURL_LIBRARY)
+    		SET(CURL_LIBRARY_DEBUG ${CURL_LIBRARY})
+     	ENDIF(CURL_LIBRARY)
+    ENDIF( NOT CURL_LIBRARY_DEBUG)
 
 SET(CURL_FOUND "NO")
 IF(CURL_INCLUDE_DIR AND CURL_LIBRARY)

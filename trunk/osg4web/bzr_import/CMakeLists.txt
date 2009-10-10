@@ -82,7 +82,7 @@ ENDIF(OSG_FOUND)
 
 
 IF(FIREFOX_EXE AND OSG_FOUND)
-	FOREACH(BTYPE Debug)  #TODO Release
+	FOREACH(BTYPE Debug Release)  #TODO Release
 		ADD_CUSTOM_TARGET(Shell_npOSG4Web_Prepare_${BTYPE} )
 		ADD_DEPENDENCIES(Shell_npOSG4Web_Prepare_${BTYPE} Engine_LoadCore_Prepare_${BTYPE})	
 		ADD_DEPENDENCIES(Shell_npOSG4Web_Prepare_${BTYPE} Shell_npOSG4Web_Prepare_XPT)	
