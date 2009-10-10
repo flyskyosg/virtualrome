@@ -11,6 +11,7 @@
 
 #include <osgUtil/Optimizer>
 
+#include <Utilities/StringUtils.h>
 
 #include <CommonCore/Visitors/FindNodeVisitor.h>
 
@@ -30,6 +31,8 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	_MainNode( new osg::Group ),
 	_ModiSceneGraph( new osg::Group ),
 	_SupportNode( new osg::Group ),
+	_sendCEventToJSTime( osg::Timer::instance()->tick() ),
+	_jsMapActive(true),
 	_maininit(false)
 {
 	this->sendNotifyMessage("FunCore -> Costructing FunCore Instance.");
@@ -48,6 +51,8 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	this->setCommandAction("SETOPTIMIZATION");
 	this->setCommandAction("SWITCH_MANIPULATORS");
 	this->setCommandAction("RESET_SCENE");
+	this->setCommandAction("ACTIVATE_JSMAP_MESSAGES");
+	this->setCommandAction("DEACTIVATE_JSMAP_MESSAGES");
 
 	this->addCommandSchedule((CommandSchedule*) this);
 }
@@ -230,6 +235,16 @@ std::string FunCore::handleAction(std::string argument)
 				retstr = "REQUEST_IN_QUEUE";
 		}
 		break;
+	case ACTIVATE_JSMAP_MESSAGES:
+		{
+			_jsMapActive = true;
+		}
+		break;
+	case DEACTIVATE_JSMAP_MESSAGES:
+		{
+			_jsMapActive = false;	
+		}
+		break;
 	default: //UNKNOWN_ACTION
 		retstr = "UNKNOWN_ACTION";
 		break;
@@ -279,6 +294,31 @@ void FunCore::preFrameUpdate()
 	this->handleLoadingThreads();
 	this->handleEnvironment();
 	this->handleTooltips();
+
+	this->sendLookAtToJS();
+}
+
+void FunCore::sendLookAtToJS()
+{
+	if(_jsMapActive)
+	{
+		if( osg::Timer::instance()->delta_m( _sendCEventToJSTime, osg::Timer::instance()->tick() ) > CYCLICIC_RAISE_EVENT_TO_JS_TIMER )
+		{
+			osg::Vec3 eye, center, up;
+			_MainCamera->getViewMatrixAsLookAt(eye, center, up);
+
+			std::string raisestring("JSMAP");
+	
+			raisestring += 
+				" EYE " + Utilities::StringUtils::numToString(eye.x()) + " " + Utilities::StringUtils::numToString(eye.y()) + " " + Utilities::StringUtils::numToString(eye.z()) + 
+				" CENTER " + Utilities::StringUtils::numToString(center.x()) + " " + Utilities::StringUtils::numToString(center.y()) + " " + Utilities::StringUtils::numToString(center.z()) +
+				" UP " + Utilities::StringUtils::numToString(up.x()) + " " + Utilities::StringUtils::numToString(up.y()) + " " + Utilities::StringUtils::numToString(up.z());
+
+			this->raiseCommand(raisestring);
+		
+			_sendCEventToJSTime = osg::Timer::instance()->tick();
+		}
+	}
 }
 
 void FunCore::handleTooltips()

@@ -18,6 +18,12 @@ namespace StringUtils
 	extern OSG4WEB_UTILITIES_EXPORT void tokenize(const std::string&, std::vector<std::string>&, const std::string& delimiters = " \t\r\n;,");
 
 	extern OSG4WEB_UTILITIES_EXPORT std::string searchInVector(const std::vector<std::string>&, std::string&, const char& delimiter = '=');
+
+	extern OSG4WEB_UTILITIES_EXPORT std::string numToString(int number);
+
+	extern OSG4WEB_UTILITIES_EXPORT std::string numToString(float number);
+
+	extern OSG4WEB_UTILITIES_EXPORT std::string numToString(double number);
 }
 
 

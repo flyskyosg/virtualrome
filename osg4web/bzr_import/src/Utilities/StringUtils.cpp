@@ -2,7 +2,31 @@
 
 #include <Utilities/StringUtils.h>
 
+#include <sstream>
+
 using namespace Utilities;
+
+
+std::string StringUtils::numToString(int number)
+{
+	std::ostringstream convstream;
+	convstream << number << std::flush;
+	return convstream.str();
+}
+
+std::string StringUtils::numToString(float number)
+{
+	std::ostringstream convstream;
+	convstream << number << std::flush;
+	return convstream.str();
+}
+
+std::string StringUtils::numToString(double number)
+{
+	std::ostringstream convstream;
+	convstream << number << std::flush;
+	return convstream.str();
+}
 
 void StringUtils::splitLR(const std::string& str, std::string& left, std::string& right, const char& delimiter)
 {

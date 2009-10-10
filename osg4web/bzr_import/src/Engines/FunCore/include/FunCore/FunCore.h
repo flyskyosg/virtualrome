@@ -32,7 +32,9 @@ public:
 		CHECKNODEPRESENCE,
 		SETOPTIMIZATION,
 		SWITCH_MANIPULATORS,
-		RESET_SCENE
+		RESET_SCENE,
+		ACTIVATE_JSMAP_MESSAGES,
+		DEACTIVATE_JSMAP_MESSAGES
 	};
 
 	//Costruttore/Distruttore
@@ -64,10 +66,12 @@ protected:
 	virtual bool loadModelToNode(std::string arguments);
 
 	virtual void preFrameUpdate();
-
+	
 	void handleLoadingThreads();
 	void handleEnvironment();
 	void handleTooltips();
+
+	void sendLookAtToJS();
 
 	//Manipolatori
 	osg::ref_ptr<Manipulators::walkManipulator> _WalkManip;
@@ -87,6 +91,12 @@ protected:
 	osg::ref_ptr<osg::Group> _ModiSceneGraph;
 	//Nodo di supporto non linkato nello SceneGraph di View
 	osg::ref_ptr<osg::Group> _SupportNode;
+
+	//Tick di invio eventi ciclici a JS
+	osg::Timer_t _sendCEventToJSTime;
+
+	//Attivazione messaggi a mappa JS
+	bool _jsMapActive;
 
 	//Inizializzazione del Main SceneGraph
 	bool _maininit;
