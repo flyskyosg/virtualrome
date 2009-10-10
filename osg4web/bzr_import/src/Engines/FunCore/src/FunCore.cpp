@@ -514,7 +514,7 @@ void FunCore::handleEnvironment()
 #ifdef _NITE_
 	EnvFog->setColor( osg::Vec4f(0.0,0.0,0.0, 1.0) );
 #else
-	EnvFog->setColor( osg::Vec4f(0.95,1.0,1.0, 1.0) );
+	EnvFog->setColor( osg::Vec4f(OSG4WEB_VROME_ENVCOLOR) );
 #endif
 
 	EnvSS->setAttributeAndModes( EnvFog.get() );
