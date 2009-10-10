@@ -359,6 +359,8 @@ void ViroHud::Update(){
 		if ( _vm->isEnabled(_vm->COLLISIONS) )	HUDstring << std::string("COLLISIONS | ");
 		HUDstring << "Altitude: " << _vm->getPosition().z();
 		if ( _vm->getSpeed() != 0.0) HUDstring << " Speed: " << _vm->getSpeed();
+		
+		//HUDstring << std::string(" POS: ") << _vm->getPosition().x() << std::string(" - ") << _vm->getPosition().y();
 
 		if ( _vm->getSoftImpact() ) HUDstring << std::string(" - Impact!!");
 

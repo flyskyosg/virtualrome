@@ -765,7 +765,7 @@ void ViroManipulator::AutoControl(double callTime){
 		double Rad = _NODE->getBound().radius();
 
 		// Check for surface Z collisions
-		if ( Intersect(_vEye/*+Vec3d(0.0,0.0,Rad)*/,_vEye-Vec3d(0.0,0.0,Rad), P,N) ){
+		if ( Intersect(_vEye+Vec3d(0.0,0.0,Rad*0.15),_vEye-Vec3d(0.0,0.0,Rad), P,N) ){
 			_currentGroundDistance = _vEye.z()-P.z();
 			if ( (_vEye.z() - P.z()) <= GroundDistance ){
 				_vEye[2] = P.z() + GroundDistance;
@@ -1440,7 +1440,11 @@ bool ViroManipulator::Intersect(osg::Vec3d p1,osg::Vec3d p2, osg::Vec3d& vResult
 					}
 				}
 			}
-	if (hitfound) vNorm = RightNormal(vResult,vNorm);
+	if (hitfound){
+		vNorm.normalize();
+		vNorm = RightNormal(vResult,vNorm);
+		}
+	
 	return hitfound;
 }
 
