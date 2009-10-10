@@ -49,7 +49,7 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 	if( ms < animTime)
 	{
 		double blend_factor = ms / animTime;
-		double rot_blend_factor = blend_factor; //FIXME: trovare il modo fi anticipare la rotazione
+		double rot_blend_factor = sqrt(blend_factor); //FIXME: trovare il modo fi anticipare la rotazione - OK test con sqrt
 				
 		osg::Quat rotation;
 		osg::Vec3 position, scale;
@@ -61,7 +61,23 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 		p1 = _oldMatrix.getTrans();
 		p2 = animMatrix.getTrans();
 
-		position = ( p1 * (1.0 - blend_factor) + p2 * blend_factor);
+		double Zfactor = 0.1f;		// Fattore di Alzata Parabolica, per i terreni mi sembra ok cosi'.
+
+		double D = osg::Vec3(p1 - p2).length();
+		D *= Zfactor;
+		//osg::Vec3 p0,p3;
+		//p0 = osg::Vec3(p1.x(),p1.y(),(p1.z()-D));
+		//p3 = osg::Vec3(p2.x(),p2.y(),(p2.z()-D));
+		double t,tmp;
+		tmp = blend_factor - 1.0;
+		t = cos(tmp*tmp*tmp*osg::PI_2);
+		//t = 1.0 - (tmp*tmp);
+		//t = atan(blend_factor*5.0);
+
+		//double h = 1.0 - (2.0*(t-0.5)*(t-0.5));
+		double h = cos((t-0.5)*osg::PI);
+		position = ( p1 * (1.0 - t) + p2 * t);
+		position += osg::Vec3(0.0,0.0,h*D);
 
 		scale = _oldMatrix.getScale();
 		rotation.slerp(rot_blend_factor, _oldMatrix.getRotate(), animMatrix.getRotate());
@@ -370,4 +386,16 @@ bool AnimateViewHandler::setAnimationKey( std::string key )
 	} 
 	else
 		return false;
+}
+
+osg::Vec3 AnimateViewHandler::interpolateCR(float t, osg::Vec3 p0, osg::Vec3 p1, osg::Vec3 p2, osg::Vec3 p3){
+	osg::Vec3 R;
+	double t2,t3;
+	t2 = t * t;
+	t3 = t2 * t;
+
+	R = (p1 * 2.0) + ((p2 - p0)*t) + ((p0*2.0 - p1*5.0 + p2*4.0 - p3)*t2) + ((p1*3.0 - p0 - p2*3.0 + p3)*t3);
+	R *= 0.5;
+
+	return R;
 }
