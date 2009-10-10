@@ -20,10 +20,12 @@ using namespace CommonCore;
 FunCore::FunCore(std::string corename) : CoreBase(corename),
 	_LoaderThreadHandler( NULL ),
 	_SceneModifier( new SceneHandlers::SceneModifier ),
+	_StandardNodeParserHandler( new SceneHandlers::NodeParserHandler ),
 	_TooltipsParserHandler( NULL ),
 	_TooltipsSceneModifier( NULL ),
 	_WalkManip( new Manipulators::walkManipulator ),
 	_AnimateHandler( NULL ),
+	_GetBackHandler( NULL ),
 	_MainNode( new osg::Group ),
 	_ModiSceneGraph( new osg::Group ),
 	_SupportNode( new osg::Group ),
@@ -75,6 +77,12 @@ FunCore::~FunCore()
 	if(_TooltipsSceneModifier.valid())
 		_TooltipsSceneModifier = NULL;
 
+	if(_GetBackHandler.valid())
+		_GetBackHandler = NULL;
+
+	if(_StandardNodeParserHandler.valid())
+		_StandardNodeParserHandler = NULL;
+
 	this->sendNotifyMessage("~FunCore -> Destructing FunCore Instance.");
 }
 
@@ -105,14 +113,19 @@ bool FunCore::initSceneHandlers()
 	_AnimateHandler = new SceneHandlers::AnimateViewHandler(_Viewer.get());
 
 	_LoaderThreadHandler = new SceneHandlers::LoadThreadsHandler(_Traits->width, _Traits->height);
+
+	_GetBackHandler = new SceneHandlers::GetBackHandler((CommonCore::RaiseEventInterface*) this);
+	_StandardNodeParserHandler->addCommand( osgGA::GUIEventAdapter::PUSH, _GetBackHandler.get());
+	
 	_TooltipsSceneModifier = new SceneHandlers::TooltipsSceneModifier(_Traits->width, _Traits->height);
 	_TooltipsParserHandler = new SceneHandlers::NodeParserHandler;
 	_TooltipsParserHandler->setTraversalNodeMask( _TooltipsSceneModifier->getAllowNodeMask() );
 	_TooltipsParserHandler->addCommand( osgGA::GUIEventAdapter::MOVE, _TooltipsSceneModifier.get());
-
+	
 	this->addCommandSchedule((CommandSchedule*) _SceneModifier.get());
 	this->addCommandSchedule((CommandSchedule*) _AnimateHandler.get());
 
+	_Viewer->addEventHandler(_StandardNodeParserHandler.get());
 	_Viewer->addEventHandler(_AnimateHandler.get());
 	_Viewer->addEventHandler(_TooltipsParserHandler.get());
 	_Viewer->addEventHandler(_LoaderThreadHandler.get());
