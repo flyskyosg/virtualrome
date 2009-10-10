@@ -500,8 +500,8 @@ void FunCore::handleEnvironment()
 	EnvSun->getLight()->setAmbient( osg::Vec4(0.0,0.1,0.6, 1.0) );
 	EnvCL->getLight()->setDiffuse( osg::Vec4(1.0,1.0,0.5, 1.0) );
 #else
-	EnvSun->getLight()->setAmbient( osg::Vec4(0.4,0.3,0.2, 1.0) );
-	EnvCL->getLight()->setDiffuse( osg::Vec4(0.05,0.1,0.05, 1.0) );
+	EnvSun->getLight()->setAmbient( osg::Vec4(0.7,0.7,0.6, 1.0) );
+	EnvCL->getLight()->setDiffuse( osg::Vec4(0.1,0.1,0.1, 1.0) );
 #endif
 
 	EnvNode->addChild( EnvSun.get() );
