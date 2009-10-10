@@ -14,6 +14,7 @@ LoaderOpenGL::LoaderOpenGL(std::string corename) : CoreOpenGL(corename),
 	_session(0),
 	_saved_timer(clock()),
 	_image_tick(0),
+	_titlestandfinished(false),
 	_showmessages(false)
 {
 	this->sendNotifyMessage("LoaderOpenGL -> Costructing LoaderOpenGL Core Instance.");
@@ -271,9 +272,19 @@ bool LoaderOpenGL::renderImplementation()
 		_image_tick++;
 	}
 	
+	unsigned int titlestandanimframe = _image_tick % OSG4WEB_LOADEROPENGL_NUM_TITLE_FRAMES;
+
+	if(titlestandanimframe == OSG4WEB_LOADEROPENGL_NUM_TITLE_FRAMES - 1)
+		_titlestandfinished = true;
+
 	glPushMatrix();
 	glEnable(GL_TEXTURE_2D);
-	glCallList(_title_texture_list + (_image_tick % OSG4WEB_LOADEROPENGL_NUM_TITLE_FRAMES));
+	
+	if(!_titlestandfinished)
+		glCallList(_title_texture_list + titlestandanimframe);
+	else
+		glCallList(_title_texture_list + OSG4WEB_LOADEROPENGL_NUM_TITLE_FRAMES - 1);
+
 	glCallList(_title_list);
 	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();

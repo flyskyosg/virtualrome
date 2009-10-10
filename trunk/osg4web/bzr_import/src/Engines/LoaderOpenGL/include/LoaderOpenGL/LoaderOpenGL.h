@@ -68,6 +68,8 @@ protected:
 	float _pbarrdownload, _pbarrunpack, _pbarrload;
 	bool _showmessages;
 
+	bool _titlestandfinished;
+
 	unsigned int _message_id;
 	unsigned int _session;
 
