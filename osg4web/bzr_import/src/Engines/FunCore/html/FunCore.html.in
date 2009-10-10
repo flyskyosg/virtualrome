@@ -99,7 +99,7 @@ function SwitchManipulator()
 			  </script>
 			  <noscript> -->
               <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="800" height="600" type="application/osg4web-plugin" >
-				<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
+				<param name="ADVCore" value="http://localhost/osg4webtest/@DUMMY_SHA1@.rar">
 				<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
 				<param name="ADVCoreStartOptions" value="FUNCORE SETMAINSCENEGRAPH http://localhost/osg4webtest/flaminia/top.osg"> 
               </object>
