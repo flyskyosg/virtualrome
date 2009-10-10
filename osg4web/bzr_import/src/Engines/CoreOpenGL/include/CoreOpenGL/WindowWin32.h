@@ -25,6 +25,22 @@
 
 #include <CoreOpenGL/WindowExtra.h>
 
+
+/***********************************************************************
+ *
+ * from Roberto Gori
+ *
+ ***********************************************************************/
+
+template <class T>
+std::string toString(T value)
+{
+	std::stringstream ss;
+ ss << value;
+ return ss.str();  
+}
+
+
 /***********************************************************************
  *
  * OSG WindowSupport Class
@@ -188,6 +204,7 @@ protected:
 	//Selezione del pixel format ereditato
 	bool setPixelFormat()
 	{
+/*
 		PIXELFORMATDESCRIPTOR pixelFormat = {
 			sizeof(PIXELFORMATDESCRIPTOR), 1,
 			PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL |  PFD_DOUBLEBUFFER, 
@@ -205,8 +222,19 @@ protected:
 			0,
 			0, 0, 0
 		};
+*/
+		PIXELFORMATDESCRIPTOR pixelFormat;
+		ZeroMemory(&pixelFormat, sizeof(PIXELFORMATDESCRIPTOR));
+		pixelFormat.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+		pixelFormat.nVersion = 1;
+		pixelFormat.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL |  PFD_DOUBLEBUFFER | PFD_SWAP_COPY;
+ 
 
 		int pixelFormatIndex = ::ChoosePixelFormat(_hdc, &pixelFormat);
+
+		logError("WindowSupport::ChoosePixelFormat()-->" + toString(pixelFormatIndex));
+
+
 		if (pixelFormatIndex == 0)
 		{
 			logError("WindowSupport::setPixelFormat() - No matching pixel format found based on traits specified");
