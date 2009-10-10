@@ -10,7 +10,7 @@
 
 #include <osgUtil/Optimizer>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 //CoreSceneModifier Costruttore
 CoreSceneModifier::CoreSceneModifier(std::string corename) : CoreBase(corename),

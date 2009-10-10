@@ -3,10 +3,11 @@
 
 
 #include <CoreBase/CoreBase.h>
+#include <CommonCore/SceneHandlers/GetBackHandler.h>
 #include <Defines.h>
 
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 #include <osgText/Text>
 
@@ -26,12 +27,16 @@ public:
 	virtual const char* className() { return OSG4WEB_COREJSCALL_LIBNAME; };
 	//Return Class Version
 	virtual const char* classVersion() { return OSG4WEB_COREJSCALL_VERSION; };
-
-	//TIPS: in questo caso lascio inalterato il caricamento e la registrazione dei comandi
 	
 protected:
 	//Ridefinizione dell'albero di scena
 	bool initSceneData();
+
+	//Handler NodeParser per JS Call
+	osg::ref_ptr<SceneHandlers::NodeParserHandler> _ParserHandler;
+
+	//Handler per GetBack Calls
+	osg::ref_ptr<SceneHandlers::GetBackHandler> _GetBackHandler;
 
 };
 

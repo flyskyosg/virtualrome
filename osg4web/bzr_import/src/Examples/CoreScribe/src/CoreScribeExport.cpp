@@ -1,7 +1,7 @@
 
 #include <CoreScribe.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 /** Template di allocazione del CoreScribe */
 CREATECLASSINSTANCE(CoreInterface, CoreScribe)

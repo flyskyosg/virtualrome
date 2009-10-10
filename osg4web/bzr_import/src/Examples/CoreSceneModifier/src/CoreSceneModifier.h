@@ -6,7 +6,7 @@
 #include <Defines.h>
 #include <CommonCore/SceneHandlers/SceneModifier.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 
 /***********************************************************************

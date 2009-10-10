@@ -5,7 +5,7 @@
 #include <CommonCore/SceneHandlers/TooltipsSceneModifier.h>
 #include <Defines.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 /***********************************************************************
  *

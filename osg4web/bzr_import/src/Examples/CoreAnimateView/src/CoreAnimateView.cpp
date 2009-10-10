@@ -10,7 +10,7 @@
 
 #include <osgUtil/Optimizer>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 //CoreAnimateView Costruttore
 CoreAnimateView::CoreAnimateView(std::string corename) : CoreBase(corename),

@@ -6,7 +6,7 @@
 #include <CommonCore/Manipulators/walkManipulator.h>
 #include <Defines.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 
 /***********************************************************************

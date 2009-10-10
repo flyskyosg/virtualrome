@@ -1,7 +1,7 @@
 
 #include <CoreJSCall.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 /** Template di allocazione del CoreJSCall */
 CREATECLASSINSTANCE(CoreInterface, CoreJSCall)

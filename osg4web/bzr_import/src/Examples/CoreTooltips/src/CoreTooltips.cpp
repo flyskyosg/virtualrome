@@ -11,7 +11,7 @@
 
 #include <osgViewer/ViewerEventHandlers>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 
 /********************************************************************

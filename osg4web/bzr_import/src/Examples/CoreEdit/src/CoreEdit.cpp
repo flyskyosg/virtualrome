@@ -9,7 +9,7 @@
 
 #include <osgUtil/Optimizer>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 //CoreEdit Costruttore
 CoreEdit::CoreEdit(std::string corename) : CoreBase(corename),

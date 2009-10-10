@@ -6,7 +6,7 @@
 #include <Defines.h>
 #include <CommonCore/SceneHandlers/AnimateViewHandler.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 
 /***********************************************************************
