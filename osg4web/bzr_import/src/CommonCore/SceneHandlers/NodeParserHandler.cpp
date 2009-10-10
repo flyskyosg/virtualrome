@@ -50,7 +50,7 @@ bool NodeParserHandler::handleNodeDescriptions(osg::Node* node, osgViewer::Viewe
 
 	osg::Node::DescriptionList desclist = node->getDescriptions();
 
-	if( desclist.size() < 0)
+	if( desclist.size() <= 0)
 		return stopiteration;
 
 	int index = -1;

@@ -34,7 +34,6 @@ namespace SceneHandlers
 
 	private:
 		CommonCore::RaiseEventInterface* _RaiseInterface;
-
 	};
 
 };
