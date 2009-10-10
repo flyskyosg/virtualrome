@@ -56,6 +56,8 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 	
 	if( ms < animTime)
 	{
+		//animMatrix.makeRotate(90.0, osg::X_AXIS);
+
 		double blend_factor = ms / animTime;
 		double rot_blend_factor;	//FIXME: trovare il modo fi anticipare la rotazione
 				
@@ -116,16 +118,16 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 			rot_blend_factor = sqrt( t );			// Anticipa l'orientamento della camera rispetto al movimento camera
 			//rot_blend_factor = t*t;				// Ritarda l'orientamento della camera rispetto al movimento camera
 			}
-		else rot_blend_factor = t;//t*t;
+		else rot_blend_factor = t; //t*t;
 
 		scale = _oldMatrix.getScale();
 		rotation.slerp(rot_blend_factor, _oldMatrix.getRotate(), animMatrix.getRotate());
-		matrix.set(osg::Matrix::rotate(rotation)*osg::Matrix::scale(scale)*osg::Matrix::translate(position));
+		matrix.set(osg::Matrix::rotate(rotation) * osg::Matrix::scale(scale) * osg::Matrix::translate(position));
 
 		_mainViewer->getCameraManipulator()->setByMatrix( matrix );
 
 		return true;
-	}
+		}
 	else
 		return false;
 }
@@ -138,14 +140,14 @@ bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActio
 		{
 		    case(osgGA::GUIEventAdapter::FRAME):
 		    {
-				if(_transitionMatrix != osg::Matrix::identity()) //Transizione diretta
+				if(!_duringAnimation /*_transitionMatrix != osg::Matrix::identity()*/) //Transizione diretta
 				{
 					if(!this->doTransition(_transitionMatrix, _animationTime))
 					{
 						_mainViewer->getCameraManipulator()->setByMatrix( _transitionMatrix );
 
-						_oldMatrix.set(osg::Matrix::identity());
-						_transitionMatrix.set(osg::Matrix::identity());
+						//_oldMatrix.set(osg::Matrix::identity());
+						//_transitionMatrix.set(osg::Matrix::identity());
 						_activateTransition = false;
 					}
 				}
@@ -188,8 +190,8 @@ bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActio
 						}
 						else
 						{
-							_oldMatrix.set(osg::Matrix::identity());
-							_sequenceTransitionMatrix.set(osg::Matrix::identity());
+							//_oldMatrix.set(osg::Matrix::identity());
+							//_sequenceTransitionMatrix.set(osg::Matrix::identity());
 							_activateTransition = false;
 							_duringAnimation    = false;
 						}
