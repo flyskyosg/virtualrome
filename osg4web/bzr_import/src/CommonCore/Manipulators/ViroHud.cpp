@@ -284,7 +284,7 @@ void ViroHud::CreateCompass(float px,float py, float size){
 	northLabel->setText("- N -");
 	northLabel->setFontResolution(20,20);
 	northLabel->setCharacterSize(20, 1.1);
-	northLabel->setBackdropType(osgText::Text::BackdropType::OUTLINE);
+	northLabel->setBackdropType(osgText::Text::OUTLINE);
 	northLabel->setBackdropColor( Vec4(VIROHUD_HUDCOLOR) );
 
 
@@ -311,16 +311,14 @@ void ViroHud::CreateCompass(float px,float py, float size){
 
 
 void ViroHud::Update(){
-	if ( !_HUD.get() ) return;
-	if ( !_vm.get() ) return;
+	if ( !_HUD.get() || !_vm.get()) return;
 
-
-	if (0&& _viewer.get() && _viewer.get()->getCamera() && _viewer.get()->getCamera()->getViewport()){
+/*
+	if (_viewer.get() && _viewer.get()->getCamera() && _viewer.get()->getCamera()->getViewport()){
 		_vp_height = _viewer->getCamera()->getViewport()->height();
 		_vp_width  = _viewer->getCamera()->getViewport()->width();
 		}
-
-	if ( _vm.get() && _HUD.get() ){
+*/
 		
 		std::ostringstream HUDstring;
 		
@@ -374,7 +372,6 @@ void ViroHud::Update(){
 		R.makeRotate( L, Vec3d(0,1,0) );
 		_CompassPAT->setAttitude( R );
 
-		//double s = _vm->getSpeed() * 0.01;
+		//double s = _currentLoad * 0.01; //_vm->getSpeed() * 0.01;
 		//_CompassPAT->setScale( Vec3d(1+s,1+s,1) );
-		}
 }

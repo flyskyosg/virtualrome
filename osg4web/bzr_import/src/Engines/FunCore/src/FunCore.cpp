@@ -419,6 +419,7 @@ bool FunCore::setBounds( std::string arguments ){
 			osg::BoundingBox BB;									
 			BB.set( osg::Vec3d(x,y,z), osg::Vec3d(X,Y,Z) );
 			_ViRoMan->setGlassPrison( BB );
+			_ViRoMan->Enable( _ViRoMan->GLASS_PRISON );
 
 			return true;
 			}
@@ -638,7 +639,7 @@ void FunCore::handleLoadingThreads()
 				//_HUD->setViewportSize(this->getCurrentWinWidth(),this->getCurrentWinHeight());
 				_HUD->setViewportSize(1400,700);
 				_HUD->Realize();
-				
+
 				_MainNode->addChild( _HUD.get()->getHUD() );
 
 				// Crea Callback di aggiornamento HUD

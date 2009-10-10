@@ -727,28 +727,6 @@ void ViroManipulator::AutoControl(double callTime){
 		if (_bSurfaceImpact && _speed != 0.0) _speed *= SurfaceAdhesion;
 		}
 
-	// Hotspot Engine Reactor --- (Dec 27)
-	/*
-	if ( isEnabled(HOTSPOT_REACTION) ){
-		osg::Quat qReactor;
-		int c = Hotspots.get()->checkCaptures( _vEye );
-		if ( c > 0 ){
-			Vec3d newTarget = _vTarget + Hotspots.get()->getReactionVector();
-			qReactor = computeQuat(_vEye,newTarget,_vUp);
-
-			_qRotation = _Mix.interpolate(Hotspots.get()->getTotalFeedback(), _qRotation, qReactor);
-			
-			if ( Hotspots.get()->getTotalGravity() != 0.0f ){
-				_vEye  = _Mix.interpolate(fabs( Hotspots.get()->getTotalGravity() ), _vEye, newTarget);
-				_speed = _Mix.interpolate(fabs( Hotspots.get()->getTotalGravity() ), _speed, 0.0);
-				//osg::notify(ALWAYS)<<"Eye influenced.\n";
-				}
-			
-			//osg::notify(ALWAYS)<<"Inside "<< c <<" hotspots. Total Feedback = "<< Hotspots.get()->getTotalFeedback() <<"\n";
-			}
-		}
-	*/
-
 	// Roll Correction
 	if ( /*!_bTurning && */_vStrafe.z()!=0.0 && (!isEnabled(SPIDERMAN_PICKING) || !isEnabled(PERIPHERAL_LOCK))){
 		osg::Quat qCorrection;

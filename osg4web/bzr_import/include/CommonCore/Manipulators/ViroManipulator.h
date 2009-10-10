@@ -9,7 +9,6 @@
 #include <osgGA/MatrixManipulator>
 #include <osgViewer/Viewer>
 
-//#include <CommonCore/Manipulators/BoostHotspot.h>
 #include <CommonCore/Manipulators/Mixer.h>
 #include <CommonCore/CommandSchedule.h>
 #include <osg/Fog>
