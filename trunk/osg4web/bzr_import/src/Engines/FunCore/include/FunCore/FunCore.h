@@ -34,7 +34,8 @@ public:
 		SWITCH_MANIPULATORS,
 		RESET_SCENE,
 		ACTIVATE_JSMAP_MESSAGES,
-		DEACTIVATE_JSMAP_MESSAGES
+		DEACTIVATE_JSMAP_MESSAGES,
+		GET_JSMAP_COORDINATES
 	};
 
 	//Costruttore/Distruttore
@@ -72,6 +73,8 @@ protected:
 	void handleTooltips();
 
 	void sendLookAtToJS();
+
+	std::string getJSMapCoordinates();
 
 	//Manipolatori
 	osg::ref_ptr<Manipulators::walkManipulator> _WalkManip;

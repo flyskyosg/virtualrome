@@ -32,7 +32,7 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	_ModiSceneGraph( new osg::Group ),
 	_SupportNode( new osg::Group ),
 	_sendCEventToJSTime( osg::Timer::instance()->tick() ),
-	_jsMapActive(true),
+	_jsMapActive(false),
 	_maininit(false)
 {
 	this->sendNotifyMessage("FunCore -> Costructing FunCore Instance.");
@@ -53,6 +53,7 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	this->setCommandAction("RESET_SCENE");
 	this->setCommandAction("ACTIVATE_JSMAP_MESSAGES");
 	this->setCommandAction("DEACTIVATE_JSMAP_MESSAGES");
+	this->setCommandAction("GET_JSMAP_COORDINATES");
 
 	this->addCommandSchedule((CommandSchedule*) this);
 }
@@ -245,6 +246,11 @@ std::string FunCore::handleAction(std::string argument)
 			_jsMapActive = false;	
 		}
 		break;
+	case GET_JSMAP_COORDINATES:
+		{
+			retstr = this->getJSMapCoordinates();
+		}
+		break;
 	default: //UNKNOWN_ACTION
 		retstr = "UNKNOWN_ACTION";
 		break;
@@ -304,21 +310,26 @@ void FunCore::sendLookAtToJS()
 	{
 		if( osg::Timer::instance()->delta_m( _sendCEventToJSTime, osg::Timer::instance()->tick() ) > CYCLICIC_RAISE_EVENT_TO_JS_TIMER )
 		{
-			osg::Vec3 eye, center, up;
-			_MainCamera->getViewMatrixAsLookAt(eye, center, up);
-
-			std::string raisestring("JSMAP");
-	
-			raisestring += 
-				" EYE " + Utilities::StringUtils::numToString(eye.x()) + " " + Utilities::StringUtils::numToString(eye.y()) + " " + Utilities::StringUtils::numToString(eye.z()) + 
-				" CENTER " + Utilities::StringUtils::numToString(center.x()) + " " + Utilities::StringUtils::numToString(center.y()) + " " + Utilities::StringUtils::numToString(center.z()) +
-				" UP " + Utilities::StringUtils::numToString(up.x()) + " " + Utilities::StringUtils::numToString(up.y()) + " " + Utilities::StringUtils::numToString(up.z());
-
-			this->raiseCommand(raisestring);
+			this->raiseCommand( this->getJSMapCoordinates() );
 		
 			_sendCEventToJSTime = osg::Timer::instance()->tick();
 		}
 	}
+}
+
+std::string FunCore::getJSMapCoordinates()
+{
+	osg::Vec3 eye, center, up;
+	_MainCamera->getViewMatrixAsLookAt(eye, center, up);
+
+	std::string jsmapcoordstring("JSMAP");
+	
+	jsmapcoordstring += 
+		" EYE " + Utilities::StringUtils::numToString(eye.x()) + " " + Utilities::StringUtils::numToString(eye.y()) + " " + Utilities::StringUtils::numToString(eye.z()) + 
+		" CENTER " + Utilities::StringUtils::numToString(center.x()) + " " + Utilities::StringUtils::numToString(center.y()) + " " + Utilities::StringUtils::numToString(center.z()) +
+		" UP " + Utilities::StringUtils::numToString(up.x()) + " " + Utilities::StringUtils::numToString(up.y()) + " " + Utilities::StringUtils::numToString(up.z());
+
+	return jsmapcoordstring;
 }
 
 void FunCore::handleTooltips()
