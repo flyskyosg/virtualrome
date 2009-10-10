@@ -329,8 +329,8 @@ bool FunCore::loadModel(std::string nodename, bool erase)
 {
 	if(erase)
 	{
-		osgDB::Registry::instance()->getOrCreateDatabasePager()->clear();
-		osgDB::Registry::instance()->getOrCreateDatabasePager()->resetStats();
+//luigi non vanno col 2.7.6		osgDB::Registry::instance()->getOrCreateDatabasePager()->clear();
+//luigi non vanno col 2.7.6			osgDB::Registry::instance()->getOrCreateDatabasePager()->resetStats();
 		_LoaderThreadHandler->clear();
 		_ModiSceneGraph->removeChildren(0, _ModiSceneGraph->getNumChildren()); //Clear di tutta la parte di scenegraph modelli
 		_maininit = false;
