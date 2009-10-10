@@ -48,6 +48,18 @@ ENDIF(FIREFOX_EXE)
 SET(OSG_DIR "" CACHE PATH "set to base osg install path")
 FIND_PACKAGE(OSG)
 
+
+
+SET(CURL_ROOT ${OSG4WEB_ROOT}/var/dependancies/cmcurl CACHE PATH "base dir for cURL Library")
+FIND_PACKAGE(CURL QUIET)
+
+IF(NOT CURL_FOUND)
+	#try to search curl with custom module
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR};${CMAKE_MODULE_PATH}")
+	FIND_PACKAGE(CURL)
+ENDIF(NOT CURL_FOUND)
+
+
 FOREACH(BTYPE Debug Release)
 #	 SET(FIREFOX_STUFF_LIST_${BTYPE} "this_value_should_not_appear" CACHE INTERNAL "should accumulate values from subdirs") 
 	 SET(FIREFOX_STUFF_LIST_${BTYPE} "") 
