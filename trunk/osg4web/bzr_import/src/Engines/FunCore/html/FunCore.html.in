@@ -1,86 +1,186 @@
-<HTML>
-<HEAD>
-<TITLE>OSG4Web: OpenSceneGraph Plugin 4 IE and Firefox</TITLE>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>OSG4WEB: Prototype One - FunCore</title>
 <style type="text/css">
 <!--
-.Stile1 {font-family: Verdana, Arial, Helvetica, sans-serif}
-.Stile2 {
-	font-size: 14px;
-	font-style: italic;
-}
-.Stile4 {
+.style1 {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-weight: bold;
-	font-size: 36px;
 }
-.Stile5 {font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; }
-.Stile6 {font-size: 10px}
+.style3 {font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; }
+.style4 {font-size: 10px}
+.style5 {font-family: Verdana, Arial, Helvetica, sans-serif}
 -->
 </style>
-</HEAD>
-<BODY>
-
-<center class="Stile1">
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td><div align="center"><span class="Stile4">OSG4Web Test Page </span></div></td>
-  </tr>
-  <tr>
-    <td><div align="center"><strong><span class="Stile1"><span class="Stile2"><br>
-      OpenSceneGraph Plugin 4 IE and Firefox</span></span></strong><br>
-      </div></td>
-  </tr>
-</table>
-</center>
-
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-  <tr>
-    <td width="73%"><div align="center"><span class="Stile1">
-      <br>
-      <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="800" height="800" type="application/osg4web-plugin" >
-	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
-	<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
-	<param name="ADVCoreStartOptions" value="COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> 
-<!--	<param name="ADVCoreInitOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
-<!--	<param name="LoadCoreOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
-      </object>
-
 <script language="JavaScript">
 function ExecCoreCommand(command) 
 {
 	compcommand = command;
 	document.OSG.execCoreCommand(compcommand);
 }
+
+function GetMatrix() 
+{
+	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW GET_MATRIX');
+	
+	if(retcommand != 'STREAM_ERROR')
+		document.getElementById('MatrixArea').value = retcommand;
+	else
+		alert('Possible Stream Error. BAD COMMAND');
+}
+
+function SetMatrix() 
+{
+	textmatrix = document.getElementById('MatrixArea').value;
+	
+	if(textmatrix != '')
+	{
+		retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_MATRIX' + ' ' + textmatrix);
+	
+		if(retcommand == 'STREAM_ERROR')
+			alert('Possible Stream Error. BAD COMMAND');
+	}
+	else
+		alert('Specify a position with GetMatrix');
+}
 </script>
-
-    </span></div></td>
-    <td width="27%" valign="top" class="Stile5">
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
+</head>
+<body>
+<table width="1024" border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a></td>
+    <td><h1 class="style1">OSG4WEB: Prototype One - FunCore</h1></td>
   </tr>
   <tr>
-    <td>&nbsp;</td>
-  </tr>
-  <tr>
-    <td><a href="javascript:ExecCoreCommand('COREBASE VIEW_HOME')">Posizione Iniziale</a></td>
-  </tr>
-  <tr>
-    <td>&nbsp;</td>
-  </tr>
-  <tr>
-    <td>&nbsp;</td>
+    <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+      
+      <td height="10"></td>
+      <td height="10"></td>
+      <td height="10"></td>
+      </tr>
+      <tr>
+        <td width="800">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="800" height="600" align="center" valign="top">
+		<!--	<script type="text/javascript">
+				AC_AX_RunContent( 'name','OSG','id','@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0','width','800','height','600','type','application/osg4web-plugin','advcore','http://localhost/osg4webtest/corebase.rar','advcoresha1','@DUMMY_SHA1@','advcorestartoptions','FUNCORE SETMAINSCENEGRAPH http://3d.cineca.it/storage/terrain/demo/newtop.osg' ); //end AC code
+			  </script>
+			  <noscript> -->
+              <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="800" height="600" type="application/osg4web-plugin" >
+				<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
+				<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
+				<param name="ADVCoreStartOptions" value="FUNCORE SETMAINSCENEGRAPH http://localhost/osg4webtest/flaminia/topflaminiascene.osg"> 
+              </object>
+		<!--	  </noscript> -->
+            </td>
+          </tr>
+          <tr>
+            <td height="10" align="center" valign="top"></td>
+          </tr>
+          <tr>
+            <td><div align="center">
+            <table width="800" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td width="23%"><div align="center" class="style3">
+              	<a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK YAW LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW LEFT</a>
+                </div></td>
+              <td width="23%"><div align="center" class="style3"><a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK FORWARD UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD UP</a></div></td>
+              <td width="23%"><div align="center" class="style3">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK YAW RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW RIGHT</a>
+              </div></td>
+              <td ><div align="center"><span class="style4"><span class="style5"></span></span></div></td>
+              <td width="23%"><div align="center" class="style3">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK PITCH UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH UP</a>
+              </div></td>
+            </tr>
+            <tr>
+              <td><div align="center" class="style3">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK STRAFE LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE LEFT</a>
+              </div></td>
+              <td><div align="center" class="style3">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK FORWARD DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD DOWN</a>
+              </div></td>
+              <td><div align="center" class="style3">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK STRAFE RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE RIGHT</a>
+              </div></td>
+              <td><div align="center"><span class="style4"><span class="style5"></span></span></div></td>
+              <td><div align="center" class="style3">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK PITCH DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH DOWN</a>
+              </div></td>
+            </tr>
+         <!--   <tr>
+              <td><div align="center">
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK SETSTEPS 10.0 10.0'); javascript:ExecCoreCommand('WALK GOTO 292498.22775 4653219.68388 200.0 0.0 0.0 0.0');" href="javascript:void(0)">GOTO position</a>
+              </div></td>
+            </tr>  -->
+        </table>
+            
+            
+            </div></td>
+          </tr>
+        </table>
+        </td>
+        <td width="10"></td>
+        <td valign="top">
+        
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td><div align="left"></div></td>
+          </tr>
+          <tr>
+            <td height="10"></td>
+          </tr>
+          <tr>
+            <td><div align="left"></div></td>
+          </tr>
+          <tr>
+            <td height="10"></td>
+          </tr>
+          <tr>
+            <td><div align="left"></div></td>
+          </tr>
+          <tr>
+            <td height="10"></td>
+          </tr>
+          <tr>
+            <td><div align="left"></div></td>
+          </tr>
+          <tr>
+            <td height="10"></td>
+          </tr>
+          <tr>
+            <td><div align="left"></div></td>
+          </tr>
+          <tr>
+            <td height="10"></td>
+          </tr>
+          <tr>
+            <td><div align="left">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td><textarea name="MatrixArea" id="MatrixArea" cols="60" rows="6" wrap="hard" readonly="yes"></textarea></td>
+                </tr>
+                <tr>
+                  <td height="10"></td>
+                </tr>
+                <tr>
+                  <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td><div align="center" class="style3"><a href="javascript:GetMatrix()">GetMatrix</a></div></td>
+                      <td><div align="center" class="style3"><a href="javascript:SetMatrix()">SetMatrix</a></div></td>
+                    </tr>
+                  </table></td>
+                </tr>
+              </table>
+            </div></td>
+          </tr>
+        </table></td>
+      </tr>
+    </table></td>
   </tr>
 </table>
-    </td>
-  </tr>
-</table>
- </span></p>
-<center>
-
-  <br>
-
-</center>
-
-</BODY>
-</HTML>
+</body>
+</html>

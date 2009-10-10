@@ -1744,6 +1744,8 @@ static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT eventmsg, WPARAM wParam, L
 				std::string errormsg("OSG4Web Instance Error: Windows pointer error");
 				DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 				EndPaint(hWnd, &ps);
+
+				return 0;
 			}
 			else
 			{
@@ -1757,16 +1759,20 @@ static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT eventmsg, WPARAM wParam, L
 					std::string errormsg("OSG4Web Instance Error: " + s_PluginMessageError);
 					DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);	
 					EndPaint(hWnd, &ps);
+
+					return 0;
 				}
 			}
 
-			return 0;
+			//return 0;
 		}
 		break;
 	case WM_ERASEBKGND: //Corregge il problema di flickering durante il ridimensionamento e la selezione
 		if (plugin)
 			if(plugin->checkRunning())
+			{
 				return 0;
+			}
 		break;
 /*	case WM_KEYUP: //FIXME: non ne grabba nessuno... non vengono passati dall'handler di firefox
 		Beep(1000,100);

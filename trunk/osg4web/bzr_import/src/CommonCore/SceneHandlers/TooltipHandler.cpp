@@ -20,7 +20,7 @@ using namespace SceneHandlers;
 
 
 TooltipHandler::TooltipHandler(osg::Node::NodeMask nm) : NodeParserHandler(nm),
-	_tooltipcommandname("tooltip"), //TODO: spostare in defines
+	_tooltipcommandname("show_tooltip"), //TODO: spostare in defines
 	_matrtrans(new osg::MatrixTransform),
 	_switchnd(new osg::Switch),
 	_textnd(new osgText::Text),
@@ -38,7 +38,7 @@ TooltipHandler::TooltipHandler(osg::Node::NodeMask nm) : NodeParserHandler(nm),
 
 
 TooltipHandler::TooltipHandler(osg::Group* hudgrp, osg::Node::NodeMask nm) : NodeParserHandler(nm),
-	_tooltipcommandname("tooltip"), //TODO: spostare in defines
+	_tooltipcommandname("show_tooltip"), //TODO: spostare in defines
 	_matrtrans(new osg::MatrixTransform),
 	_switchnd(new osg::Switch),
 	_textnd(new osgText::Text),
@@ -67,10 +67,10 @@ void TooltipHandler::createTooltipSceneGraph()
 {
 	//Inizializzo la Matrice di Posizionamento del Tooltip nella screen 2D
 	_matrtrans->setMatrix(osg::Matrix::identity());
-	_matrtrans->setName("Tooltip: Matrice di Traslazione");
+	_matrtrans->setName("Tooltip_Matrice_di_Traslazione");
 
 	//Inizializzo il testo
-	_textnd->setName("Tooltip: Testo");
+	_textnd->setName("Tooltip_Testo");
 	_textnd->setFont("fonts/arial.ttf"); //FIXME
     _textnd->setCharacterSize(15.0);
 	_textnd->setPosition(osg::Vec3(0.0,0.0,0.0));
@@ -80,7 +80,7 @@ void TooltipHandler::createTooltipSceneGraph()
 	globstateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
 
 	//Teso e Geometria dello sfondo sotto Geode
-	_geodend->setName("Tooltip: Backgroud");
+	_geodend->setName("Tooltip_Backgroud");
 	_geodend->addDrawable(_textnd.get());
 	_geodend->addDrawable(_geombox.get());
 
@@ -88,7 +88,7 @@ void TooltipHandler::createTooltipSceneGraph()
 	_matrtrans->addChild(_geodend.get());
 
 	//MT su NodoSwitch di accensione/spegnimento del tooltip
-	_switchnd->setName("Tooltip: Switch");
+	_switchnd->setName("Tooltip_Switch");
 	_switchnd->addChild(_matrtrans.get(), false);
 }
 
@@ -97,7 +97,7 @@ void TooltipHandler::createTooltipCamera2D()
 	osg::ref_ptr<osg::Camera> camera = new osg::Camera;
 	
 	//Inizializzo la camera di proiezione 2D
-	camera->setName("Tooltip: HUD Camera 2D");
+	camera->setName("Tooltip_HUD_Camera_2D");
 	camera->setProjectionMatrix(osg::Matrix::ortho2D(0, _xMaxResolution, 0, _yMaxResolution)); 
 	camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	camera->setViewMatrix(osg::Matrix::identity());
@@ -125,7 +125,7 @@ void TooltipHandler::callmethodqueue(osgViewer::Viewer* viewer, const osgGA::GUI
 		//Prendo il primo comando in coda 
 		NodeCommandList::NodeCommand ndc;
 
-		if(this->findNodeCommandByName("tooltip", ndc))
+		if(this->findNodeCommandByName(_tooltipcommandname, ndc))
 		{
 			if(ndc.getNode() != _currentactivetooltip) //c'è intersezione con nodo diverso. Setto Tooltip con nuovo testo
 			{
@@ -266,7 +266,6 @@ void TooltipHandler::createTooltipBackgroud(osg::BoundingBox bb)
 	stateset->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
 }
 
-
 /** Setta il nodo per ricevere l'evento tooltip, ritorna nodo da attaccare alla scena */
 osg::Node* TooltipHandler::setTooltipsProperties(osg::Node* node, osg::Node::DescriptionList desclist)
 {
@@ -274,7 +273,7 @@ osg::Node* TooltipHandler::setTooltipsProperties(osg::Node* node, osg::Node::Des
 	 *
 	 * Per far funzionare il Tooltip Handler si deve aggiungere nei nodi:
 	 *
-	 * Campo DESCRIPTIONLIST(0): "tooltip"
+	 * Campo DESCRIPTIONLIST(0): "showtooltip"
 	 * Campo DESCRIPTIONLIST(n): testo da visualizzare nel tooltip
 	 */
 
@@ -288,9 +287,9 @@ osg::Node* TooltipHandler::setTooltipsProperties(osg::Node* node, osg::Node::Des
 		ndesclist.push_back(*itr);
 
 	grp->setDescriptions(ndesclist);
-	grp->setName("Nodo Parsing Tooltip");
+	grp->setName("Nodo_Parsing_Tooltip");
 	grp->addChild(node);
 	grp->setNodeMask( this->getTraversalNodeMask() );
-	
+
 	return grp.release();
 }

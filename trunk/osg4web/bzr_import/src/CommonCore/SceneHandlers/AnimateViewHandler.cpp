@@ -46,21 +46,23 @@ bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActio
 				if(ms < _animationTime) 
 				{
 					double blend_factor = ms / _animationTime;
-					osg::Matrix matrix;
-					osg::Matrix::value_type *pt,*pt_old,*pt_new;
-
-					for( pt = matrix.ptr(), pt_old = _oldMatrix.ptr(), pt_new = _transitionMatrix.ptr(); pt < matrix.ptr() + 16; pt++,pt_old++,pt_new++) 
-					{
-						*pt = *pt_old * (1.0 - blend_factor) + blend_factor * *pt_new;
-					}
-
-//					osg::ref_ptr<osg::Camera> cam = _mainViewer->getCamera();
-					_mainViewer->getCameraManipulator()->setByMatrix(matrix );
-					//credo che sia il manipulator attivo che resetta la camera come gli pare
-
+					osg::Matrix matrix = _mainViewer->getCameraManipulator()->getMatrix();
 					
-//					if(cam.valid())
-//						cam->setViewMatrix( matrix ); //FIXME: tutto perfetto... ma se ne FOTTE... come tutte le impostazioni delle camere!!!!!!
+					osg::Quat rotation;
+					osg::Vec3 position, scale;
+
+					osg::Vec3 p1, p2;
+
+					p1 = matrix.getTrans();
+					p2 = _transitionMatrix.getTrans();
+
+					position = ( p1 * (1.0 - blend_factor) + p2 * blend_factor);
+					scale = matrix.getScale();
+					rotation.slerp(blend_factor, matrix.getRotate(), _transitionMatrix.getRotate()); //TODO: check
+
+					matrix.set(osg::Matrix::rotate(rotation)*osg::Matrix::scale(scale)*osg::Matrix::translate(position));
+
+					_mainViewer->getCameraManipulator()->setByMatrix(matrix );
 				}
 				else
 				{
@@ -136,8 +138,7 @@ bool AnimateViewHandler::setViewMatrix( std::string viewstring )
 	if(res.validObject()) 
 	{
 		osg::ref_ptr<osg::MatrixTransform> m1 = static_cast<osg::MatrixTransform *> (res.getObject());
-		
-//		_oldMatrix.set( _mainViewer->getCamera()->getViewMatrix() );
+
 		_oldMatrix.set(_mainViewer->getCameraManipulator()->getMatrix() );
 		_transitionMatrix.set( m1->getMatrix() );
 		

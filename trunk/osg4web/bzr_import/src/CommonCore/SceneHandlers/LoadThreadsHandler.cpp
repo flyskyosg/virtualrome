@@ -268,7 +268,7 @@ osg::Node* LoadThreadsHandler::createLoadingHUD()
 	osg::ref_ptr<osg::MatrixTransform> loadmmt = new osg::MatrixTransform;
 	
 	//Inizializzo la camera di proiezione 2D
-	camera->setName("LoadThreadsHandle: Loading Mark HUD Camera 2D");
+	camera->setName("LoadThreadsHandle_Loading_Mark_HUD_Camera 2D");
 	camera->setProjectionMatrix(osg::Matrix::ortho2D(0, _xMaxResolution, 0, _yMaxResolution)); 
 	camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	camera->setViewMatrix(osg::Matrix::identity());
@@ -276,7 +276,7 @@ osg::Node* LoadThreadsHandler::createLoadingHUD()
 	camera->setRenderOrder(osg::Camera::POST_RENDER);
 	camera->setAllowEventFocus(false);
 
-	loadmmt->setName("Matrice di posizione Loading Mark");
+	loadmmt->setName("Matrice_di_posizione_Loading_Mark");
 	loadmmt->setMatrix( osg::Matrix::identity() );//osg::Matrix::scale(osg::Vec3(5.0,5.0,1.0))); //FIXME: riposizionare
 
 	//Switch su Camera 2D

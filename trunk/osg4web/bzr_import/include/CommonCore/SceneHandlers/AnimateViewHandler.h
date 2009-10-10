@@ -26,6 +26,8 @@ namespace SceneHandlers
 		void setLoadingOptions(osgDB::ReaderWriter::Options* opt) { _options = opt; }
 
 		void setAnimationTime(double animtime) { _animationTime = animtime; }
+
+		double getAnimationTime() { return _animationTime; }
 	    
 		bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa);
 
