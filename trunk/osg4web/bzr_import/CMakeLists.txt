@@ -1,3 +1,20 @@
+############################################################
+#
+# OSG4Web Project
+#
+# Main CMakeFile
+#
+############################################################
+
+PROJECT(OSG4Web)
+
+
+############################################################
+#
+# Minimun CMake required Version
+#
+############################################################
+
 IF(WIN32)
     CMAKE_MINIMUM_REQUIRED(VERSION 2.4.6 FATAL_ERROR)
 ELSE(WIN32)
@@ -12,12 +29,12 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 
+############################################################
+#
+# Adding CMakeModules Directory
+#
+############################################################
 
-PROJECT(OSG4Web)
-
-
-# We have some custom .cmake scripts not in the official distribution.
-# Maybe this can be used override existing behavior if needed?
 SET(USER_DEFINED_MODULE_PATH "" CACHE PATH "Location of additional configure_time modules folder, to be able to change macros at configure timme")
 MARK_AS_ADVANCED(USER_DEFINED_MODULE_PATH)
 IF(USER_DEFINED_MODULE_PATH)
@@ -26,41 +43,85 @@ ELSE(USER_DEFINED_MODULE_PATH)
 	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 ENDIF(USER_DEFINED_MODULE_PATH)
 
-SET(OSG4WEB_ROOT ${PROJECT_SOURCE_DIR})
+
+############################################################
+#
+# Configuring VSStart from CTest
+#
+############################################################
+
+IF(WIN32)
+	CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/CMakeIn/run_msvc_debug.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_msvc_debug.cmake @ONLY)
+	ADD_TEST(open_project_in_debug ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/run_msvc_debug.cmake )
+ENDIF(WIN32)
+
+
+############################################################
+#
+# Find Packages
+#
+############################################################
+
+FIND_PACKAGE(OSG)
+FIND_PACKAGE(CURL QUIET)
+
+
+############################################################
+#
+# Include Files
+#
+############################################################
+
 INCLUDE(GrabFiles)
 INCLUDE(SetupCoreRuntime)
 
-INCLUDE_DIRECTORIES(
-  ${OSG4WEB_ROOT}/include
-)
 
+############################################################
+#
+# Sets variables
+#
+############################################################
 
+SET(OSG4WEB_ROOT ${PROJECT_SOURCE_DIR})
 SET(FIREFOX_DIR "" CACHE PATH "set to Firefox install path")
+SET(IEXPLORE_DIR "" CACHE PATH "set to Internet Explorer install path")
+SET(OSG_DIR "" CACHE PATH "set to base osg install path")
+SET(CURL_ROOT ${OSG4WEB_ROOT}/var/dependancies/cmcurl CACHE PATH "base dir for cURL Library")
+SET(SOLUTION_TYPE Debug Release)
+
+#FIXME: soluzione poco pulita
+FOREACH(BTYPE ${SOLUTION_TYPE})
+	 SET(FIREFOX_STUFF_LIST_${BTYPE} "")
+	 SET(IEXPLORE_STUFF_LIST_${BTYPE} "") 
+ENDFOREACH(BTYPE Debug Release)
+
+
+############################################################
+#
+# Find Programs
+#
+############################################################
+
 FIND_PROGRAM(FIREFOX_EXE Firefox ${FIREFOX_DIR})
+FIND_PROGRAM(IEXPLORE_EXE iexplore ${IEXPLORE_DIR})
+
+
+############################################################
+#
+# Check 
+#
+############################################################
+
 IF(FIREFOX_EXE)
 	GET_FILENAME_COMPONENT(FIREFOX_DIR ${FIREFOX_EXE} PATH)
 	SET(FIREFOX_PLUGIN_DIR ${FIREFOX_DIR}/plugins)
 	ENABLE_TESTING()
-
 ENDIF(FIREFOX_EXE)
 
-SET(IEXPLORE_DIR "" CACHE PATH "set to Internet Explorer install path")
-FIND_PROGRAM(IEXPLORE_EXE iexplore ${IEXPLORE_DIR})
 IF(IEXPLORE_EXE)
 	GET_FILENAME_COMPONENT(IEXPLORE_DIR ${IEXPLORE_EXE} PATH)
 	ENABLE_TESTING()
 ENDIF(IEXPLORE_EXE)
-
-# Common to all platforms:
-SET(OSG_DIR "" CACHE PATH "set to base osg install path")
-FIND_PACKAGE(OSG)
-
-
-#TODO finire internet explorer
-
-
-SET(CURL_ROOT ${OSG4WEB_ROOT}/var/dependancies/cmcurl CACHE PATH "base dir for cURL Library")
-FIND_PACKAGE(CURL QUIET)
 
 IF(NOT CURL_FOUND)
 	#try to search curl with custom module
@@ -69,61 +130,36 @@ IF(NOT CURL_FOUND)
 ENDIF(NOT CURL_FOUND)
 
 
-FOREACH(BTYPE Debug Release)
-#	 SET(FIREFOX_STUFF_LIST_${BTYPE} "this_value_should_not_appear" CACHE INTERNAL "should accumulate values from subdirs") 
-	 SET(FIREFOX_STUFF_LIST_${BTYPE} "") 
-ENDFOREACH(BTYPE Debug Release)
+############################################################
+#
+# Adding Include Directories
+#
+############################################################
 
-SET(IEXPLORE_STUFF_LIST_TEST "") 
+INCLUDE_DIRECTORIES(
+  ${OSG4WEB_ROOT}/include
+)
+
+
+############################################################
+#
+# Adding Sub Directories
+#
+############################################################
 
 ADD_SUBDIRECTORY(src/Utilities)
-ADD_SUBDIRECTORY(src/CommonCore)
+
+IF(OSG_FOUND)
+	ADD_SUBDIRECTORY(src/CommonCore)
+ELSE(OSG_FOUND)
+	MESSAGE("OSG NOT FOUND: specify an OSG_DIR in order to compile OSG Cores")
+ENDIF(OSG_FOUND)
+
 ADD_SUBDIRECTORY(src/Engines)
 ADD_SUBDIRECTORY(src/Examples)
 ADD_SUBDIRECTORY(src/npOSG4Web)
 
-IF(WIN32)
-ADD_SUBDIRECTORY(src/ieOSG4Web)
-ENDIF(WIN32)
-
-
-
-FOREACH(varname FIREFOX_STUFF_LIST_Debug FIREFOX_STUFF_LIST_Release)
-	GET_DIRECTORY_PROPERTY(${varname} DIRECTORY src/npOSG4Web DEFINITION ${varname})
-ENDFOREACH(varname FIREFOX_STUFF_LIST_Debug FIREFOX_STUFF_LIST_Release)
-
-IF(OSG_FOUND)
-#	ADD_SUBDIRECTORY(src/Engines/LoadCore/src)
-#	ADD_SUBDIRECTORY(src/Engines/CoreBase/src)
-#	FOREACH(varname FIREFOX_STUFF_LIST_Debug FIREFOX_STUFF_LIST_Release)
-#		GET_DIRECTORY_PROPERTY(${varname} DIRECTORY src/Engines/LoadCore/src DEFINITION ${varname})
-#		GET_DIRECTORY_PROPERTY(${varname} DIRECTORY src/Engines/CoreBase/src DEFINITION ${varname})
-#	ENDFOREACH(varname FIREFOX_STUFF_LIST_Debug FIREFOX_STUFF_LIST_Release)
-ELSE(OSG_FOUND)
-	MESSAGE("OSG NOT FOUND Please specify OSG_DIR")
-ENDIF(OSG_FOUND)
-
-
-IF(FIREFOX_EXE AND OSG_FOUND)
-	FOREACH(BTYPE Debug Release)
-		ADD_CUSTOM_TARGET(Shell_npOSG4Web_Prepare_${BTYPE} )
-		ADD_DEPENDENCIES(Shell_npOSG4Web_Prepare_${BTYPE} Engine_LoadCore_Prepare_${BTYPE})	
-		ADD_DEPENDENCIES(Shell_npOSG4Web_Prepare_${BTYPE} Shell_npOSG4Web_Prepare_XPT)	
-
-		ADD_TEST(build_${BTYPE} ${CMAKE_CTEST_COMMAND}
-			--build-and-test
-			"${PROJECT_SOURCE_DIR}"
-			"${PROJECT_BINARY_DIR}"
-#			--build-two-config
-			--build-nocmake
-			--build-generator ${CMAKE_GENERATOR}
-			--build-makeprogram ${CMAKE_MAKE_PROGRAM}
-			--build-project ${PROJECT_NAME}
-			--build-target Shell_npOSG4Web_Prepare_${BTYPE}
-  			)
-	ENDFOREACH(BTYPE)
-	
-	CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/run_debug.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_debug.cmake @ONLY)
-	ADD_TEST(open_project_in_debug ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/run_debug.cmake )
-ENDIF(FIREFOX_EXE AND OSG_FOUND)
+IF(MSVC)
+	ADD_SUBDIRECTORY(src/ieOSG4Web)
+ENDIF(MSVC)
 

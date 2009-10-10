@@ -37,12 +37,7 @@
   <tr>
     <td width="73%"><div align="center"><span class="Stile1">
       <br>
-      <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="100%" height="800" type="application/osg4web-plugin" >
-<!--	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar"> -->
-<!--	<param name="ADVCoreSHA1" value="@DUMMY_SHA1@"> -->
-<!--	<param name="ADVCoreStartOptions" value="CB_ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> -->
-<!--	<param name="ADVCoreInitOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
-<!--	<param name="LoadCoreOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
+      <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="100%" height="800" type="application/osg4web-plugin" @IE_CLASSID_DEBUG@ >
       </object>
 
 <script language="JavaScript">
