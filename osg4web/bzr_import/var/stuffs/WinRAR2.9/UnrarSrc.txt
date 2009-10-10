@@ -1,0 +1,2 @@
+Unrar sources, unrar.dll library and uncompressed versions of SFX modules
+may now be downloaded from the RAR home page www.rarsoft.com

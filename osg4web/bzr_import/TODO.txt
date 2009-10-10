@@ -1,0 +1,92 @@
+*****************************************
+*					*
+*		TODO			*
+*					*
+*****************************************
+
+- Testare la release
+- Progetto npOSG4Web Linux
+- Download dei pacchetti di dipendenza al core (CARLO)
+- Ripristinare il nome delle DLL a nomepacchetto (Bug FIX)
+- Mettere a posto tutta la gestione delle Options passate ad OSG che non funge
+- 
+
+
+
+*****************************************
+*					*
+*		KNOWN BUG		*
+*					*
+*****************************************
+
+- **BUG** ShellBase - Resettare la WinID in modo da far ripartire correttamente il context OpenGL
+
+
+
+*****************************************
+*					*
+*		DONE			*
+*					*
+*****************************************
+
+- Progetto Internet Explorer
+- Messaggi di errore del plug
+- Messaggi errore per il core
+- Libcurl statica
+- Pacchetto di test (GIGI) ???
+
+
+
+
+
+
+*****************************************
+*					*
+*		TASK CARLO		*
+*					*
+*****************************************
+
+CORES
+
+- Finire di Riguardare tutto il codice dei core e commentare
+- Correggere il baco di resize di CoreBase
+- Portare LoadCore a Derivato di CoraBase
+- Creare Classe per la creazione e gestione dei tooltips
+
+
+
+SHELL
+- Fare milioni di cose... vedi agenda
+
+
+
+DONE
+- Spostare ToolTips in Descriptions
+- Aggiunta registrazione dei comandi
+- Ricerca tramite comandi registrati nel NodeCommandList
+- Creata la classe base CommandSchedule per il parsing e l'handle dei comandi dalla DoCommand
+- Creato Esempio AsyncLoading
+- Test modelli caricati sotto nodi
+- Cache modelli caricati
+
+
+
+
+
+
+*****************************************
+*					*
+*		TASK GIGI		*
+*					*
+*****************************************
+
+
+- Dare un occhio ai progetti CMAKE (funzionano ma non sono sicuro di aver fatto le cose con criterio)
+- generare il rar di CoreBase in automatico e generare SHA-1 del pacchetto (ora SHA-1 è sul pacchetto rar, bisognerebbe farlo della dll e fare iol check a runtime?)
+- Fare un test per CoreBase
+- Definire dove andare a posizionare il compilato di corebase
+- Versionare tutte le dll di OSG
+
+
+
+

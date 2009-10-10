@@ -1,0 +1,11 @@
+#ifndef __OSG4WEB_CORETOOLTIPS_DEFINES__
+#define	__OSG4WEB_CORETOOLTIPS_DEFINES__ 1
+
+
+#define		OSG4WEB_CORETOOLTIPS_LIBNAME	"osg4web : CoreTooltips"
+#define		OSG4WEB_CORETOOLTIPS_VERSION 	"1.0.0.0"
+#define		OSG4WEB_CORETOOLTIPS_NAME		"CoreTooltips"
+
+#endif //__OSG4WEB_CORETOOLTIPS_DEFINES__
+
+// here place additional defines

@@ -1,0 +1,11 @@
+#ifndef __OSG4WEB_COREASYNCLOAD_DEFINES__
+#define	__OSG4WEB_COREASYNCLOAD_DEFINES__ 1
+
+
+#define		OSG4WEB_COREASYNCLOAD_LIBNAME		"osg4web : CoreAsyncLoad"
+#define		OSG4WEB_COREASYNCLOAD_VERSION 		"1.0.0.0"
+#define		OSG4WEB_COREASYNCLOAD_NAME			"CoreAsyncLoad"
+
+#endif //__OSG4WEB_COREASYNCLOAD_DEFINES__
+
+// here place additional defines

@@ -1,0 +1,118 @@
+<HTML>
+<HEAD>
+<TITLE>OSG4Web: OpenSceneGraph Plugin 4 IE and Firefox</TITLE>
+<style type="text/css">
+<!--
+.Stile1 {font-family: Verdana, Arial, Helvetica, sans-serif}
+.Stile2 {
+	font-size: 14px;
+	font-style: italic;
+}
+.Stile4 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 36px;
+}
+.Stile5 {font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; }
+.Stile6 {font-size: 10px}
+-->
+</style>
+</HEAD>
+<BODY>
+
+<center class="Stile1">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td><div align="center"><span class="Stile4">OSG4Web Test Page </span></div></td>
+  </tr>
+  <tr>
+    <td><div align="center"><strong><span class="Stile1"><span class="Stile2"><br>
+      OpenSceneGraph Plugin 4 IE and Firefox</span></span></strong><br>
+      </div></td>
+  </tr>
+</table>
+</center>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="73%"><div align="center"><span class="Stile1">
+      <br>
+      <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="500" height="500" type="application/osg4web-plugin" >
+	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
+	<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
+	<param name="ADVCoreStartOptions" value="CB_ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> 
+<!--	<param name="ADVCoreInitOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
+<!--	<param name="LoadCoreOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
+      </object>
+
+<script language="JavaScript">
+function ExecCoreCommand(command) 
+{
+	compcommand = command;
+	document.OSG.execCoreCommand(compcommand);
+}
+
+function GetMatrix() 
+{
+	retcommand = document.OSG.execCoreCommand('CAV_GET_MATRIX');
+	
+	if(retcommand != 'CAV_STREAM_ERROR')
+		document.getElementById('MatrixArea').value = retcommand;
+	else
+		alert('Possible Stream Error. BAD COMMAND');
+}
+
+function SetMatrix() 
+{
+	textmatrix = document.getElementById('MatrixArea').value;
+	
+	if(textmatrix != '')
+	{
+		retcommand = document.OSG.execCoreCommand('CAV_SET_MATRIX' + ' ' + textmatrix);
+	
+		if(retcommand == 'CAV_STREAM_ERROR')
+			alert('Possible Stream Error. BAD COMMAND');
+	}
+	else
+		alert('Specify a position with GetMatrix');
+}
+</script>
+
+    </span></div></td>
+    <td width="27%" valign="top" class="Stile5">
+    <form name="form1" method="post" action="">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td><textarea name="MatrixArea" id="MatrixArea" cols="60" rows="8" wrap="hard" readonly="yes"></textarea></td>
+      </tr>
+      <tr>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td><div align="center">
+            <a href="javascript:GetMatrix()">GetMatrix</a></div></td>
+            <td><div align="center">
+            <a href="javascript:SetMatrix()">SetMatrix</a></div></td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+        <td>&nbsp;</td>
+      </tr>
+    </table>
+    </form>
+    <p>&nbsp;</p></td>
+  </tr>
+</table>
+ </span></p>
+<center>
+
+  <br>
+
+</center>
+
+</BODY>
+</HTML>
+
