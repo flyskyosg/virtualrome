@@ -6,6 +6,7 @@
 #include <osg/MatrixTransform>
 #include <osg/Fog>
 #include <osg/LightSource>
+#include <osg/Geode>
 
 #include <osgDB/FileNameUtils>
 #include <osgDB/Registry>
@@ -27,7 +28,8 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	_StandardNodeParserHandler( NULL ),
 	_TooltipsParserHandler( NULL ),
 	_TooltipsSceneModifier( NULL ),
-	_WalkManip( new Manipulators::walkManipulator ),
+	//_WalkManip( new Manipulators::walkManipulator ),
+	_ViRoMan( new Manipulators::ViroManipulator ),
 	_AnimateHandler( NULL ),
 	_GetBackHandler( NULL ),
 	_MainNode( new osg::Group ),
@@ -69,6 +71,9 @@ FunCore::~FunCore()
 
 	if(_WalkManip.valid())
 		_WalkManip = NULL;
+
+	if(_ViRoMan.valid())
+		_ViRoMan = NULL;
 
 	if(_SceneModifier.valid())
 		_SceneModifier = NULL;
@@ -145,13 +150,44 @@ bool FunCore::initManipulators()
 {
 	this->sendNotifyMessage("initManipulators -> Initializing Manipulators.");
 
-	_WalkManip->setNode(_ModiSceneGraph.get());
-	_WalkManip->setViewer( _Viewer.get(), "", "" );
-	
-	//Attacca al Command Registry il Manipolator CommandSchedule
-	this->addCommandSchedule((CommandSchedule*) _WalkManip.get());
+	//_WalkManip->setNode(_ModiSceneGraph.get());
+	//_WalkManip->setViewer( _Viewer.get(), "", "" );
 
-	_KeySwitchManipulator->addMatrixManipulator( '1', "WalkManipulator", _WalkManip.get());
+	_ViRoMan->setNode(_ModiSceneGraph.get());
+	_ViRoMan->addPickHandler( _Viewer.get() );
+
+	// Setup del ViRo
+	// Opzioni iniziali da abilitare per VRome
+	_ViRoMan->ClearOptions();
+	_ViRoMan->Enable(
+			_ViRoMan->Z_COLLIDE
+			| _ViRoMan->COLLISIONS
+			| _ViRoMan->PERIPHERAL_LOCK
+			| _ViRoMan->GLASS_PRISON
+			//| _ViRoMan->AVOIDANCE
+			//| _ViRoMan->MULTISAMPLING
+			//| _ViRoMan->SURFACE_ADAPTION
+			| _ViRoMan->AUTO_SCALE_STEP
+			);
+
+	// distanza di impatto da superfici (es. muri)
+	_ViRoMan->setImpactDistance( 0.1 );
+	_ViRoMan->setAvoidanceDistance( 3.0 );
+
+	// distanza di impatto da terra
+	_ViRoMan->setGroundDistance( 2.0 );
+
+	// Glass Prison
+	osg::BoundingBox BB;									
+	BB.set( osg::Vec3d(OSG4WEB_VROME_XMIN,OSG4WEB_VROME_YMIN,OSG4WEB_VROME_ZMIN), osg::Vec3d(OSG4WEB_VROME_XMAX,OSG4WEB_VROME_YMAX,OSG4WEB_VROME_ZMAX) );
+	_ViRoMan->setGlassPrison( BB );
+
+	//Attacca al Command Registry il Manipolator CommandSchedule
+	//this->addCommandSchedule((CommandSchedule*) _WalkManip.get());
+	this->addCommandSchedule((CommandSchedule*) _ViRoMan.get());
+
+	_KeySwitchManipulator->addMatrixManipulator( '1', "ViRoManipulator", _ViRoMan.get());
+	//_KeySwitchManipulator->addMatrixManipulator( '1', "WalkManipulator", _WalkManip.get());
 	_KeySwitchManipulator->addMatrixManipulator( '2', "TrackBall", new osgGA::TrackballManipulator);
     _KeySwitchManipulator->selectMatrixManipulator(0);
   
@@ -171,6 +207,10 @@ bool FunCore::buildMainScene()
 	//Attacco gli HUD 
 	_MainNode->addChild(loadinghud.get());
 	_MainNode->addChild(tooltiphud.get());
+	
+	// No Pick
+	loadinghud.get()->setNodeMask( NOT_SOLID_MASK );
+	tooltiphud.get()->setNodeMask( NOT_SOLID_MASK );
 
 	//Attacco Nodi
 	_MainNode->addChild( _ModiSceneGraph.get() );
@@ -226,7 +266,8 @@ std::string FunCore::handleAction(std::string argument)
 		break;
 	case SWITCH_MANIPULATORS:
 		{
-			if(_KeySwitchManipulator->getCurrentMatrixManipulator() == _WalkManip.get())
+			//if(_KeySwitchManipulator->getCurrentMatrixManipulator() == _WalkManip.get())
+			if(_KeySwitchManipulator->getCurrentMatrixManipulator() == _ViRoMan.get())
 				_KeySwitchManipulator->selectMatrixManipulator(1);
 			else
 				_KeySwitchManipulator->selectMatrixManipulator(0);
@@ -372,6 +413,10 @@ void FunCore::handleEnvironment()
 
 	skyboxgroup->removeChild(skyboxgeode.get());
 	
+	// No Picking
+	skyboxgroup->setNodeMask( NOT_SOLID_MASK );
+	skyboxgeode->setNodeMask( NOT_SOLID_MASK );
+	
 	Visitors::FindNodeVisitor fnvcleargroup("Default_Clear_Group");
 	_ModiSceneGraph->accept(fnvcleargroup);
 
@@ -389,6 +434,7 @@ void FunCore::handleEnvironment()
 	osg::ref_ptr<osg::ClearNode> clearNode = new osg::ClearNode;
 	clearNode->setName("Environment_Map_Clear_Node");
 	clearNode->setClearColor(osg::Vec4(54.0/255.0, 137.0/255.0, 152.0/255.0 , 1.0));
+	clearNode->setNodeMask( NOT_SOLID_MASK );
 			
 	osg::ref_ptr<osg::Transform> transform = new MoveEarthySkyWithEyePointTransform;
 	clearNode->setName("Environment_Map_Transform_Node");
@@ -398,26 +444,79 @@ void FunCore::handleEnvironment()
 	_ModiSceneGraph->addChild(transform.get());
 
 	//--- Environment Fog and Light
+//#define _NITE_
 	
 	osg::ref_ptr<osg::Group> EnvNode = new osg::Group;
 	osg::ref_ptr<osg::Fog> EnvFog = new osg::Fog;
 	osg::ref_ptr<osg::StateSet> EnvSS;
 	osg::ref_ptr<osg::LightSource> EnvSun;
+	osg::ref_ptr<osg::LightSource> EnvCL;
 
+	EnvNode->setNodeMask( NOT_SOLID_MASK );
 	EnvSS = EnvNode->getOrCreateStateSet();
 	
-	EnvFog->setColor( osg::Vec4f(0.9,1.0,1.0, 1.0) );
-	//EnvFog->setDensity( 0.0005 );
 	EnvFog->setMode(osg::Fog::EXP);
+
+#ifdef _NITE_
+	EnvFog->setColor( osg::Vec4f(0.0,0.0,0.0, 1.0) );
+#else
+	EnvFog->setColor( osg::Vec4f(0.9,1.0,1.0, 1.0) );
+#endif
 
 	EnvSS->setAttributeAndModes( EnvFog.get() );
 	//EnvSS->setMode(GL_CULL_FACE,osg::StateAttribute::ON);
 
 	EnvSun = new osg::LightSource;
-	EnvSun->getLight()->setPosition( osg::Vec4(0.0,0.0,20000, 0.0) );
+	EnvCL  = new osg::LightSource;
+	
+#define ENV_SUN_POSITION	osg::Vec4(0,0,20000, 0.0)
+
+	EnvSun->getLight()->setPosition( ENV_SUN_POSITION );
 	EnvSun->getLight()->setLightNum(0);
+	
+	EnvCL->getLight()->setPosition( -ENV_SUN_POSITION );
+	EnvCL->getLight()->setLightNum(1);
+	
+
+#ifdef _NITE_
+	EnvSun->getLight()->setAmbient( osg::Vec4(0.0,0.1,0.6, 1.0) );
+	EnvCL->getLight()->setDiffuse( osg::Vec4(1.0,1.0,0.5, 1.0) );
+#else
+	EnvSun->getLight()->setAmbient( osg::Vec4(0.4,0.3,0.2, 1.0) );
+	EnvCL->getLight()->setDiffuse( osg::Vec4(0.05,0.1,0.05, 1.0) );
+#endif
+
 	EnvNode->addChild( EnvSun.get() );
-	//---
+	EnvNode->addChild( EnvCL.get() );
+
+	// Water
+	/*
+	#define WATER_H		30.0
+
+	osg::Geometry* water = new osg::Geometry;
+    osg::Vec3Array* coords = new osg::Vec3Array(4);
+    (*coords)[0].set(OSG4WEB_VROME_XMIN,OSG4WEB_VROME_YMAX, WATER_H);
+    (*coords)[1].set(OSG4WEB_VROME_XMIN,OSG4WEB_VROME_YMIN, WATER_H);
+    (*coords)[2].set(OSG4WEB_VROME_XMAX,OSG4WEB_VROME_YMIN, WATER_H);
+    (*coords)[3].set(OSG4WEB_VROME_XMAX,OSG4WEB_VROME_XMAX, WATER_H);
+    water->setVertexArray(coords);
+
+    osg::Vec3Array* norms = new osg::Vec3Array(1);
+    (*norms)[0].set(0.0f,0.0f,1.0f);
+    water->setNormalArray(norms);
+    water->setNormalBinding(osg::Geometry::BIND_OVERALL);
+
+	osg::Vec4Array* colours = new osg::Vec4Array(1);
+    (*colours)[0].set(1.0f,1.0f,1.0, 1.0f);
+    water->setColorArray(colours);
+    water->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+    water->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS,0,4));
+	osg::ref_ptr<osg::Geode> WaterNode = new osg::Geode;
+	WaterNode.get()->addDrawable( water );
+	*/
+
+	/////////////////////////////////////////////////////////////////////
 
 	osg::ref_ptr<osg::StateSet> stateset = skyboxgeode->getStateSet();
 	if(stateset.valid())
@@ -433,6 +532,7 @@ void FunCore::handleEnvironment()
 	}
 
 	if (_MainNode.get() ){
+		//_MainNode->addChild( WaterNode.get() );
 		_MainNode->addChild( EnvNode.get() );
 		EnvFog->setDensity( 500.0 / _MainNode.get()->getBound().radius() );			// Formula da testare con differenti modelli
 		_MainNode->getOrCreateStateSet()->setAttributeAndModes( EnvFog.get() );
@@ -460,23 +560,24 @@ void FunCore::handleLoadingThreads()
 
 				if(node.valid())
 				{
+					/*
 					_WalkManip->searchPosUsingSubNode(node.get(), 0.75f);
 					_WalkManip->setGroundCollisionOnOff(false);
 					_WalkManip->setStepAmount( node->getBound().radius() / 80.0f, node->getBound().radius() / 80.0f);
 					_WalkManip->setIntersectSegmenteMultiplier(1.5, 1.0);	
+					*/
 				}
-				else
-					_WalkManip->searchDefaultPos();
+				//else _WalkManip->searchDefaultPos();
 			}
-			else
-				_WalkManip->searchDefaultPos();
+			//else _WalkManip->searchDefaultPos();
 
 			osg::ref_ptr<osg::Group> clearGroup = new osg::Group;
 			clearGroup->setName("Default_Clear_Group");
 
 			osg::ref_ptr<osg::ClearNode> clearNode = new osg::ClearNode;
 			clearNode->setName("Environment_Map_Clear_Node");
-			clearNode->setClearColor(osg::Vec4(54.0/255.0, 137.0/255.0, 152.0/255.0 , 1.0));
+			//clearNode->setClearColor(osg::Vec4(54.0/255.0, 137.0/255.0, 152.0/255.0 , 1.0));
+			clearNode->setClearColor(osg::Vec4(1,1,1,1));
 
 			clearGroup->addChild(clearNode.get());
 			_ModiSceneGraph->addChild(clearGroup.get());
