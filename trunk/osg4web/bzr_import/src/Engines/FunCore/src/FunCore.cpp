@@ -20,7 +20,8 @@ using namespace OSG4WebCC;
 FunCore::FunCore(std::string corename) : CoreBase(corename),
 	_LoaderThreadHandler( new SceneHandlers::LoadThreadsHandler() ),
 	_SceneModifier( new SceneHandlers::SceneModifier ),
-	_TooltipHandler( NULL ),
+	_TooltipsParserHandler( NULL ),
+	_TooltipsSceneModifier( NULL ),
 	_WalkManip( new Manipulators::walkManipulator ),
 	_AnimateHandler( NULL ),
 	_MainNode( new osg::Group ),
@@ -68,8 +69,11 @@ FunCore::~FunCore()
 	if(_AnimateHandler.valid())
 		_AnimateHandler = NULL;
 
-	if(_TooltipHandler.valid())
-		_TooltipHandler = NULL;
+	if(_TooltipsParserHandler.valid())
+		_TooltipsParserHandler = NULL;
+
+	if(_TooltipsSceneModifier.valid())
+		_TooltipsSceneModifier = NULL;
 
 	this->sendNotifyMessage("~FunCore -> Destructing FunCore Instance.");
 }
@@ -85,7 +89,11 @@ void FunCore::AddStartOptions(std::string str, bool erase)
 //Ridefinizione dell'albero di scena
 bool FunCore::initSceneData()
 {
-	_TooltipHandler = new SceneHandlers::TooltipHandler();
+	_TooltipsSceneModifier = new SceneHandlers::TooltipsSceneModifier();
+	_TooltipsParserHandler = new SceneHandlers::NodeParserHandler;
+	_TooltipsParserHandler->setTraversalNodeMask( _TooltipsSceneModifier->getAllowNodeMask() );
+	_TooltipsParserHandler->addCommand( osgGA::GUIEventAdapter::MOVE, _TooltipsSceneModifier.get());
+
 	_AnimateHandler = new SceneHandlers::AnimateViewHandler(_Viewer.get());
 
 	this->buildMainScene();
@@ -94,7 +102,7 @@ bool FunCore::initSceneData()
 	this->addCommandSchedule((CommandSchedule*) _AnimateHandler.get());
 
 	_Viewer->addEventHandler(_AnimateHandler.get());
-	_Viewer->addEventHandler(_TooltipHandler.get());
+	_Viewer->addEventHandler(_TooltipsParserHandler.get());
 	
 	_SceneModifier->setSceneData(_ModiSceneGraph.get());
 	_Viewer->setSceneData(_MainNode.get());
@@ -124,7 +132,7 @@ bool FunCore::initManipulators()
 bool FunCore::buildMainScene()
 {
 	osg::ref_ptr<osg::Node> loadinghud = _LoaderThreadHandler->createLoadingHUD();
-	osg::ref_ptr<osg::Node> tooltiphud = _TooltipHandler->createTooltipHUD();
+	osg::ref_ptr<osg::Node> tooltiphud = _TooltipsSceneModifier->createTooltipHUD();
 
 	//Setto i nomi dei nodi
 	_MainNode->setName("Super_Group_Node");
@@ -238,6 +246,13 @@ void FunCore::preFrameUpdate()
 {
 	this->handleLoadingThreads();
 	this->handleEnvironment();
+	this->handleTooltips();
+}
+
+void FunCore::handleTooltips()
+{
+	if(_TooltipsSceneModifier.valid())
+		_TooltipsSceneModifier->checkTooltipsTiming();
 }
 
 void FunCore::handleEnvironment()

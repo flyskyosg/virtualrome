@@ -1,0 +1,11 @@
+#ifndef __OSG4WEB_COREJSCALL_DEFINES__
+#define	__OSG4WEB_COREJSCALL_DEFINES__ 1
+
+
+#define		OSG4WEB_COREJSCALL_LIBNAME	"osg4web : CoreJSCall"
+#define		OSG4WEB_COREJSCALL_VERSION 	"1.0.0.0"
+#define		OSG4WEB_COREJSCALL_NAME		"CoreJSCall"
+
+#endif //__OSG4WEB_COREJSCALL_DEFINES__
+
+// here place additional defines
