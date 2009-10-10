@@ -27,6 +27,7 @@ public:
 	void setProxyParameters(std::string url, std::string port) { m_proxyport = port; m_proxyurl = url; }
 
 	bool setInstallDirectory(std::string insdir);
+	bool setLocalInstallDirectory(std::string insdir);
 	bool setTempDirectory(std::string insdir);
 	bool setCoreAppDirectory(std::string insdir);
 
@@ -55,7 +56,7 @@ public:
 	bool removingFile(std::string fname);
 	bool checkOrCreateDirectory(std::string dir);
 	bool checkFileValidity(std::string fname, std::string hexhash);
-	bool checkAdvCorePresence();
+	bool checkAdvCorePresence();	
 
 	//UnPacking Functions
 	int openCompressedCore(std::string filename);
@@ -77,9 +78,10 @@ protected:
 	bool startRendering();
 	bool stopRendering();
 
-	std::string getInitLoadCoreOptions();
-	std::string getLoadCoreDirectory();
+	bool checkLoadCorePresence();
 
+	std::string getInitLoadCoreOptions();
+	
 	std::string getInitAdvancedCoreOptions();
 	std::string generateAdvancedCoreDirectory();
 
@@ -96,7 +98,7 @@ protected:
 
 	//Parametri del LoadCore
 	std::string	m_loadcorename;
-	std::string m_loadcoredir;
+	std::string	m_loadcoredir;
 	std::string m_initloadcoreoptions;
 
 	//Parametri di Advanced Core
@@ -110,11 +112,11 @@ protected:
 	std::string m_initadvancedcoreinitoptions;
 	std::string m_initadvancedcorestartoptions;
 
-
 	bool m_coreInit;
 
 	//Configurazione Directory
 	std::string	m_installdir;
+	std::string	m_localinstalldir;
 	std::string	m_coreinstalldir;
 	std::string	m_tempdir;
 

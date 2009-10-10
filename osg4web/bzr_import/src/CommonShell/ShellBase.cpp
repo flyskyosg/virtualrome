@@ -30,6 +30,7 @@ ShellBase::ShellBase() : m_DynLoad(NULL),
 	m_coutbuf(NULL),
 	m_cerrbuf(NULL),
 	m_coreInit(false),
+	m_fout(NULL),
 	m_advancedcore("dummy_core_run")
 {
 
@@ -127,6 +128,22 @@ bool ShellBase::setInstallDirectory(std::string insdir)
 	}
 
 	m_installdir = insdir; 
+	return true;
+}
+
+bool ShellBase::setLocalInstallDirectory(std::string insdir) 
+{ 
+	if( !Utilities::FileUtils::fileExists(insdir) )
+	{
+		if( !Utilities::FileUtils::makeDirectory(insdir) )
+		{
+			this->sendWarnMessage( "ShellBase::setLocalInstallDirectory -> makeDirectory failed!" );
+			m_errorcode = 1;
+			return false;
+		}
+	}
+
+	m_localinstalldir = insdir; 
 	return true;
 }
 
@@ -464,11 +481,48 @@ bool ShellBase::stopRendering()
 	return ret;
 }
 
-std::string ShellBase::getLoadCoreDirectory() //lascio il core nella dir base
+bool ShellBase::checkLoadCorePresence()
 {
-	m_loadcoredir = Utilities::FileUtils::convertFileNameToWindowsStyle(m_installdir);
+	std::string coredirectory(Utilities::FileUtils::convertFileNameToWindowsStyle(m_localinstalldir));
 
-	return m_loadcoredir;
+	//Check library presence
+	std::string s = Utilities::FileUtils::convertFileNameToNativeStyle(
+						coredirectory + "/" + 
+						m_loadcorename + DEBUGAPPEND + 
+						DynamicLoad::getLibraryExtension()
+						);
+
+	if(!Utilities::FileUtils::fileExists(s))
+	{
+		this->sendNotifyMessage( "ShellBase::checkLoadCorePresence-> LoadCore library not presentin local install dir. Serching in base install dir." );
+	
+		coredirectory = Utilities::FileUtils::convertFileNameToWindowsStyle(m_installdir);
+
+		//Check library presence
+		s = Utilities::FileUtils::convertFileNameToNativeStyle(
+						coredirectory + "/" + 
+						m_loadcorename + DEBUGAPPEND + 
+						DynamicLoad::getLibraryExtension()
+						);
+
+		if(!Utilities::FileUtils::fileExists(s))
+		{
+			this->sendWarnMessage( "ShellBase::checkLoadCorePresence-> LoadCore library not present!" );
+			m_errorcode = 4;
+			return false;
+		}
+	}
+
+	if(!m_Environm.addDirectoryToPath(coredirectory))
+	{
+		this->sendWarnMessage( "ShellBase::checkLoadCorePresence-> error setting path env var!" );
+		m_errorcode = 5;
+		return false;
+	}
+
+	m_loadcoredir = coredirectory;
+
+	return true;
 }
 
 std::string ShellBase::getAdvancedCoreFileName() 
@@ -500,26 +554,9 @@ bool ShellBase::startLoadingBaseCore()
 		return false;
 	}
 
-	std::string coredirectory(getLoadCoreDirectory());
-
-	//Check library presence
-
-	std::string s=		Utilities::FileUtils::convertFileNameToNativeStyle(
-						coredirectory + "/" + 
-						m_loadcorename + DEBUGAPPEND + 
-						DynamicLoad::getLibraryExtension()
-						);
-	if(!Utilities::FileUtils::fileExists(s))
+	if(!this->checkLoadCorePresence())
 	{
-		this->sendWarnMessage( "ShellBase::startLoadingBaseCore-> LoadCore library not present!" );
-		m_errorcode = 4;
-		return false;
-	}
-
-	if(!m_Environm.addDirectoryToPath(coredirectory))
-	{
-		this->sendWarnMessage( "ShellBase::startLoadingBaseCore-> error setting path env var!" );
-		m_errorcode = 5;
+		//Messaggi già impostati in checkload
 		return false;
 	}
 
@@ -538,7 +575,7 @@ bool ShellBase::startLoadingBaseCore()
 
 	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr);
 
-	m_coreInit = m_CoreInterface->InitCore(m_hWnd, coredirectory, this->getInitLoadCoreOptions());
+	m_coreInit = m_CoreInterface->InitCore(m_hWnd, m_loadcoredir, this->getInitLoadCoreOptions());
 
 	if(m_coreInit)
 	{

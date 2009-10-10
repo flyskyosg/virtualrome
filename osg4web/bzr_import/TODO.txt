@@ -4,7 +4,7 @@
 *					*
 *****************************************
 
-- Testare la release
+
 - Progetto npOSG4Web Linux
 - Download dei pacchetti di dipendenza al core (CARLO)
 - Ripristinare il nome delle DLL a nomepacchetto (Bug FIX)
@@ -20,6 +20,7 @@
 *****************************************
 
 - **BUG** ShellBase - Resettare la WinID in modo da far ripartire correttamente il context OpenGL
+- **BUG** Scroll bug con schede nvidia
 
 
 
@@ -29,6 +30,7 @@
 *				b	*
 *****************************************
 
+- Finiti progetti di release per nposg e core vari
 - Progetto Internet Explorer
 - Messaggi di errore del plug
 - Messaggi errore per il core
