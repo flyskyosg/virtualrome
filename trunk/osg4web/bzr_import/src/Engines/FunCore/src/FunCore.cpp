@@ -94,6 +94,9 @@ FunCore::~FunCore()
 	if(_StandardNodeParserHandler.valid())
 		_StandardNodeParserHandler = NULL;
 
+	// HUD
+	if ( _HUD.get()->getHUD() ) _HUD->getHUD()->setUpdateCallback(0);
+
 	this->sendNotifyMessage("~FunCore -> Destructing FunCore Instance.");
 }
 
@@ -601,13 +604,16 @@ void FunCore::handleLoadingThreads()
 			clearGroup->addChild(clearNode.get());
 			_ModiSceneGraph->addChild(clearGroup.get());
 
+			// Andrebbe in buildMainScene()
+			//-----------------------------
 			if ( _ViRoMan.get() ){
+				// Crea HUD
 				_HUD = new ViroHud( _ViRoMan.get() );
 				_HUD->Init();
 				
-				//if ( !_HUD.get()->getHUD() ) exit(0);
 				_MainNode->addChild( _HUD.get()->getHUD() );
 
+				// Crea Callback di aggiornamento HUD
 				ViroHudUpdater* hupd = new ViroHudUpdater( _HUD.get() );
 				_HUD->getHUD()->setUpdateCallback( hupd );
 				}
