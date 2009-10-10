@@ -8,6 +8,11 @@
 
 #include <osg/Referenced>
 #include <osg/Node>
+#include <osg/Version>
+#if (OPENSCENEGRAPH_SOVERSION > 51)
+	#include <osgDB/Options>
+#endif
+
 #include <osgDB/ReaderWriter>
 #include <osgUtil/Optimizer>
 
