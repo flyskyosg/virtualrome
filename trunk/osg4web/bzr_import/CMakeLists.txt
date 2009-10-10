@@ -16,15 +16,15 @@ PROJECT(OSG4Web)
 ############################################################
 
 IF(WIN32)
-    CMAKE_MINIMUM_REQUIRED(VERSION 2.4.8 FATAL_ERROR)
+    CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
 ELSE(WIN32)
     IF(APPLE)
-        CMAKE_MINIMUM_REQUIRED(VERSION 2.4.8 FATAL_ERROR)
-        IF(${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} EQUAL 4 AND ${CMAKE_PATCH_VERSION} LESS 7)
-            MESSAGE("Warning: A critical CMake bug exists in 2.4.6 and below. Trying to build Universal Binaries will result in a compile error that seems unrelated. Either avoid building Universal Binaries by changing the CMAKE_OSX_ARCHITECTURES field to list only your architecture, or upgrade to the current CVS version of CMake or a newer stable version if it exists.")
-        ENDIF(${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} EQUAL 4 AND ${CMAKE_PATCH_VERSION} LESS 7)
+        CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
+        IF(${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} EQUAL 6 AND ${CMAKE_PATCH_VERSION} LESS 0)
+            MESSAGE("Warning: A critical CMake bug exists in 2.6.0 and below. Trying to build Universal Binaries will result in a compile error that seems unrelated. Either avoid building Universal Binaries by changing the CMAKE_OSX_ARCHITECTURES field to list only your architecture, or upgrade to the current CVS version of CMake or a newer stable version if it exists.")
+        ENDIF(${CMAKE_MAJOR_VERSION} EQUAL 2 AND ${CMAKE_MINOR_VERSION} EQUAL 6 AND ${CMAKE_PATCH_VERSION} LESS 0)
     ELSE(APPLE)
-        CMAKE_MINIMUM_REQUIRED(VERSION 2.4.8 FATAL_ERROR)
+        CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0 FATAL_ERROR)
     ENDIF(APPLE)
 ENDIF(WIN32)
 
@@ -176,4 +176,5 @@ ELSE(FIREFOX_PLUGIN_DIR)
 ENDIF(FIREFOX_PLUGIN_DIR)
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH)
+
 

@@ -15,6 +15,7 @@ PROJECT(LoaderOpenGL)
 #
 ############################################################
 
+ADD_DEFINITIONS(-DOSG4WEB_UTILITIES_LIBRARY_STATIC)
 ADD_DEFINITIONS(-DOSG4WEBCORE_LIBRARY)
 
 
@@ -28,7 +29,6 @@ SET(CMAKE_DEBUG_POSTFIX  "d")
 SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)
 SET("${PROJECT_NAME}_include_dir" ${CMAKE_CURRENT_SOURCE_DIR}/include)
 SET("${PROJECT_NAME}_include" ${CMAKE_CURRENT_SOURCE_DIR}/include/LoaderOpenGL)
-
 
 #coping debug files
 SET(OUTPUT_DIR $ENV{APPDATA}/osg4web/${PROJECT_NAME})
@@ -66,7 +66,7 @@ ADD_LIBRARY(${PROJECT_NAME}
 #
 ############################################################
 
-INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_include_dir} ${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/include  ${OSG4WEB_ROOT}/include )
+INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_include_dir} ${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/include ${OSG4WEB_ROOT}/include)
 
 
 ############################################################
@@ -74,7 +74,6 @@ INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_include_dir} ${OSG4WEB_ROOT}/src/Engines/
 # Linking to ext libraries
 #
 ############################################################
-
 
 LINK_WITH_VARIABLES(${PROJECT_NAME} )
 
@@ -85,7 +84,8 @@ LINK_WITH_VARIABLES(${PROJECT_NAME} )
 #
 ############################################################
 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OPENGL_LIBRARIES})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} Utilities)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OPENGL_LIBRARY})
 
 
 ############################################################
@@ -95,6 +95,15 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 ############################################################
 
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Engine_${PROJECT_NAME}")
+
+
+############################################################
+#
+# Changing output name
+#
+############################################################
+
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES OUTPUT_NAME Loader)
 
 
 ############################################################
