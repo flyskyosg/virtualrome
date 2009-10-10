@@ -16,7 +16,7 @@ AnimateViewHandler::AnimateViewHandler(osgViewer::Viewer* viewer) : CommandSched
 	_activateTransition(false),
 	_duringAnimation(false),
 	_currentKey(0),
-	_animationPathSmoothness(1.0),
+	_animationPathSmoothness(DEFAULT_ANIMATION_PATH_SMOOTHNESS),
 	_sequenceTransitionMatrix(osg::Matrix::identity()),
 	_prevTensor(osg::Matrix::identity()),
 	_nextTensor(osg::Matrix::identity()),
@@ -28,8 +28,10 @@ AnimateViewHandler::AnimateViewHandler(osgViewer::Viewer* viewer) : CommandSched
 	this->setCommandAction( "GET_CURRENT_MATRIX" );
 	this->setCommandAction( "GO_TO_MATRIX_DIRECTLY" );
 	this->setCommandAction( "GET_ANIMATION_TIME" );
+	this->setCommandAction( "GET_ANIMATION_PATH_SMOOTHNESS" ); 
 	this->setCommandAction( "SET_ANIMATION_TIME" );
 	this->setCommandAction( "SET_ANIMATION_KEY" );
+	this->setCommandAction( "SET_ANIMATION_PATH_SMOOTHNESS" );
 	this->setCommandAction( "START_ANIMATION" );
 	this->setCommandAction( "CONTINUE_ANIMATION" );
 	this->setCommandAction( "STOP_ANIMATION" );
@@ -98,7 +100,12 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 			A *= _animationPathSmoothness;
 			B *= _animationPathSmoothness;
 
+			#ifdef ANIMATION_PATH_SLOW_ON_KEYS
 			position = interpolateCR(t, (p1+A),p1,p2,(p2+B));
+			#else
+			position = interpolateCR(blend_factor, (p1+A),p1,p2,(p2+B));
+			#endif
+
 			//position = interpolateCR(blend_factor, p0,p1,p2,p3);
 			}
 
@@ -158,8 +165,11 @@ bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActio
 							_animationMatrixArray.pop();
 							_animationTimeArray.pop();
 							*/
+
 							int prv = (_currentKey <= 1)? 0 : _currentKey-2;
 							int nxt = ((_currentKey+1) >= (int)_animationMatrixVector.size())? (_animationMatrixVector.size()-1) : (_currentKey+1);
+							//int prv = (_currentKey < 1)? 0 : _currentKey-1;
+							//int nxt = ((_currentKey+2) >= (int)_animationMatrixVector.size())? (_animationMatrixVector.size()-1) : (_currentKey+2);
 
 							_sequenceTransitionMatrix.set( _animationMatrixVector[_currentKey] );
 							_sequenceAnimationTime = _animationTimeVector[_currentKey];
@@ -227,8 +237,15 @@ std::string AnimateViewHandler::handleAction(std::string argument)
 		if(!this->setAnimationKey(rcommand))
 			retstr = "STREAM_ERROR";
 		break;
+	case SET_ANIMATION_PATH_SMOOTHNESS:
+		if(!this->setViewAnimationPathSmoothness(rcommand))
+			retstr = "STREAM_ERROR";
+		break;
 	case GET_ANIMATION_TIME:
 		retstr = this->getViewAnimationTime();
+		break;
+	case GET_ANIMATION_PATH_SMOOTHNESS:
+		retstr = this->getViewAnimationPathSmoothness();
 		break;
 	case SET_ANIMATION_TIME:	
 		if(!this->setViewAnimationTime(rcommand))
@@ -333,6 +350,28 @@ bool AnimateViewHandler::setViewAnimationTime(std::string animtime)
 	if(!(atstream >> anitemp >> std::dec).fail())
 	{
 		_animationTime = anitemp * 1000; //riporto in ms
+		return true;
+	}
+
+	return false;
+}
+
+std::string AnimateViewHandler::getViewAnimationPathSmoothness()
+{
+	double s = _animationPathSmoothness;
+	std::ostringstream convstream;
+	convstream << s << std::flush;
+	return convstream.str();
+}
+
+bool AnimateViewHandler::setViewAnimationPathSmoothness(std::string s)
+{
+	std::istringstream atstream( s );
+	double tmp = DEFAULT_ANIMATION_PATH_SMOOTHNESS;
+	
+	if(!(atstream >> tmp >> std::dec).fail())
+	{
+		_animationPathSmoothness = tmp;
 		return true;
 	}
 

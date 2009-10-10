@@ -12,7 +12,10 @@
 namespace SceneHandlers
 {
 
-#define		DEFAULT_ANIMATION_TIME			2500.0
+#define		DEFAULT_ANIMATION_TIME				2500.0
+#define		DEFAULT_ANIMATION_PATH_SMOOTHNESS	1.0
+
+#define		ANIMATION_PATH_SLOW_ON_KEYS		//Se definito rallenta in corrispondenza dei key-points durante un percorso animato. FIXME: andrebbe come actioncommand
 
 	class AnimateViewHandler : public osgGA::GUIEventHandler , public CommandSchedule
 	{
@@ -23,8 +26,10 @@ namespace SceneHandlers
 			GET_CURRENT_MATRIX,
 			GO_TO_MATRIX_DIRECTLY,
 			GET_ANIMATION_TIME,
+			GET_ANIMATION_PATH_SMOOTHNESS,
 			SET_ANIMATION_TIME,
 			SET_ANIMATION_KEY,
+			SET_ANIMATION_PATH_SMOOTHNESS,
 			START_ANIMATION,
 			CONTINUE_ANIMATION,
 			STOP_ANIMATION,
@@ -38,7 +43,6 @@ namespace SceneHandlers
 		void setLoadingOptions(osgDB::ReaderWriter::Options* opt) { _options = opt; }
 
 		void setAnimationTime(double animtime) { _animationTime = animtime; }
-
 		double getAnimationTime() { return _animationTime; }
 
 		void setAnimationPathSmoothness(double s){ _animationPathSmoothness = s; }
@@ -61,6 +65,9 @@ namespace SceneHandlers
 
 		std::string getViewAnimationTime();
 		bool setViewAnimationTime(std::string animtime);
+
+		std::string getViewAnimationPathSmoothness();
+		bool setViewAnimationPathSmoothness(std::string animtime);
 
 		bool startAnimation();
 		bool continueAnimation();

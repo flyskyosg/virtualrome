@@ -134,12 +134,12 @@ function StartAnimation()
 	
 	var leftside = 'MatrixTransform { nodeMask 0xffffffff cullingActive TRUE referenceFrame RELATIVE Matrix { -0.985304 0.150031 0.0816453 0 -0.0170943 -0.562208 0.826819 0 0.16995 0.813273 0.556511 0 3.4725 10.6034 7.85283 1 }}';
 
-/*	
+	
 	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_ANIMATION_KEY TIME 2.5 MATRIX ' + ' ' + uno);
 	
 	if(retcommand == 'STREAM_ERROR')
 		alert('Possible Stream Error. BAD COMMAND: string UNO');
-
+/*
 	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_ANIMATION_KEY TIME 3.0 MATRIX ' + ' ' + due);
 	
 	if(retcommand == 'STREAM_ERROR')
