@@ -105,8 +105,17 @@ FunCore::~FunCore()
 void FunCore::AddStartOptions(std::string str, bool erase)
 {
 	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
-
-	this->DoCommand(str); //Passo il main scene graph se è presente
+	MessageBox(NULL,  str.c_str(), "Adding Starting Options", MB_OK);
+	std::string line=std::string(str);
+	std::string largs;
+	std::string::size_type pos = line.find( "\n" );
+	while (std::string::npos != pos ) {
+		largs = line.substr(0, pos);
+		line=line.substr(pos+1,line.size()-1);
+		this->DoCommand(largs); //Passo il main scene graph se è presente
+		pos = line.find( "\n" );
+	}
+	this->DoCommand(line);
 }
 
 //Ridefinizione dell'albero di scena
