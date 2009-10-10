@@ -295,10 +295,12 @@ void LoadThreadsHandler::LoaderThread::setNodeLoaded(osg::Node* node)
  ***********************************************************************/
 
 /** Costruttore */
-LoadThreadsHandler::LoadThreadsHandler() : _maxThreadPerStack(3),
+LoadThreadsHandler::LoadThreadsHandler(int width, int height) : _maxThreadPerStack(3),
 	_LoadingMarkSwitch(new osg::Switch),
-	_xMaxResolution(500), //TODO:
-	_yMaxResolution(500), //TODO:
+	_LoadingMarkCamera(new osg::Camera),
+	_MatrixMarkPosition(new osg::MatrixTransform),
+	_xMaxResolution(width),
+	_yMaxResolution(height),
 	_optimizeModels(false),
 	_optType(osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS),
 	_mainNode(NULL)
@@ -314,6 +316,12 @@ LoadThreadsHandler::~LoadThreadsHandler()
 	if(_LoadingMarkSwitch.valid())
 		_LoadingMarkSwitch = NULL;
 
+	if(_LoadingMarkCamera.valid())
+		_LoadingMarkCamera = NULL;
+
+	if(_MatrixMarkPosition.valid())
+		_MatrixMarkPosition = NULL;
+
 	if(_mainNode.valid())
 		_mainNode = NULL;
 }
@@ -321,34 +329,33 @@ LoadThreadsHandler::~LoadThreadsHandler()
 /** Crea l'HUD di Loading */
 osg::Node* LoadThreadsHandler::createLoadingHUD()
 {
-	osg::ref_ptr<osg::Camera> camera = new osg::Camera;
 	osg::ref_ptr<osg::MatrixTransform> loadmmt = new osg::MatrixTransform;
 	
 	//Inizializzo la camera di proiezione 2D
-	camera->setName("LoadThreadsHandle_Loading_Mark_HUD_Camera 2D");
-	camera->setProjectionMatrix(osg::Matrix::ortho2D(0, _xMaxResolution, 0, _yMaxResolution)); 
-	camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-	camera->setViewMatrix(osg::Matrix::identity());
-	camera->setClearMask(GL_DEPTH_BUFFER_BIT);
-	camera->setRenderOrder(osg::Camera::POST_RENDER);
-	camera->setAllowEventFocus(false);
+	_LoadingMarkCamera->setName("LoadThreadsHandle_Loading_Mark_HUD_Camera 2D");
+	_LoadingMarkCamera->setProjectionMatrix(osg::Matrix::ortho2D(0, _xMaxResolution, 0, _yMaxResolution)); 
+	_LoadingMarkCamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+	_LoadingMarkCamera->setViewMatrix(osg::Matrix::identity());
+	_LoadingMarkCamera->setClearMask(GL_DEPTH_BUFFER_BIT);
+	_LoadingMarkCamera->setRenderOrder(osg::Camera::POST_RENDER);
+	_LoadingMarkCamera->setAllowEventFocus(false);
 
 	loadmmt->setName("Matrice_di_posizione_Loading_Mark");
 	loadmmt->setMatrix( osg::Matrix::identity() );//osg::Matrix::scale(osg::Vec3(5.0,5.0,1.0))); //FIXME: riposizionare
 
 	//Switch su Camera 2D
-	camera->addChild(loadmmt.get());
+	_LoadingMarkCamera->addChild(loadmmt.get());
 	loadmmt->addChild(_LoadingMarkSwitch.get());
 
 	_LoadingMarkSwitch->addChild(this->createLoadingMark(), false);
 
-	return camera.release(); // _LoadingMarkSwitch.get();
+	return _LoadingMarkCamera.get();
 }
 
 /** Crea il nodo Loading Mark */
 osg::Node* LoadThreadsHandler::createLoadingMark()
 {
-	osg::ref_ptr<osg::MatrixTransform> matrtr = new osg::MatrixTransform;
+	osg::ref_ptr<osg::MatrixTransform> rotmatr = new osg::MatrixTransform;
 	osg::ref_ptr<osg::PositionAttitudeTransform> pat = new osg::PositionAttitudeTransform;
 	osg::ref_ptr<osg::Geode> rotatingeode = new osg::Geode();
 
@@ -378,10 +385,17 @@ osg::Node* LoadThreadsHandler::createLoadingMark()
 	pat->setUpdateCallback(new LoadThreadsHandler::LoadingMarkTransformCallback());
 	pat->addChild(rotatingeode.get());
 
-	matrtr->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.0),osg::Vec3(1.0,0.0,0.0)) * osg::Matrix::scale(osg::Vec3(_xMaxResolution * 0.015, _xMaxResolution * 0.015, 0.0)) * osg::Matrix::translate(osg::Vec3(_xMaxResolution * 0.04, _yMaxResolution * 0.96,0.0))); //TODO: mettere la trasformazione corretta
-	matrtr->addChild(pat.get());
+	rotmatr->setMatrix(osg::Matrix::rotate(osg::inDegrees(-90.0),osg::Vec3(1.0,0.0,0.0)));
+	rotmatr->addChild(pat.get());
+
+	double dim = _yMaxResolution * 0.0125;
+	double posx = _xMaxResolution * 0.015;
+	double posy = _yMaxResolution * 0.975;
+
+	_MatrixMarkPosition->setMatrix(osg::Matrix::scale(osg::Vec3(dim, dim, 0.0)) * osg::Matrix::translate( osg::Vec3( posx, posy, 0.0 )));
+	_MatrixMarkPosition->addChild(rotmatr.get());
 	
-	return matrtr.release();
+	return _MatrixMarkPosition.get();
 }
 
 /** Setta il metodo di ottimizzazione per i modelli caricati */
@@ -693,14 +707,45 @@ void LoadThreadsHandler::findSelfLoadingGroups()
 	}
 }
 
+
 /**  */
-osg::Node* LoadThreadsHandler::handleLoading()
+bool LoadThreadsHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa)
 {
+	osgViewer::Viewer* viewer = dynamic_cast<osgViewer::Viewer*>(&aa);
+	if (viewer)
+	{
+		osgViewer::Viewer::Windows windows;
+		viewer->getWindows(windows);
+		for(osgViewer::Viewer::Windows::iterator itr = windows.begin(); itr != windows.end(); ++itr)
+		{
+			int x, y, width, height;
+			(*itr)->getWindowRectangle(x, y, width, height);
+
+			_xMaxResolution = width;
+			_yMaxResolution = height;
+			double dim = _yMaxResolution * 0.0125;
+			double posx = _xMaxResolution * 0.015;
+			double posy = _yMaxResolution * 0.975;
+
+			if(_MatrixMarkPosition.valid())
+				_MatrixMarkPosition->setMatrix(osg::Matrix::scale(osg::Vec3(dim, dim, 0.0)) * osg::Matrix::translate( osg::Vec3( posx, posy, 0.0 )));
+	
+			if(_LoadingMarkCamera.valid())
+				_LoadingMarkCamera->setProjectionMatrixAsOrtho2D(0, _xMaxResolution, 0, _yMaxResolution);
+		}
+	}
+
 	this->findSelfLoadingGroups();
 
 	this->refreshLoadingQueue();
 	this->refreshLoadingMark();
 
+	return false;
+}
+
+/** */
+osg::Node* LoadThreadsHandler::handleLoading()
+{
 	LoaderThreadStack::iterator ltiter;
 	for(ltiter = _loaderThreadsStack.begin(); ltiter != _loaderThreadsStack.end(); ltiter++)
 	{

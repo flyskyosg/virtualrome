@@ -37,6 +37,9 @@ public:
 	//Inizializza le Opzioni del core successivamente all'inizializzazione
 	virtual void AddStartOptions(std::string str, bool erase = true);
 
+	//Attacco gli Handler di Scena
+	virtual bool initSceneHandlers();
+
 	//Ridefinizioni del Gestore dei Comandi
 	virtual std::string handleAction(std::string argument);
 

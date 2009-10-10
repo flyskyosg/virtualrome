@@ -72,6 +72,7 @@ protected:
 	//Inizializzazione della scena
 	virtual bool initManipulators(void);
 	virtual bool initCameraConfig(void);
+	virtual bool initSceneHandlers(void);
 	virtual bool initSceneData(void);
 	virtual bool initSetupOptions(std::string options, bool erase = true);
 	virtual bool setupWindow(osg::Referenced* wd);
@@ -100,8 +101,8 @@ protected:
 	osg::ref_ptr<osgGA::TrackballManipulator> _TrackballManipulator;
 	osg::ref_ptr<osgGA::KeySwitchMatrixManipulator> _KeySwitchManipulator;
 
-	//Dimensioni della Window
-	unsigned int _WinRect[4];
+	//Larghezza corrente della Window
+	int _CurrWidth, _CurrHeight;
 
 private:
 	//Registry dei Comandi 

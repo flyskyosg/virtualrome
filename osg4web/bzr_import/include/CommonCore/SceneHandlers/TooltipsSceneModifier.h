@@ -21,7 +21,7 @@ namespace SceneHandlers
 	{
 	public:
 		//Costruttore 
-		TooltipsSceneModifier();
+		TooltipsSceneModifier(float initx, float inity);
 		
 		//Ritorna il tooltip HUD da attaccare allo ScenaGraph generale 
 		osg::Node* createTooltipHUD();
@@ -48,7 +48,7 @@ namespace SceneHandlers
 		void checkTooltipsTiming();
 
 		//Ortho2D Settings
-		void setOrtho2Dresolution(float x, float y) { _xMaxResolution = x; _yMaxResolution = y; }
+		void setOrtho2DInitResolution(float x, float y) { _xInitialResolution = x; _yInitialResolution = y; }
 
 	protected:
 		//Distruttore
@@ -79,7 +79,9 @@ namespace SceneHandlers
 		osg::ref_ptr<osg::Node> _currentactivetooltip;
 
 		//Risoluzione del Camera 2D
-		float _xMaxResolution, _yMaxResolution;
+		float _xCurrentResolution, _yCurrentResolution;
+		//Risoluzione del Camera 2D allo startup
+		float _xInitialResolution, _yInitialResolution;
 
 		osg::Node::NodeMask _allowmask;
 		osg::Node::NodeMask _negatemask;

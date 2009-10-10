@@ -1055,19 +1055,24 @@ void nsPluginInstance::doDownloadCore()
 	//Check Core Presence
 	if(mShellBase.checkAdvCorePresence())
 	{
+		PR_Sleep(500);
+
 		//Attivo status bar
 		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
 		//Attivo il messaggio di Download del Core
 		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Core Found...");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Core Found");
 
-		PR_Sleep(1500); //Delay per far visualizzare il messaggio //FIXME: mettere in define
+		PR_Sleep(TIME_CORE_MESSAGES); //Delay per far visualizzare il messaggio //FIXME: mettere in define
+
+		//Attivo il messaggio di Download del Core
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Loading ...");
+
+		PR_Sleep(TIME_CORE_MESSAGES); //Delay per far visualizzare il messaggio //FIXME: mettere in define
 
 		//Loading Session
-		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
-
 		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Loading Unpacked Core"));
 
 		if(!mShellBase.startLoadingAdvancedCore()) //Start Advanced Core Loading
@@ -1396,6 +1401,8 @@ void nsPluginInstance::doDownloadCore()
 	//Cleaning Archive List
 	mShellBase.freeCompressedCore();
 
+	//TODO: finire i messaggi e i timing (come in core found)
+
 	//Loading Session
 	this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 	this->loadingCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
@@ -1532,14 +1539,14 @@ LRESULT nsPluginInstance::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wP
 			return (0L); //Non passo l'erase signal
 		break;
 
-	case WM_MOVE:
+	/*case WM_MOVE:
 	case WM_SIZE:
 		if(this->checkRunning())
 		{
 			//mShellBase.doRendering();
 			return (0L); //Non passo l'erase signal
 		}
-		break;
+		break; */
 	
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:

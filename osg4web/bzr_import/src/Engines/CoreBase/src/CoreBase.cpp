@@ -6,6 +6,8 @@
 #include <osg/Node>
 #include <osgDB/ReadFile>
 #include <osgGA/GUIEventAdapter>
+#include <osgGA/StateSetManipulator>
+#include <osgGA/AnimationPathManipulator>
 #include <osgUtil/Optimizer>
 
 
@@ -22,7 +24,9 @@ CoreBase::CoreBase(std::string corename) : CoreInterface(corename), CommandSched
 		_LocalSceneGraph(new osg::Group),
 		_TrackballManipulator(new osgGA::TrackballManipulator),
 		_KeySwitchManipulator(new osgGA::KeySwitchMatrixManipulator),
-		_WinData(NULL)
+		_WinData(NULL),
+		_CurrWidth(550), 
+		_CurrHeight(550)
 {
 #if defined(_DEBUG)
 	//Inizializzo il Debug
@@ -106,11 +110,16 @@ bool CoreBase::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string opt
 	// Get the current window size
 	::GetWindowRect(mhWnd, &rect);
 	
-	_WinRect[0] = rect.left;
-	_WinRect[1] = rect.right;
-	_WinRect[2] = rect.bottom;
-	_WinRect[3] = rect.top;
+	int ww, hh;
+	ww = rect.right - rect.left; 
+	hh = rect.bottom - rect.top;
 
+	if(ww != 0)
+		_CurrWidth = ww;
+
+	if(hh != 0)
+		_CurrHeight = hh;
+	 
 	//Setto le proprietà di finestra
 	if(!this->setupWindow(new osgViewer::GraphicsWindowWin32::WindowData(mhWnd)))
 		return false;
@@ -127,15 +136,16 @@ bool CoreBase::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string opt
 	if(!this->initCameraConfig())
 		return false;
 
+	//Inizializzo gli Handler globali
+	if(!this->initSceneHandlers())
+		return false;
+
 	//Creo e attacco lo scenegraph alla scena
 	if(!this->initSceneData())
 		return false;
 	
 	//Blocco il tasto Escape
 	_Viewer->setKeyEventSetsDone(0);
-
-	//Setto il resizer per il Viewer
-	_Viewer->addEventHandler(new osgViewer::WindowSizeHandler);
 
 	//OSG Realize
 	_Viewer->realize();
@@ -212,7 +222,7 @@ bool CoreBase::initCameraConfig()
 {
 	this->sendNotifyMessage("initCameraConfig -> Initializing Camera Settings.");
 	
-	double ratio = ((double) _Traits->height) / ((double) _Traits->width);
+	double old_fov, old_ratio, old_zNear, y_zFar;
 
 	osg::DisplaySettings::instance()->setMinimumNumAlphaBits(8);
 	osg::ref_ptr<osg::GraphicsContext> gc = osg::GraphicsContext::createGraphicsContext(_Traits.get());
@@ -220,11 +230,22 @@ bool CoreBase::initCameraConfig()
 	_MainCamera->setGraphicsContext(gc.get());
 	_MainCamera->setViewport( new osg::Viewport( _Traits->x, _Traits->y, _Traits->width, _Traits->height ) );
 
-	_Viewer->addEventHandler(new osgViewer::StatsHandler);
 	_Viewer->setCameraManipulator(_KeySwitchManipulator.get());
 
-	//Workaround per modificare la projection visto che non riseco a farlo da nessun altra parte
-	_Viewer->addSlave(_MainCamera.get(), osg::Matrix::scale(osg::Vec3(ratio, 1.0, 1.0)), osg::Matrix::identity()); //FIXME: continua ad essere sbagliata la proporzione
+	_Viewer->addSlave(_MainCamera.get()); //, osg::Matrix::scale(osg::Vec3(ratio, 1.0, 1.0)), osg::Matrix::identity()); //TIPS: altro modo per fare la reprojection di camera
+
+	//TIPS: Lo accetta solo in questo modo. Se specifico la projection prima di fare slave non funziona
+	_Viewer->getCamera()->getProjectionMatrixAsPerspective(old_fov, old_ratio, old_zNear, y_zFar);
+	_Viewer->getCamera()->setProjectionMatrixAsPerspective(old_fov, ((double) _CurrWidth) / ((double) _CurrHeight), old_zNear, y_zFar);
+        
+    return true;
+}
+
+//Inizializzo gli Handler di Scena
+bool CoreBase::initSceneHandlers()
+{
+	// add the stats handler
+	_Viewer->addEventHandler(new osgViewer::StatsHandler);
 
 	return true;
 }
@@ -320,9 +341,8 @@ bool CoreBase::setupWindow(osg::Referenced* wd)
 	// Setup the traits parameters
 	_Traits->x = 0;
 	_Traits->y = 0;
-	
-	_Traits->width = _WinRect[1] - _WinRect[0];
-	_Traits->height = _WinRect[2] - _WinRect[3];
+	_Traits->width = _CurrWidth;
+	_Traits->height = _CurrHeight;
 	
 	_Traits->windowDecoration = false;
 	_Traits->doubleBuffer = true;

@@ -18,7 +18,7 @@ using namespace CommonCore;
 
 //FunCore Costruttore
 FunCore::FunCore(std::string corename) : CoreBase(corename),
-	_LoaderThreadHandler( new SceneHandlers::LoadThreadsHandler() ),
+	_LoaderThreadHandler( NULL ),
 	_SceneModifier( new SceneHandlers::SceneModifier ),
 	_TooltipsParserHandler( NULL ),
 	_TooltipsSceneModifier( NULL ),
@@ -89,27 +89,36 @@ void FunCore::AddStartOptions(std::string str, bool erase)
 //Ridefinizione dell'albero di scena
 bool FunCore::initSceneData()
 {
-	_TooltipsSceneModifier = new SceneHandlers::TooltipsSceneModifier();
-	_TooltipsParserHandler = new SceneHandlers::NodeParserHandler;
-	_TooltipsParserHandler->setTraversalNodeMask( _TooltipsSceneModifier->getAllowNodeMask() );
-	_TooltipsParserHandler->addCommand( osgGA::GUIEventAdapter::MOVE, _TooltipsSceneModifier.get());
-
-	_AnimateHandler = new SceneHandlers::AnimateViewHandler(_Viewer.get());
-
 	this->buildMainScene();
 
-	this->addCommandSchedule((CommandSchedule*) _SceneModifier.get());
-	this->addCommandSchedule((CommandSchedule*) _AnimateHandler.get());
-
-	_Viewer->addEventHandler(_AnimateHandler.get());
-	_Viewer->addEventHandler(_TooltipsParserHandler.get());
-	
 	_SceneModifier->setSceneData(_ModiSceneGraph.get());
 	_Viewer->setSceneData(_MainNode.get());
 
 	return true;
 }
 
+//Attacco gli Handler di Scena
+bool FunCore::initSceneHandlers()
+{
+	CoreBase::initSceneHandlers();
+
+	_AnimateHandler = new SceneHandlers::AnimateViewHandler(_Viewer.get());
+
+	_LoaderThreadHandler = new SceneHandlers::LoadThreadsHandler(_Traits->width, _Traits->height);
+	_TooltipsSceneModifier = new SceneHandlers::TooltipsSceneModifier(_Traits->width, _Traits->height);
+	_TooltipsParserHandler = new SceneHandlers::NodeParserHandler;
+	_TooltipsParserHandler->setTraversalNodeMask( _TooltipsSceneModifier->getAllowNodeMask() );
+	_TooltipsParserHandler->addCommand( osgGA::GUIEventAdapter::MOVE, _TooltipsSceneModifier.get());
+
+	this->addCommandSchedule((CommandSchedule*) _SceneModifier.get());
+	this->addCommandSchedule((CommandSchedule*) _AnimateHandler.get());
+
+	_Viewer->addEventHandler(_AnimateHandler.get());
+	_Viewer->addEventHandler(_TooltipsParserHandler.get());
+	_Viewer->addEventHandler(_LoaderThreadHandler.get());
+
+	return true;
+}
 
 bool FunCore::initManipulators()
 {

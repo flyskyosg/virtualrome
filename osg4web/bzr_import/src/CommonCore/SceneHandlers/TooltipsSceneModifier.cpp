@@ -18,7 +18,11 @@ using namespace SceneHandlers;
 
 /** Costruttore del TooltipsSceneModifier */
 
-TooltipsSceneModifier::TooltipsSceneModifier() : CommandStubb("show_tooltip"), //TODO: spostare in defines
+TooltipsSceneModifier::TooltipsSceneModifier(float initx, float inity) : CommandStubb("show_tooltip"), //TODO: spostare in defines
+	_xInitialResolution(initx),
+	_yInitialResolution(inity),
+	_xCurrentResolution(_xInitialResolution),
+	_yCurrentResolution(_yInitialResolution),
 	_hudgrp(new osg::Group),
 	_matrtrans(new osg::MatrixTransform),
 	_switchnd(new osg::Switch),
@@ -29,9 +33,7 @@ TooltipsSceneModifier::TooltipsSceneModifier() : CommandStubb("show_tooltip"), /
 	_negatemask(0xfffffffe),
 	_allowmask(0x0000001),
 	_startTime(0),
-	_maxTime(500.0), //TODO:
-	_xMaxResolution(500),
-	_yMaxResolution(500)
+	_maxTime(500.0) //TODO:
 {
 	this->createTooltipSceneGraph();
 }
@@ -92,7 +94,7 @@ void TooltipsSceneModifier::createTooltipCamera2D()
 	
 	//Inizializzo la camera di proiezione 2D
 	camera->setName("Tooltip_HUD_Camera_2D");
-	camera->setProjectionMatrix(osg::Matrix::ortho2D(0, _xMaxResolution, 0, _yMaxResolution)); 
+	camera->setProjectionMatrix(osg::Matrix::ortho2D(0, 1280, 0, 1024)); 
 	camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
 	camera->setViewMatrix(osg::Matrix::identity());
 	camera->setClearMask(GL_DEPTH_BUFFER_BIT);
@@ -139,19 +141,6 @@ void TooltipsSceneModifier::switchOnTooltip(std::string argument)
 
 	//Visualizzo il tooltip
 	_switchnd->setAllChildrenOn();
-}
-
-
-/** Aggiorna la MT del tooltip in base alle coordinate del mouse */
-
-void TooltipsSceneModifier::moveTooltip(const osgGA::GUIEventAdapter& ea)
-{
-	//Calcolo la posizione effettiva del tooltip (in coordinate Camera 2D) in base alla posizione del mouse sulla finestra
-	float x = (ea.getXnormalized()+1.0f) * 0.5f * _xMaxResolution;
-	float y = (ea.getYnormalized()+1.0f) * 0.5f * _yMaxResolution;
-	
-	//Setto nuova matrice
-	_matrtrans->setMatrix(osg::Matrix::identity() * osg::Matrix::translate(osg::Vec3(x, y, 0.0)) );
 }
 
 /** Creo la geometria di sfondo al testo del Tooltip in base alla BBox */
@@ -223,23 +212,80 @@ osg::Node* TooltipsSceneModifier::setTooltipsProperties(osg::Node* node, std::st
 	return grp.release();
 }
 
+#include <iostream>
 /** Handling evento show_tooltip */
 
 bool TooltipsSceneModifier::commandBridge(std::string argument, osg::Node* node, osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea)
 {
-	if(node != _currentactivetooltip) //c'è intersezione con nodo diverso. Setto Tooltip con nuovo testo
+	switch(ea.getEventType())
 	{
-		_currentactivetooltip = node;
-		switchOnTooltip(argument);
-	}
-	
-	moveTooltip(ea); //Aggiorno la posizione della MT
+	case osgGA::GUIEventAdapter::FRAME:
+		{
+			if(node != _currentactivetooltip) //c'è intersezione con nodo diverso. Setto Tooltip con nuovo testo
+			{
+				_currentactivetooltip = node;
+				switchOnTooltip(argument);
+			}
 
-	//Setto il timer di start
-	_startTime = osg::Timer::instance()->tick();
+			// Increase resolution
+			osgViewer::Viewer::Windows windows;
+
+			viewer->getWindows(windows);
+			for(osgViewer::Viewer::Windows::iterator itr = windows.begin(); itr != windows.end(); ++itr)
+			{
+				int x, y, width, height;
+				(*itr)->getWindowRectangle(x, y, width, height);
+
+				_xCurrentResolution = width;
+				_yCurrentResolution = height;
+
+				osg::ref_ptr<osg::Camera> cam = dynamic_cast<osg::Camera* >( _hudgrp->getChild(0) );
+
+				if(cam.valid())
+					cam->setProjectionMatrixAsOrtho2D(0, _xCurrentResolution, 0, _yCurrentResolution);
+			}
+		
+			moveTooltip(ea); //Aggiorno la posizione della MT
+
+			//Setto il timer di start
+			_startTime = osg::Timer::instance()->tick();
+		}
+	case osgGA::GUIEventAdapter::RESIZE:
+		{
+			
+		}
+		break;
+	default:
+		break;
+	}
 
 	return false; //Consento agli altri parser di continuare
 }
+
+
+/** Aggiorna la MT del tooltip in base alle coordinate del mouse */
+
+void TooltipsSceneModifier::moveTooltip(const osgGA::GUIEventAdapter& ea)
+{
+	float wratio = 1.0f;
+	float hratio = 1.0f;
+
+	if(_xInitialResolution != 0 && _xCurrentResolution != 0)
+		wratio = _xInitialResolution / _xCurrentResolution;
+
+	if(_yInitialResolution != 0 && _yCurrentResolution != 0)
+		hratio = _yInitialResolution / _yCurrentResolution;
+
+	//Calcolo la posizione effettiva del tooltip (in coordinate Camera 2D) in base alla posizione del mouse sulla finestra
+	float x = (ea.getXnormalized() * wratio + 1.0f) * 0.5f * _xCurrentResolution;
+	float y = (ea.getYnormalized() * hratio + 1.0f) * 0.5f * _yCurrentResolution;
+	
+	//Setto nuova matrice
+	_matrtrans->setMatrix(osg::Matrix::identity() * osg::Matrix::translate(osg::Vec3(x, y, 0.0)) );
+}
+
+
+/** Timer di mantenimento delle labels */
 
 void TooltipsSceneModifier::checkTooltipsTiming()
 {

@@ -1,6 +1,14 @@
 
 Change Log
 
+08/03/2008
+- Allineamento esempi
+- Implementazione resize sugli HUD 2D
+
+06/03/2008
+- Eventi di resize della finestra
+- Bug fix chiamata a DoRendering
+
 28/02/2008
 - Riscritta la parte di parsing dei nodi
 - Riscritto la metodologia di picking

@@ -65,6 +65,8 @@ protected:
 
 	osg::Timer* _MessageTimer;
 
+	osg::ref_ptr<osg::Camera> _CameraNode;
+
 	osg::ref_ptr<osg::Node> _LoadedNode;
 	osg::ref_ptr<osg::ShapeDrawable> _CapsuleBarSD;
 	osg::ref_ptr<osg::Switch> _CapsuleBarSwitch;

@@ -57,7 +57,7 @@ bool CoreTooltips::initSceneData()
 	 */
 
 	//Creo il Tooltip Scene Modifier
-	_TooltipsSceneModifier = new SceneHandlers::TooltipsSceneModifier();
+	_TooltipsSceneModifier = new SceneHandlers::TooltipsSceneModifier(_Traits->width, _Traits->height); //FIXME:
 
 	// add the HUD subgraph.
 	osg::ref_ptr<osg::Group> parent = new osg::Group;
@@ -88,6 +88,8 @@ bool CoreTooltips::initSceneData()
 	 */
 	
 	_TooltipsParserHandler->addCommand( osgGA::GUIEventAdapter::FRAME, _TooltipsSceneModifier.get()); //FIXME: controllare se usare MOUSEMOVE
+	_TooltipsParserHandler->addCommand( osgGA::GUIEventAdapter::RESIZE, _TooltipsSceneModifier.get());
+
 	_Viewer->addEventHandler(_TooltipsParserHandler.get());
 	_Viewer->setSceneData(parent.get());
 

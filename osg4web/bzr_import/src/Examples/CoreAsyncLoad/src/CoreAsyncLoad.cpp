@@ -9,7 +9,7 @@ using namespace CommonCore;
 
 /** CoreAsyncLoad Costruttore */
 CoreAsyncLoad::CoreAsyncLoad(std::string corename) : CoreBase(corename),
-	_mainLTHandler(new SceneHandlers::LoadThreadsHandler())
+	_mainLTHandler( NULL )
 {
 	this->sendNotifyMessage("CoreAsyncLoad -> Costructing CoreExampleAsyncLoad Instance.");
 
@@ -28,6 +28,19 @@ CoreAsyncLoad::~CoreAsyncLoad()
 	}
 
 	this->sendNotifyMessage("~CoreAsyncLoad -> Destructing CoreExampleAsyncLoad Instance.");
+}
+
+//Inizializzo gli Handler di Scena
+bool CoreAsyncLoad::initSceneHandlers()
+{
+	CoreBase::initSceneHandlers();
+
+	_mainLTHandler = new SceneHandlers::LoadThreadsHandler(_Traits->width, _Traits->height);
+	
+	// add the stats handler
+	_Viewer->addEventHandler(_mainLTHandler.get());
+
+	return true;
 }
 
 /** Ridefinisco i comandi accettati dalla DoCommand per il CommandSchedule "this" */
