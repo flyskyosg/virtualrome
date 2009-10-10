@@ -159,11 +159,12 @@ bool ShellDownloader::performDownload(RequestDownload curreq, bool timing)
 	if(!curreq.getSecurityString().empty())
 	{
 		_dwnlcontrol->checkSecurityString(timing);
-		/*if(!this->checkSecurityString(curreq))
+
+		if(!this->checkSecurityString(curreq))
 		{
 			_dwnlcontrol->securityStringError();
 			return false;
-		}*/
+		}
 	}
 
 	if(curreq.getUnpackFlag())
@@ -177,7 +178,10 @@ bool ShellDownloader::performDownload(RequestDownload curreq, bool timing)
 		}
 	}
 
-	_dwnlcontrol->downloadFinished(timing);
+	if(curreq.getFileType() == RequestDownload::SIMPLE_FILE)
+		_dwnlcontrol->downloadCoreFileFinished(Utilities::FileUtils::convertFileNameToNativeStyle( curreq.getDownloadTempDir() + "/" + Utilities::FileUtils::getSimpleFileName(curreq.getDownloadURL())), timing);
+	else
+		_dwnlcontrol->downloadFinished(timing);
 
 	return true;
 }

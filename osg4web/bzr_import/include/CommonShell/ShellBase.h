@@ -85,11 +85,15 @@ public:
 	void checkSecurityString(bool timing);
 	void startUnPackSession(bool timing);
 	void downloadFinished(bool timing);
+	void downloadCoreFileFinished(std::string tempfile, bool timing);
 	void downloadError(int error);
 	void securityStringError();
 	void unpackError(int error);
 
 	void requestExplicitRendering();  //FIXME: finire questa parte ... si inkioda se attivo 
+
+	static bool requestFileDownload(void* classptr, std::string url);
+	bool setDownloadRequest(std::string url);
 
 //Sets Windows Handler
 #if defined (WIN32)

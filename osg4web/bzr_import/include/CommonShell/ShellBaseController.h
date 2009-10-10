@@ -29,6 +29,7 @@ public:
 	void checkSecurityString(bool timing = true);
 	void startUnPackSession(bool timing = true);
 	void downloadFinished(bool timing = true);
+	void downloadCoreFileFinished(std::string url, bool timing = true);
 	void downloadError(int error);
 	void securityStringError();
 	void unpackError(int error);
