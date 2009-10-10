@@ -163,7 +163,10 @@ ADD_LIBRARY(
 	${CommonShell_include_FILES}
 	${${PROJECT_NAME}_include_FILES}
 	#${${PROJECT_NAME}_GEN_INC_DIR}/${IDL_FILENAME}.h
-	${CommonShell_src_FILES} ${${PROJECT_NAME}_src_FILES}
+	${OSG4WEB_ROOT}/res/${PROJECT_NAME}/${PROJECT_NAME}_res.def
+	${OSG4WEB_ROOT}/res/${PROJECT_NAME}/${PROJECT_NAME}_res.rc
+	${CommonShell_src_FILES} 
+	${${PROJECT_NAME}_src_FILES}
 )
 
 
