@@ -24,6 +24,16 @@ CoreSceneModifier::CoreSceneModifier(std::string corename) : CoreBase(corename),
 CoreSceneModifier::~CoreSceneModifier()
 {
 	this->sendNotifyMessage("~CoreSceneModifier -> Destructing CoreExampleSceneModifier Instance.");
+	if(_AnimateHandler.valid())
+		_AnimateHandler = NULL;
+	if(_SceneModifier.valid())
+		_SceneModifier = NULL;
+	if(_ParserHandler.valid())
+		_ParserHandler = NULL;
+
+	if(_GetBackHandler.valid())
+		_GetBackHandler = NULL;
+
 }
 
 //Carica un modello nella scena e aggiunge lo scribe sul modello. 
@@ -80,7 +90,46 @@ bool CoreSceneModifier::initSceneData()
 	//Attacca al Command Registry lo SceneModifier CommandSchedule
 	this->addCommandSchedule((CommandSchedule*) _SceneModifier.get());
 
-	_Viewer->setSceneData(_MainNode.get());
+	
+	_AnimateHandler = new SceneHandlers::AnimateViewHandler(_Viewer.get());
+
+	_Viewer->addEventHandler(_AnimateHandler.get());
+
+	this->addCommandSchedule((CommandSchedule*) _AnimateHandler.get());
+
+	/***************************************************************
+	 *
+	 * CREO IL GETBACKHANDLER
+	 */
+
+	//Creo il GetBack Handler
+	_GetBackHandler = new SceneHandlers::GetBackHandler((CommonCore::RaiseEventInterface*) this);
+	//Aggiunge la description di comando per usare il getback handler
+	_GetBackHandler->setJSCallToNode(_MainNode.get(), "Left Mouse Picking GetBack Handled!");
+	
+	/***************************************************************
+	 *
+	 * CREO IL TOOLIPS HANDLER
+	 */
+
+	//Creo il Parser Handler
+	_ParserHandler = new SceneHandlers::NodeParserHandler;
+	
+		
+	/***************************************************************
+	 *
+	 * ATTACCO IL GETBACK AL PARSER
+	 */
+	
+	_ParserHandler->addCommand( osgGA::GUIEventAdapter::PUSH, _GetBackHandler.get());
+	_Viewer->addEventHandler(_ParserHandler.get());
+
+//	osg::ref_ptr<osgDB::ReaderWriter::Options> rwoptions = new osgDB::ReaderWriter::Options;
+//	rwoptions->setObjectCacheHint(osgDB::ReaderWriter::Options::CACHE_ALL);
+//	osgDB::Registry::instance()->setOptions(rwoptions.get());
+
+
+	_Viewer->setSceneData(_MainNode.get()); 
 
 	return true;
 }
