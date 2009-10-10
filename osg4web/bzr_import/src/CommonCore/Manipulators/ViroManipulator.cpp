@@ -475,41 +475,37 @@ void ViroManipulator::turn(double dx, double dy){
 		Slide.normalize();
 		Slide *= -Fx;
 
-		//double rx,ry,X,Y,a;
-		//a = VecAngle(osg::X_AXIS, _vLook);
-		//X = _vLastPickedPoint.x() - _vEye.x();
-		//Y = _vLastPickedPoint.y() - _vEye.y();
-		//rx = X*cos(a) - Y*sin(a);
-		//ry = X*sin(a) + Y*cos(a);
+		double rx,ry,X,Y,a;
+		//a = osg::DegreesToRadians( VecAngle(osg::X_AXIS, _vLook) );
+		X = _vLastPickedPoint.x() - _vEye.x();
+		Y = _vLastPickedPoint.y() - _vEye.y();
+		rx = X*cos(a) - Y*sin(a);
+		ry = X*sin(a) + Y*cos(a);
 
-		//dRotation.makeRotate( (_vEye-_vLastPickedPoint),(_vEye-_vLastPickedPoint)+Slide+Vec3d(0,0,-Fy));
-
-		//M = Vec3d(Slide.x(),Slide.y(),-Fy);
-		//M = Vec3d(0,0,-Fy);
-
-		//_vEye    += M;
-		//_vTarget += M;
-
-		//_qRotation = _qRotation * dRotation;
 		Vec3d V1 = _vLastPickedPoint - _vEye;
+		double rad = V1.length();
 		Vec3d V2 = _vLook;
 		V1.normalize();
 		V2.normalize();
 		Vec3d T = (Vec3d(_vEye+V1) - Vec3d(_vEye+V2));
-		double rad = V1.length();
-		
+
+		//double a = 0.1;
+		//rx = X*cos(a) - Y*sin(a);
+		//ry = X*sin(a) + Y*cos(a);
+
 		if (T.length() < 0.2){
 			osg::Vec3d tmp;
 			_qRotation = qTumble;
 			//M = Vec3d(X,Y,-Fy);
 			M = Vec3d(Slide.x()*2,Slide.y()*2,-Fy);
-			//tmp = _vEye + M;
-			//tmp = _vLastPickedPoint-tmp;
-			//tmp.normalize();
-			//tmp *= rad;
-			//_vEye = _vLastPickedPoint - tmp;
+			tmp = _vEye + M;
+			tmp = _vLastPickedPoint-tmp;
+			tmp.normalize();
+			tmp *= rad;
+			_vEye = _vLastPickedPoint - tmp;
 
-			_vEye += M;
+			//_vEye += M;
+			//_vEye = _vLastPickedPoint - M;
 			}
 		else {
 			M = Vec3d(Slide.x(),Slide.y(),-Fy);
