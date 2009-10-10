@@ -1272,7 +1272,7 @@ void nsPluginInstance::doDownloadCore()
 		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
 		this->loadingCoreCommand("LOADCORE SETMESSAGE Core Found...");
 
-		PR_Sleep(1000); //Delay per far visualizzare il messaggio //FIXME: mettere in define
+		PR_Sleep(1500); //Delay per far visualizzare il messaggio //FIXME: mettere in define
 
 		//Loading Session
 		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");

@@ -72,6 +72,33 @@ void LoadThreadsHandler::AttachNodeToSceneByName::apply(osg::Group& grp)
 	traverse(grp);
 }
 
+void LoadThreadsHandler::AttachNodeToSceneByName::apply(osg::Switch& swt)
+{
+	if (swt.getName() == _nodeName)
+	{
+		if(!_attached || _multipleattach)
+		{
+			if(_ranged)
+			{
+				osg::ref_ptr<osg::LOD> newlod = new osg::LOD;
+				newlod->setName("RangedLOD_" + _attachNode->getName());
+
+				newlod->addChild(_attachNode.get(), _min, _max);
+
+				swt.addChild(newlod.get(), true);
+			}
+			else
+			{
+				swt.addChild(_attachNode.get(), true);
+			}
+			
+			_attached = true;
+		}
+	}
+
+	traverse(swt);
+}
+
 
 
 /***********************************************************************
@@ -579,6 +606,19 @@ LoadThreadsHandler::RequestFile* LoadThreadsHandler::findFirstRequestAvailable()
 	return NULL;
 }
 
+/** True se viene trovato il nome in base al node name */
+bool LoadThreadsHandler::checkNodePresenceByName(std::string name)
+{
+	Visitors::FindNodeVisitor fnvslg(name);
+	fnvslg.setTraversalMode(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
+	_mainNode->accept(fnvslg);
+
+	if(fnvslg.getNodeFoundSize() == 0)
+		return false;
+	
+	return true;
+}
+
 /** Divide una stringa in comando argomento in base al separatore */
 void LoadThreadsHandler::splitCommand(std::string command, std::string& largs, std::string& rargs, const char split)
 {
@@ -756,7 +796,25 @@ bool LoadThreadsHandler::handleLoadingErrors(std::vector<std::string>& filenames
 		if((*ltiter)->isFailed())
 		{
 			filenames.push_back((*ltiter)->getFileToLoad());
-			retstr = true;
+			
+			//Ricerco la richiesta nella RequestQueue
+			RequestQueue::iterator reqcurritr;
+			RequestQueue::iterator reqitr = _requestQueue.begin();
+			for( ; reqitr != _requestQueue.end(); reqitr++)
+			{
+				if((*reqitr)->getFileName() == (*ltiter)->getFileToLoad())
+				{
+					reqcurritr = reqitr;
+				}
+			}
+
+			//Richiesta esaudita elimino la richiesta pendente
+			_requestQueue.erase(reqcurritr);
+
+			//Elimino il Thread di Loading associato alla richiesta andata male
+			_loaderThreadsStack.erase(ltiter);
+
+			return true;
 		}
 	}
 

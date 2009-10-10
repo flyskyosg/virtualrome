@@ -238,7 +238,7 @@ bool LoadCore::createOSG4WebLogo()
     stateset->setMode(GL_LIGHTING,osg::StateAttribute::OVERRIDE|osg::StateAttribute::OFF);
 
 	osg::ref_ptr<osg::ClearNode> backdrop = new osg::ClearNode;
-    backdrop->setClearColor(osg::Vec4(1.0f,1.0f,1.0f,0.0f));
+    backdrop->setClearColor(OSG4WEB_CLEARCOLOR_BACKGROUND);
 	
 	//Creo il testo
 	delight->addChild(createOSG4WebLogoText());

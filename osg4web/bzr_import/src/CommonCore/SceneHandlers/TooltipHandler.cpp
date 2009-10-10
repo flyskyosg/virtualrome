@@ -57,6 +57,12 @@ void TooltipHandler::createTooltipSceneGraph()
 	_textnd->setFont("fonts/arial.ttf"); //FIXME
     _textnd->setCharacterSize(15.0);
 	_textnd->setPosition(osg::Vec3(0.0,0.0,0.0));
+	_textnd->setColor(osg::Vec4(1.0f, 153.0f / 255.0f, 0.0f, 1.0f)); //FIXME: ripristinare
+
+	_textnd->setBackdropType(osgText::Text::OUTLINE);
+    _textnd->setBackdropImplementation(osgText::Text::POLYGON_OFFSET);
+    _textnd->setBackdropOffset(0.025f);
+    _textnd->setBackdropColor(osg::Vec4(176.0f / 255.0f, 106.0f / 255.0f, 0.0f, 1.0f));
 
 	//Disabilito il modello di illuminazione per i tooltip
 	osg::ref_ptr<osg::StateSet> globstateset = _geodend->getOrCreateStateSet();
@@ -213,7 +219,7 @@ void TooltipHandler::createTooltipBackgroud(osg::BoundingBox bb)
 	float scar = 0.1; //Adder sulla dimensione della BBox
 
 	//Calcolo la BBox con aggiunta dell'Adder
-	float deltax = abs( abs( bb.xMin()) - abs(bb.xMax() ) ) * scar;
+	float deltax = abs( abs( bb.xMin()) - abs(bb.xMax() ) ) * ( scar / 10.0f); //FIXME: / 10.f prova
 	float deltay = abs( abs( bb.yMin()) - abs(bb.yMax() ) ) * scar;
 	bb.set(bb.xMin() - deltax, bb.yMin() - deltay, bb.zMin(), bb.xMax() + deltax, bb.yMax() + deltay, bb.zMax());
 
@@ -233,7 +239,7 @@ void TooltipHandler::createTooltipBackgroud(osg::BoundingBox bb)
 
 	//Associo Colore
 	osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
-	colors->push_back(osg::Vec4(1.0f,1.0,0.8f,0.2f)); 
+	colors->push_back(osg::Vec4(192.0f / 255.0f, 192.0f / 255.0f, 192.0f / 255.0f, 0.35f)); // FIXME: ripristinare osg::Vec4(1.0f,1.0,0.8f,0.2f)); 
 	_geombox->setColorArray(colors.get());
 	_geombox->setColorBinding(osg::Geometry::BIND_OVERALL);
 

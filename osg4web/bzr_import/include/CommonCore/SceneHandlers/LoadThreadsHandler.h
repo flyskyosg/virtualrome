@@ -39,6 +39,9 @@ namespace SceneHandlers
 			//Attacca al/ai nodi che corrispondono a nodeName
 			virtual void apply(osg::Group& grp);
 
+			//Attacca al/ai nodi Switch che corrispondono a nodeName e setta a true la visibility del figlio
+			virtual void AttachNodeToSceneByName::apply(osg::Switch& swt);
+
 			//Ritorna true se il nodo è stato attaccato
 			bool isNodeFound() { return _attached;}
 
@@ -240,6 +243,9 @@ namespace SceneHandlers
 		//Setto il server prefix per i nodi caricati dai Loading Groups
 		void setServerPrefix(std::string address) { _address = address; }
 		std::string getServerPrefix() { return _address; }
+
+		//Controlla la presenza di un nodo attraverso il nome
+		bool checkNodePresenceByName(std::string name);
 		
 	protected:
 		//Distruttore
