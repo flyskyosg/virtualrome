@@ -57,12 +57,12 @@ ENDMACRO(SETUP_CORE_RUNTIME CORE_TYPE_PREFIX)
 #
 ############################################################
 
-MACRO(SETUP_LOADCORE_RUNTIME CORE_TYPE_PREFIX)
+MACRO(SETUP_LOADER_RUNTIME CORE_TYPE_PREFIX)
 	SET(OUTPUT_Debug_DIR ${FIREFOX_PLUGIN_DIR})
 	SET(OUTPUT_Release_DIR ${FIREFOX_PLUGIN_DIR})
 
 	COPY_TARGET_POST_BUILD( ${PROJECT_NAME} )		
-ENDMACRO(SETUP_LOADCORE_RUNTIME CORE_TYPE_PREFIX)
+ENDMACRO(SETUP_LOADER_RUNTIME CORE_TYPE_PREFIX)
 
 
 
@@ -161,5 +161,62 @@ MACRO(SETUP_CORE_EXAMPLE)
 	INCLUDE(ModuleInstall OPTIONAL)
 ENDMACRO(SETUP_CORE_EXAMPLE)
 
+
+############################################################
+#
+# Setup Runtime Example OpenGL Cores
+#
+############################################################
+
+MACRO(SETUP_COREOGL_EXAMPLE)
+	# CoreExample Sub Project
+	GET_FILENAME_COMPONENT(THIS_PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+	PROJECT(${THIS_PROJECT_NAME})
+
+	# Adding Definition
+	ADD_DEFINITIONS(-DOSG4WEBCORE_LIBRARY)
+
+	# Setting variables
+	SET(CMAKE_DEBUG_POSTFIX  "d")
+	SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)
+	IF(WIN32)
+		SET(COREOPENGL_SRCS ${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/src/WindowWin32.cpp) #TODO: sistemare meglio
+	ELSE(WIN32)
+		#TODO
+	ENDIF(WIN32)
+
+	# Grabbing src and include files
+	GRAB_FILES( "${PROJECT_NAME}_src" )
+
+	# Adding grabbed files to project
+	ADD_LIBRARY(${PROJECT_NAME}
+		SHARED
+	    	${${PROJECT_NAME}_src_FILES}
+	    	${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/src/CoreOpenGL.cpp
+		${COREOPENGL_SRCS}
+	)
+
+	# Adding ext libraries include directories
+	INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_src} ${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/include  ${OSG4WEB_ROOT}/include)
+
+	# Linking to ext libraries
+	LINK_WITH_VARIABLES(${PROJECT_NAME} )
+
+	# Adding Library Dependancies
+	TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OPENGL_LIBRARIES})
+
+	# Setting target properties
+	SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Example_${PROJECT_NAME}")
+	SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+
+	# Coping Target Result in Debug Directory
+	SETUP_CORE_RUNTIME(Example ${PROJECT_NAME})
+
+	# Configuring HTML Default Tests
+	CONFIGURE_HTML_TEST(${CMAKE_CURRENT_SOURCE_DIR}/html)
+
+	# Include ModuleInsall #TODO: forse da togliere...
+	INCLUDE(ModuleInstall OPTIONAL)
+ENDMACRO(SETUP_COREOGL_EXAMPLE)
 
 

@@ -2,10 +2,7 @@
 #include <iostream>
 
 #include <CoreOpenGL/CoreOpenGL.h>
-
-
-#include <gl/gl.h>
-#include <gl/glu.h>
+#include <CoreOpenGL/Demo/Teapot.h>
 
 using namespace CommonCore;
 
@@ -169,59 +166,32 @@ bool CoreOpenGL::renderImplementation()
 	
 	gluLookAt(0.0, 2.5, -11.0, 0.0, 0.75, -5.0, 0.0, 1.0, 0.0);
 		
-	this->drawDemoGridAndCube();
+	this->drawDemoGridAndTeapot();
 	
 	return true;
 }
 
-void CoreOpenGL::drawDemoGridAndCube()
+void CoreOpenGL::drawDemoGridAndTeapot()
 {
 	glPushMatrix();
 	glRotatef( _theta, 0.0f, 1.0f, 0.0f );
+
+	glDisable(GL_LIGHTING);
 	for(float i = -500; i <= 500; i += 5)
 	{
 		glBegin(GL_LINES);
-			glColor3ub(150, 190, 150);						
+			glColor3ub(50, 130, 50);						
 			glVertex3f(-500, 0, i);					
 			glVertex3f(500, 0, i);
 			glVertex3f(i, 0,-500);							
 			glVertex3f(i, 0, 500);
 		glEnd();
 	}
+	glEnable(GL_LIGHTING);
 	
-	glTranslatef(0,1.0f,0);
-	glBegin(GL_QUADS);						
-		glColor3f(0.0f,1.0f,0.0f);			
-		glVertex3f( 1.0f, 1.0f,-1.0f);		
-		glVertex3f(-1.0f, 1.0f,-1.0f);		
-		glVertex3f(-1.0f, 1.0f, 1.0f);		
-		glVertex3f( 1.0f, 1.0f, 1.0f);		
-		glColor3f(1.0f,0.5f,0.0f);			
-		glVertex3f( 1.0f,-1.0f, 1.0f);		
-		glVertex3f(-1.0f,-1.0f, 1.0f);		
-		glVertex3f(-1.0f,-1.0f,-1.0f);		
-		glVertex3f( 1.0f,-1.0f,-1.0f);
-		glColor3f(1.0f,0.0f,0.0f);			
-		glVertex3f( 1.0f, 1.0f, 1.0f);		
-		glVertex3f(-1.0f, 1.0f, 1.0f);		
-		glVertex3f(-1.0f,-1.0f, 1.0f);		
-		glVertex3f( 1.0f,-1.0f, 1.0f);		
-		glColor3f(1.0f,1.0f,0.0f);			
-		glVertex3f( 1.0f,-1.0f,-1.0f);		
-		glVertex3f(-1.0f,-1.0f,-1.0f);		
-		glVertex3f(-1.0f, 1.0f,-1.0f);		
-		glVertex3f( 1.0f, 1.0f,-1.0f);		
-		glColor3f(0.0f,0.0f,1.0f);			
-		glVertex3f(-1.0f, 1.0f, 1.0f);		
-		glVertex3f(-1.0f, 1.0f,-1.0f);		
-		glVertex3f(-1.0f,-1.0f,-1.0f);		
-		glVertex3f(-1.0f,-1.0f, 1.0f);		
-		glColor3f(1.0f,0.0f,1.0f);			
-		glVertex3f( 1.0f, 1.0f,-1.0f);		
-		glVertex3f( 1.0f, 1.0f, 1.0f);		
-		glVertex3f( 1.0f,-1.0f, 1.0f);		
-		glVertex3f( 1.0f,-1.0f,-1.0f);		
-	glEnd();
+	glColor3ub(150, 190, 150);
+	glTranslatef(0.0f, 1.3f, 0.0f);
+	OpenGLTeapotExample::SolidTeapot(1.8);
 	glPopMatrix();
 
 	_theta += 0.75f;
@@ -243,9 +213,30 @@ bool CoreOpenGL::windowResize(int windowX, int windowY, int windowWidth, int win
 
 void CoreOpenGL::initializeOpenGL()
 {
+	GLfloat ambient[] = {0.0, 0.0, 0.0, 1.0};
+	GLfloat diffuse[] = {1.0, 1.0, 1.0, 1.0};
+	GLfloat specular[] = {1.0, 1.0, 1.0, 1.0};
+	GLfloat position[] = {0.0, 3.0, 3.0, 0.0};
+
+	GLfloat lmodel_ambient[] = {0.2, 0.2, 0.2, 1.0};
+	GLfloat local_view[] = {0.0};
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
+	glLightModelfv(GL_LIGHT_MODEL_LOCAL_VIEWER, local_view);
+
+	glFrontFace(GL_CW);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+   
 	glShadeModel(GL_SMOOTH);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
 	glClearDepth(1.0f);
+	glEnable(GL_AUTO_NORMAL);
+	glEnable(GL_NORMALIZE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);

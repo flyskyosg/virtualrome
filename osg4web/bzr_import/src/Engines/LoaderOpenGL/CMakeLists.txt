@@ -1,12 +1,12 @@
 ############################################################
 #
-# LoadCore Sub Project
+# Loader OpenGL Sub Project
 #
 # Dinamic Core library generation
 #
 ############################################################
 
-PROJECT(LoadCore)
+PROJECT(LoaderOpenGL)
 
 
 ############################################################
@@ -27,13 +27,20 @@ ADD_DEFINITIONS(-DOSG4WEBCORE_LIBRARY)
 SET(CMAKE_DEBUG_POSTFIX  "d")
 SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)
 SET("${PROJECT_NAME}_include_dir" ${CMAKE_CURRENT_SOURCE_DIR}/include)
-SET("${PROJECT_NAME}_include" ${CMAKE_CURRENT_SOURCE_DIR}/include/LoadCore)
+SET("${PROJECT_NAME}_include" ${CMAKE_CURRENT_SOURCE_DIR}/include/LoaderOpenGL)
+
+IF(WIN32)
+    	SET(COREOPENGL_ADD_SRCS ${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/src/WindowWin32.cpp)
+ELSE(WIN32)
+	#TODO: non windows
+ENDIF(WIN32)
+
 
 #coping debug files
 SET(OUTPUT_DIR $ENV{APPDATA}/osg4web/${PROJECT_NAME})
-SET(FONT_DIR ${OSG4WEB_ROOT}/var/stuffs/fonts)
-SET(MODEL_DIR ${OSG4WEB_ROOT}/var/stuffs/models)
-SET(DATA_SRCS ${FONT_DIR}/arial.ttf ${MODEL_DIR}/osg4web_world.ive)
+#SET(FONT_DIR ${OSG4WEB_ROOT}/var/stuffs/fonts)
+#SET(MODEL_DIR ${OSG4WEB_ROOT}/var/stuffs/models)
+#SET(DATA_SRCS ${FONT_DIR}/arial.ttf ${MODEL_DIR}/osg4web_world.ive) #TODO
 
 
 ############################################################
@@ -56,7 +63,8 @@ ADD_LIBRARY(${PROJECT_NAME}
 	SHARED
 	${${PROJECT_NAME}_include_FILES}
     	${${PROJECT_NAME}_src_FILES}
-    	${OSG4WEB_ROOT}/src/Engines/CoreBase/src/CoreBase.cpp
+    	${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/src/CoreOpenGL.cpp
+	${COREOPENGL_ADD_SRCS}
 )
 
 ###########################################################
@@ -65,7 +73,7 @@ ADD_LIBRARY(${PROJECT_NAME}
 #
 ############################################################
 
-INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_include_dir} ${OSG_INCLUDE_DIR} ${OSG4WEB_ROOT}/src/Engines/CoreBase/include  ${OSG4WEB_ROOT}/include )
+INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_include_dir} ${OSG4WEB_ROOT}/src/Engines/CoreOpenGL/include  ${OSG4WEB_ROOT}/include )
 
 
 ############################################################
@@ -75,7 +83,7 @@ INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_include_dir} ${OSG_INCLUDE_DIR} ${OSG4WEB
 ############################################################
 
 
-LINK_WITH_VARIABLES(${PROJECT_NAME} OSG_LIBRARY OSGUTIL_LIBRARY OSGDB_LIBRARY OSGGA_LIBRARY OSGFX_LIBRARY OSGTEXT_LIBRARY OSGVIEWER_LIBRARY OPENTHREADS_LIBRARY)
+LINK_WITH_VARIABLES(${PROJECT_NAME} )
 
 
 ############################################################
@@ -84,7 +92,7 @@ LINK_WITH_VARIABLES(${PROJECT_NAME} OSG_LIBRARY OSGUTIL_LIBRARY OSGDB_LIBRARY OS
 #
 ############################################################
 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommonCore)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 
 
 ############################################################
@@ -94,7 +102,6 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommonCore)
 ############################################################
 
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Engine_${PROJECT_NAME}")
-#SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
 
 ############################################################
@@ -103,7 +110,7 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Engine_${PROJECT
 #
 ############################################################
 
-SETUP_LOADCORE_RUNTIME(${PROJECT_NAME})
+SETUP_LOADER_RUNTIME(${PROJECT_NAME})
 
 
 ############################################################
@@ -136,36 +143,5 @@ CONFIGURE_HTML_TEST(${CMAKE_CURRENT_SOURCE_DIR}/html)
 ############################################################
 
 INCLUDE(ModuleInstall OPTIONAL)
-
-
-
-
-#IF(FIREFOX_PLUGIN_DIR)
-#	SET(OUTPUT_LIBDIR ${FIREFOX_PLUGIN_DIR})
-#	MAKE_DIRECTORY(${OUTPUT_LIBDIR})
-
-###################   data copying ###################
-#	SET(DUMMY_SHA1 "${PROJECT_NAME}")
-#	SET(OUTPUT_Debug_DIR $ENV{APPDATA}/osg4web/${DUMMY_SHA1})
-
-#	GET_TARGET_PROPERTY(${PROJECT_NAME}_Debug_LOCATION ${PROJECT_NAME} DEBUG_LOCATION)
-#	GET_TARGET_PROPERTY(${PROJECT_NAME}_Release_LOCATION ${PROJECT_NAME} RELEASE_LOCATION)
-
-#	FOREACH(BTYPE Debug Release)
-#		GET_FILENAME_COMPONENT( MYNAME_${BTYPE} ${${PROJECT_NAME}_${BTYPE}_LOCATION} NAME)
-#		ADD_CUSTOM_COMMAND(
-#			OUTPUT ${OUTPUT_LIBDIR}/${MYNAME_${BTYPE}}
-#    			COMMAND ${CMAKE_COMMAND} -E copy ${${PROJECT_NAME}_${BTYPE}_LOCATION} ${OUTPUT_LIBDIR}
-#    			DEPENDS ${PROJECT_NAME}
-#    		)
-#
-#		ADD_CUSTOM_TARGET(Engine_${PROJECT_NAME}_Prepare_${BTYPE}
-#			DEPENDS ${OUTPUT_LIBDIR}/${MYNAME_${BTYPE}} ${DATA_TARGET_FILES}
-#			)
-#
-#   		SET(FIREFOX_STUFF_LIST_${BTYPE} "${FIREFOX_STUFF_LIST_${BTYPE}} ${OUTPUT_LIBDIR}/${MYNAME_${BTYPE}}") 
-#	ENDFOREACH(BTYPE Debug Release)
-#ENDIF(FIREFOX_PLUGIN_DIR)
-
 
 

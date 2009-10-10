@@ -59,7 +59,7 @@ public:
   	// class platform specific way
   	virtual NPBool init(NPWindow* aWindow) = 0;
 	
-	virtual NPBool initLoadCore() = 0;
+	virtual NPBool initLoader() = 0;
 	
   	virtual void shut() = 0;
 	

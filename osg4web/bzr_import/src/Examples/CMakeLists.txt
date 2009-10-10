@@ -5,6 +5,10 @@
 #
 ############################################################
 
+SUBDIRS(
+	CoreOGLTeapots
+)
+
 IF(OSG_FOUND)
 	SUBDIRS(
 		CoreAnimateView

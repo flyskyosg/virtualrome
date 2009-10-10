@@ -3,25 +3,25 @@
 
 //ShellBase
 //Default Values
-#define		SHELL_VERSION_STRING		"OSG4Web - Shell Version: 1.0.0.0"
-#define		LOAD_CORE_DEFAULT_NAME		"LoadCore"
-#define		ADVANCED_CORE_DEFAULT_NAME	"dummy_core_run"
-#define		CORE_DEPENDANCIES_DIR		"coredeps"
+#define		SHELL_VERSION_STRING			"OSG4Web - Shell Version: 1.0.0.0"
+#define		LOADER_CORE_DEFAULT_NAME		"Loader"
+#define		ADVANCED_CORE_DEFAULT_NAME		"dummy_core_run"
+#define		CORE_DEPENDANCIES_DIR			"coredeps"
 
 //Init Options Defines
-#define		INIT_OPTION_PROXYHNAME		"ProxyHName"
-#define		INIT_OPTION_PROXYHPORT		"ProxyHPort"
-#define		INIT_OPTION_INSTALLDIR		"InstallDir"
-#define		INIT_OPTION_LOCALINSTDIR	"LocalInstDir"
-#define		INIT_OPTION_TEMPDIR			"TempDir"
-#define		INIT_OPTION_COREINSTDIR		"CoreInstallDir"
+#define		INIT_OPTION_PROXYHNAME			"ProxyHName"
+#define		INIT_OPTION_PROXYHPORT			"ProxyHPort"
+#define		INIT_OPTION_INSTALLDIR			"InstallDir"
+#define		INIT_OPTION_LOCALINSTDIR		"LocalInstDir"
+#define		INIT_OPTION_TEMPDIR				"TempDir"
+#define		INIT_OPTION_COREINSTDIR			"CoreInstallDir"
 
 //Cores General Options
-#define		LOAD_CORE_CORENAME			"LoadCoreName"
-#define		LOAD_CORE_COREDIR			"LoadCoreDir"
-#define		ADV_CORE_CORENAME			"AdvCoreName"
-#define		ADV_CORE_MAINCOREDIR		"AdvCoreMainDir"
-#define		ADV_CORE_DEPCOREDIR			"AdvCoreDepDir"
+#define		LOADER_CORENAME					"LoaderName"
+#define		LOADER_COREDIR					"LoaderDir"
+#define		ADV_CORE_CORENAME				"AdvCoreName"
+#define		ADV_CORE_MAINCOREDIR			"AdvCoreMainDir"
+#define		ADV_CORE_DEPCOREDIR				"AdvCoreDepDir"
 
 //Object Options Defines
 #define		OBJECT_OPTION_ADVCORE			"ADVCore"
@@ -30,7 +30,7 @@
 #define		OBJECT_OPTION_ADVCORESHA1		"ADVCoreSHA1"
 #define		OBJECT_OPTION_ADVCOREDEP		"ADVCoreDep"
 #define		OBJECT_OPTION_ADVCOREDEPSHA1	"ADVCoreDepSHA1"
-#define		OBJECT_OPTION_LOADCOREOPT		"LoadCoreOptions"
+#define		OBJECT_OPTION_LOADEROPT			"LoaderOptions"
 #define		OBJECT_OPTION_ENABLELOGS		"EnableDiskLogs"
 
 

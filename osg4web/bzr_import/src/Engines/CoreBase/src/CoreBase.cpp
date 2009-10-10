@@ -87,17 +87,6 @@ CoreBase::~CoreBase()
 	//osgDB::Registry::instance(true);
 }
 
-void CoreBase::clearCommandRegistry() 
-{ 
-	_CommandRegistry.clear(); 
-}
-
-void CoreBase::addCommandSchedule(CommandSchedule* cschedule) 
-{ 
-	_CommandRegistry[cschedule->getCommandScheduleName()] = cschedule;
-}
-
-
 #if defined(WIN32)
 bool CoreBase::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string options) 
 {

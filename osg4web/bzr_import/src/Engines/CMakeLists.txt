@@ -6,12 +6,13 @@
 
 SUBDIRS(
 	CoreOpenGL
+	LoaderOpenGL
 	)
 
 IF(OSG_FOUND)
 	SUBDIRS(
 		CoreBase
-		LoadCore
+		Loader
 		FunCore
 	)
 ENDIF(OSG_FOUND)
