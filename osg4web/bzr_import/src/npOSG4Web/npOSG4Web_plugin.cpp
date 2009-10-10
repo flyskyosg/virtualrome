@@ -26,6 +26,8 @@
 #include <npOSG4Web/npOSG4Web_Defines.h>
 #include <npOSG4Web/npOSG4Web_plugin.h>
 
+#include <Utilities/EnvUtils.h>
+
 
 /***************************************************************************
  *
@@ -163,7 +165,48 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 		mShellBase.setInitOption(INIT_OPTION_PROXYHNAME, tempstr);
 		mShellBase.setInitOption(INIT_OPTION_PROXYHPORT, tempstr2);
 	}
-	
+	//	mShellBase.setInitOption("UserAgent",std::string(NPN_UserAgent(mInstance));
+		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance USERAGENT!!!-> " +std::string(NPN_UserAgent(mInstance)));
+		putenv(std::string(std::string("OSG_CURL_USERAGENT=") + std::string(NPN_UserAgent(mInstance))).c_str());
+/* luigi: 
+    vari tentativi, senza successo
+	rv = getCurrPlugDir(reftempstr,NS_XPCOM_LIBRARY_FILE);
+	rv = getCurrPlugDir(reftempstr,"ComsD");
+	rv = getCurrPlugDir(reftempstr,"XptiRegF");
+	rv = getCurrPlugDir(reftempstr,"XCurProcD");
+	rv = getCurrPlugDir(reftempstr,"GreD");
+	rv = getCurrPlugDir(reftempstr,"GreComsD");
+	rv = getCurrPlugDir(reftempstr,"CurWorkD");
+	rv = getCurrPlugDir(reftempstr,"ComsDL");
+	rv = getCurrPlugDir(reftempstr,"UserPlugins");
+	rv = getCurrPlugDir(reftempstr,"AppRegF");
+	un altro metodo cross platform, potrebbessere quello in
+	http://forums.mozillazine.org/viewtopic.php?f=19&p=4547095
+
+	the foolowing is windows only but seem a working way to find the path of a loaded .dll ... from 
+	a suggestion on Mozilla developr irc at
+	irc://moznet/extdev
+*/
+#ifdef XP_WIN
+    char buf[MAX_PATH];
+	if ( ::GetModuleFileName(::GetModuleHandle("npOSG4Web.dll"), buf, sizeof(buf)) ) {
+		char* lastSlash = strrchr(buf, '\\');
+        if (lastSlash)
+            *(lastSlash + 1) = '\0';
+
+		mShellBase.setInitOption(INIT_OPTION_INSTALLDIR,  std::string(buf));
+		mShellBase.setGeneralOption(ADV_CORE_DEPCOREDIR,  std::string(buf));
+	#if defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
+		mShellBase.setInitOption(INIT_OPTION_COREINSTDIR, std::string(buf));
+	#endif 
+	} else {
+		mShellBase.setErrorCode( 41 );
+		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> failure in GetModuleFileName" );
+		delete reftempstr;
+		return;
+
+	}
+#else
 	rv = getCurrPlugDir(reftempstr, NPOSG4WEB_DIRECTORY);
 	if(rv != NS_OK)
 	{
@@ -175,7 +218,12 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 
 	reftempstr->append(APPEND_NPOSG4WEB_DIRECTORY);
 	mShellBase.setInitOption(INIT_OPTION_INSTALLDIR, *reftempstr);
+	#if defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
+		mShellBase.setInitOption(INIT_OPTION_COREINSTDIR, *reftempstr);
+	#endif 
 	reftempstr->clear();
+#endif 
+
 
 	rv = getCurrPlugDir(reftempstr, NPOSG4WEB_DIRECTORY_LOCAL);
 	if(rv != NS_OK)
@@ -203,11 +251,13 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	mShellBase.setInitOption( INIT_OPTION_TEMPDIR, *reftempstr);
 	reftempstr->clear();
 
-#if defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
-	rv = getCurrPlugDir(reftempstr, NPOSG4WEB_DIRECTORY); 
-#else
+#if !defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
+
+//#if defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
+//	rv = getCurrPlugDir(reftempstr, NPOSG4WEB_DIRECTORY); 
+//#else
 	rv = getCurrPlugDir(reftempstr, COREINSTALL_DIRECTORY);
-#endif
+//#endif
 
 	if(rv != NS_OK)
 	{
@@ -217,14 +267,15 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 		return;
 	}
 
-#if !defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
+//#if !defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
 	reftempstr->append(APPEND_CORES_DIRECTORY);
-#else
-	reftempstr->append(APPEND_NPOSG4WEB_DIRECTORY);
-#endif
+//#else
+//	reftempstr->append(APPEND_NPOSG4WEB_DIRECTORY);
+//#endif
 	
 	mShellBase.setInitOption( INIT_OPTION_COREINSTDIR, *reftempstr );
 	reftempstr->clear();
+#endif
 
 	//Check dei parametri iniziali
 	mShellBase.sendNotifyMessage("nsPluginInstance::nsPluginInstance -> configuring ShellBase with firefox settings");
