@@ -50,9 +50,9 @@ ENDIF(USER_DEFINED_MODULE_PATH)
 #
 ############################################################
 
-OPTION(PLACE_IN_PLUGIN "If on place output files into Firefox/plugin" OFF)
-OPTION(DEBUG_INFO_IN_FILE "If on redirect debug output in file" OFF)
-OPTION(DISABLE_SHA1_CHECK "If on disable package sh1 testing" OFF)
+OPTION(PLACE_IN_PLUGIN "If on place output files into Firefox/plugin" ON)
+
+SET(EXTENSION_NAME "OSG4Web_test@cineca.it" CACHE STRING "Name of the extension")
 
 
 ############################################################
@@ -101,7 +101,6 @@ ENDIF(WIN32)
 
 INCLUDE(GrabFiles)
 INCLUDE(SetupCoreRuntime)
-INCLUDE(FindOpenGL)
 
 
 ############################################################
@@ -110,9 +109,11 @@ INCLUDE(FindOpenGL)
 #
 ############################################################
 
-FIND_PACKAGE(OSG)
-FIND_PACKAGE(CURL QUIET)
 FIND_PACKAGE(OpenGL)
+SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${PROJECT_BINARY_DIR}/../../install/osgdep;${PROJECT_BINARY_DIR}/../../install/osg CACHE STRING "(EXPERIMENTAL) You may add additional search paths here. Use ; to separate multiple paths.")
+FIND_PACKAGE(
+	OSG
+)
 
 
 ############################################################
@@ -124,8 +125,6 @@ FIND_PACKAGE(OpenGL)
 SET(OSG4WEB_ROOT ${PROJECT_SOURCE_DIR})
 SET(FIREFOX_DIR "" CACHE PATH "set to Firefox install path")
 SET(IEXPLORE_DIR "" CACHE PATH "set to Internet Explorer install path")
-SET(OSG_DIR "" CACHE PATH "set to base osg install path")
-SET(CURL_ROOT ${OSG4WEB_ROOT}/var/dependancies/cmcurl CACHE PATH "base dir for cURL Library")
 SET(SOLUTION_TYPE Debug Release)
 
 #FIXME: soluzione poco pulita
@@ -141,10 +140,10 @@ ENDFOREACH(BTYPE Debug Release)
 #
 ############################################################
 
-FIND_PROGRAM(FIREFOX_EXE Firefox ${FIREFOX_DIR})
-FIND_PROGRAM(IEXPLORE_EXE iexplore ${IEXPLORE_DIR})
-
-MARK_AS_ADVANCED(FIREFOX_EXE IEXPLORE_EXE)
+#FIND_PROGRAM(FIREFOX_EXE Firefox ${FIREFOX_DIR})
+FIND_PACKAGE(
+	Firefox
+)
 
 ############################################################
 #
@@ -152,33 +151,17 @@ MARK_AS_ADVANCED(FIREFOX_EXE IEXPLORE_EXE)
 #
 ############################################################
 
-IF(FIREFOX_EXE)
-	GET_FILENAME_COMPONENT(FIREFOX_DIR ${FIREFOX_EXE} PATH)
-	SET(FIREFOX_PLUGIN_DIR ${FIREFOX_DIR}/plugins)
-	ENABLE_TESTING()
-
-	SET(FFOX_PROFILE_DIR ${FIREFOX_DIR}/osg4web_test_profile)
-	
+IF(FIREFOX_FOUND)
+	#GET_FILENAME_COMPONENT(FIREFOX_DIR ${FIREFOX_EXE} PATH)
+	SET(FFOX_PROFILE_DIR ${PROJECT_BINARY_DIR}/profile)
+	FILE(MAKE_DIRECTORY ${FFOX_PROFILE_DIR})
+	SET(FIREFOX_PLUGIN_DIR ${PROJECT_BINARY_DIR}/profile/extensions/${EXTENSION_NAME}/plugins)
+	FILE(MAKE_DIRECTORY ${FIREFOX_PLUGIN_DIR})
 	FILE(TO_NATIVE_PATH ${FFOX_PROFILE_DIR} FFOX_PROFILE_DIR)
-
-	#IF(NOT EXISTS ${FFOX_PROFILE_DIR})
-	#	EXEC_PROGRAM(${FIREFOX_EXE} ARGS "-CreateProfile \"osg4web_test_profile ${FFOX_PROFILE_DIR}\"")
-	#	IF(NOT EXISTS ${FFOX_PROFILE_DIR})
-	#		MESSAGE(FATAL_ERROR "Creating Firefox Profile Failed. Please close all running Firefox Process")
-	#	ENDIF(NOT EXISTS ${FFOX_PROFILE_DIR})
-	#ENDIF(NOT EXISTS ${FFOX_PROFILE_DIR})
-ENDIF(FIREFOX_EXE)
-
-IF(IEXPLORE_EXE)
-	GET_FILENAME_COMPONENT(IEXPLORE_DIR ${IEXPLORE_EXE} PATH)
 	ENABLE_TESTING()
-ENDIF(IEXPLORE_EXE)
+ENDIF(FIREFOX_FOUND)
 
-IF(NOT CURL_FOUND)
-	#try to search curl with custom module
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR};${CMAKE_MODULE_PATH}")
-	FIND_PACKAGE(CURL)
-ENDIF(NOT CURL_FOUND)
+
 
 
 ############################################################
@@ -202,26 +185,34 @@ ADD_SUBDIRECTORY(src/Utilities)
 
 IF(OSG_FOUND)
 	ADD_SUBDIRECTORY(src/CommonCore)
+	ADD_SUBDIRECTORY(src/Engines)
+	ADD_SUBDIRECTORY(src/Examples)
 ELSE(OSG_FOUND)
 	MESSAGE("OSG NOT FOUND: specify an OSG_DIR in order to compile OSG CommonCore Library")
 ENDIF(OSG_FOUND)
 
-ADD_SUBDIRECTORY(src/Engines)
-ADD_SUBDIRECTORY(src/Examples)
 
 IF(FIREFOX_PLUGIN_DIR)
 	ADD_SUBDIRECTORY(src/npOSG4Web)
+	SET(RUNTIME_OUTPUT_DIRECTORY ${FIREFOX_PLUGIN_DIR})
+	SET(LIBRARY_OUTPUT_DIRECTORY ${FIREFOX_PLUGIN_DIR})
 
-	IF(MSVC)
-		ADD_SUBDIRECTORY(src/ieOSG4Web) # it needs firefox for npsr library
-	ELSE(MSVC)
-		IF(WIN32)
-			MESSAGE("Internet Explorer NOT FOUND: specify an IE Directory in order to compile OSG4Web IE ActiveX")
-		ENDIF(WIN32)
-	ENDIF(MSVC)
 ELSE(FIREFOX_PLUGIN_DIR)
 	MESSAGE("Firefox NOT FOUND: specify a Firefox Directory in order to compile OSG4Web Firefox Plugin")
 ENDIF(FIREFOX_PLUGIN_DIR)
+
+IF(MSVC)
+	FIND_PROGRAM(IEXPLORE_EXE iexplore ${IEXPLORE_DIR})
+	MARK_AS_ADVANCED(IEXPLORE_EXE)
+	IF(IEXPLORE_EXE)
+		GET_FILENAME_COMPONENT(IEXPLORE_DIR ${IEXPLORE_EXE} PATH)
+		ENABLE_TESTING()
+		ADD_SUBDIRECTORY(src/ieOSG4Web) # it needs firefox for npsr library
+	ELSE(IEXPLORE_EXE)
+		MESSAGE("Internet Explorer NOT FOUND: specify an IE Directory in order to compile OSG4Web IE ActiveX")
+	ENDIF(IEXPLORE_EXE)
+ENDIF(MSVC)
+
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH)
 

@@ -18,8 +18,6 @@ PROJECT(ieOSG4Web)
 # Gecko Root (Used for Threads implementation)
 SET(GeckoSDK_ROOT ${OSG4WEB_ROOT}/var/dependancies/gecko-sdk CACHE PATH "base dir for Firefox Gecko SDK")
 
-# cURL root directory
-SET(CURL_ROOT ${OSG4WEB_ROOT}/var/dependancies/cmcurl CACHE PATH "base dir for cURL Library")
 
 # UNRAR directory
 SET(UNRAR_ROOT ${OSG4WEB_ROOT}/var/dependancies/unrarlib CACHE PATH "base dir for UnRAR Library")

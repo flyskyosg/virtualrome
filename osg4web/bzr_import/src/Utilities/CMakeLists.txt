@@ -18,15 +18,6 @@ PROJECT(Utilities)
 ADD_DEFINITIONS(-DOSG4WEB_UTILITIES_LIBRARY_STATIC)
 
 
-############################################################
-#
-# Setting variables
-#
-############################################################
-
-# JPEG root folder
-SET(JPEG_ROOT ${OSG4WEB_ROOT}/var/dependancies/jpeg CACHE PATH "base dir for JPEG Library")
-
 
 ############################################################
 #
@@ -34,11 +25,7 @@ SET(JPEG_ROOT ${OSG4WEB_ROOT}/var/dependancies/jpeg CACHE PATH "base dir for JPE
 #
 ############################################################
 
-FIND_PACKAGE(JPEG QUIET)
-IF(NOT JPEG_FOUND)
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR};${CMAKE_MODULE_PATH}")
-	FIND_PACKAGE(JPEG)
-ENDIF(NOT JPEG_FOUND)
+FIND_PACKAGE(JPEG)
 
 
 ############################################################
