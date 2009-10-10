@@ -83,6 +83,8 @@ ViroManipulator::ViroManipulator() : CommandSchedule("WALK") {
 
 	Enable(PERIPHERAL_LOCK);
 	//_HeadLight = new osg::LightSource;
+
+	_padEvent = NAVPAD_NONE;
 }
 
 ViroManipulator::~ViroManipulator(){
@@ -768,13 +770,13 @@ bool ViroManipulator::MouseListener(){
 
 	double step = (Acceleration + _speed) * dt;
 
-	if (eventMask == GUIEventAdapter::SCROLL){
-		if ( _ev0->getScrollingMotion() == GUIEventAdapter::SCROLL_UP){
+	if (eventMask == GUIEventAdapter::SCROLL || _padEvent == NAVPAD_FORWARD || _padEvent == NAVPAD_BACKWARD){
+		if ( _ev0->getScrollingMotion() == GUIEventAdapter::SCROLL_UP || _padEvent == NAVPAD_FORWARD){
 			_speed += step;
 			EventCaptured = true;
 			osg::notify(ALWAYS)<<"Boost Up to "<<_speed<<"\n";
 			}
-		if ( _ev0->getScrollingMotion() == GUIEventAdapter::SCROLL_DOWN){
+		if ( _ev0->getScrollingMotion() == GUIEventAdapter::SCROLL_DOWN || _padEvent == NAVPAD_BACKWARD){
 			if (_speed > 0.0)	_speed = 0.0;
 			else				_speed -= step;
 
@@ -782,20 +784,6 @@ bool ViroManipulator::MouseListener(){
 			osg::notify(ALWAYS)<<"Slow Boost to "<<_speed<<"\n";
 			}
 		}
-/*
-	if (eventMask == GUIEventAdapter::ScrollingMotion::SCROLL_UP){
-		_speed += step;
-		EventCaptured = true;
-		osg::notify(ALWAYS)<<"Boost Up to "<<_speed<<"\n";
-	}
-	else if (eventMask == GUIEventAdapter::ScrollingMotion::SCROLL_DOWN){
-		_speed -= step;
-		EventCaptured = true;
-		osg::notify(ALWAYS)<<"Slow Boost to "<<_speed<<"\n";
-	}
-*/
-	//else if (eventMask == GUIEventAdapter::PUSH)    osg::notify(DEBUG_INFO)<<"Push\n";
-	//else if (eventMask == GUIEventAdapter::RELEASE) osg::notify(DEBUG_INFO)<<"Release\n";
 
 	if (!_bFlying && _speed != 0.0){
 		//if (eventMask == GUIEventAdapter::KEYDOWN) boost(UP);
@@ -803,8 +791,18 @@ bool ViroManipulator::MouseListener(){
 			boost();
 
 		EventCaptured = true;
-	}
-	if (!isEnabled(PERIPHERAL_LOCK) && !_bFlying){
+		}
+
+	bool b = (	_padEvent == NAVPAD_STRAFELEFT
+				|| _padEvent == NAVPAD_TURNLEFT
+				|| _padEvent == NAVPAD_STRAFERIGHT
+				|| _padEvent == NAVPAD_TURNRIGHT
+				|| _padEvent == NAVPAD_PITCHUP
+				|| _padEvent == NAVPAD_PITCHDOWN
+				|| _padEvent == NAVPAD_UP
+				|| _padEvent == NAVPAD_DOWN );
+
+	if (b || (!isEnabled(PERIPHERAL_LOCK) && !_bFlying)){
 		double dx = _ev0->getXnormalized();
 		double dy = _ev0->getYnormalized();
 
@@ -813,8 +811,19 @@ bool ViroManipulator::MouseListener(){
 			dy *= (double)_UserControlPercentage;
 			}
 
+		// Web NavPad
+		#define NAVPAD_SENSIBILITY	0.3
+		bool lock = (_padEvent == NAVPAD_STRAFELEFT || _padEvent == NAVPAD_STRAFERIGHT || _padEvent == NAVPAD_UP || _padEvent == NAVPAD_DOWN);
+
+		if (_padEvent == NAVPAD_STRAFELEFT || _padEvent == NAVPAD_TURNLEFT)  { dx = -NAVPAD_SENSIBILITY;  dy = 0; }
+		if (_padEvent == NAVPAD_STRAFERIGHT || _padEvent == NAVPAD_TURNRIGHT){ dx = NAVPAD_SENSIBILITY; dy = 0; }
+		if (_padEvent == NAVPAD_UP){ dx = 0; dy = NAVPAD_SENSIBILITY; }
+		if (_padEvent == NAVPAD_DOWN){ dx = 0; dy = -NAVPAD_SENSIBILITY; }
+
 		if (dx!=0.0 || dy!=0.0 || _UserControlPercentage > 0.0){
+			if (b && lock) _bHoldCTRL = true;
 			turn(-dx,-dy);
+			if (b && lock) _bHoldCTRL = false;
 			EventCaptured = true;
 			}
 	}
@@ -886,6 +895,7 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				}
 
 			if ( MouseListener() ) us.requestRedraw();
+			us.requestContinuousUpdate(true);
 			return false;
 			}
 		case(GUIEventAdapter::RESIZE):{
@@ -1020,9 +1030,11 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 		case(GUIEventAdapter::RELEASE):{
 			Enable(PERIPHERAL_LOCK);
 
+			/*
 			if (ea.getButtonMask() == GUIEventAdapter::RIGHT_MOUSE_BUTTON){
 				Enable(PERIPHERAL_LOCK);
 				}
+			*/
 			//addMouseEvent(ea);
 
 			//handleRelease( ea );
@@ -1467,45 +1479,26 @@ std::string ViroManipulator::ExecCommand(std::string lcommand, std::string rcomm
 	std::string retstr_done = "CORE_DONE";
 	std::string retstr_fail = "CORE_FAILED";
 	
-	if ((lcommand.compare("STRAFE") == 0) && (rcommand.compare("LEFT") == 0)){
-		_bHoldCTRL = true;
-		this->turn( 50.0*getDtime(), 0.0);
-		_bHoldCTRL = false;
-		}
-	else if ((lcommand.compare("STRAFE") == 0) && (rcommand.compare("RIGHT") == 0)){
-		_bHoldCTRL = true;
-		this->turn( -50.0*getDtime(), 0.0);
-		_bHoldCTRL = false;
-		}
-	else if ((lcommand.compare("FORWARD") == 0) && (rcommand.compare("UP") == 0)){
-		_speed += 2000.0*getDtime();
-		boost();
-		}
-	else if ((lcommand.compare("FORWARD") == 0)&& (rcommand.compare("DOWN") == 0)){
-		_speed -= 2000.0*getDtime();
-		boost();
-		}
+	if ((lcommand.compare("STRAFE") == 0) && (rcommand.compare("LEFT") == 0))       _padEvent = NAVPAD_TURNLEFT;  // NAVPAD_STRAFELEFT
+	else if ((lcommand.compare("STRAFE") == 0) && (rcommand.compare("RIGHT") == 0)) _padEvent = NAVPAD_TURNRIGHT; // NAVPAD_STRAFERIGHT
+	else if ((lcommand.compare("FORWARD") == 0) && (rcommand.compare("UP") == 0))   _padEvent = NAVPAD_FORWARD;
+	else if ((lcommand.compare("FORWARD") == 0)&& (rcommand.compare("DOWN") == 0))  _padEvent = NAVPAD_BACKWARD;
 
-	else if ((lcommand.compare("PITCH") == 0)&& (rcommand.compare("UP") == 0))
-		this->turn( 0.0, 50.0*getDtime());
-	else if ((lcommand.compare("PITCH") == 0)&& (rcommand.compare("DOWN") == 0))
-		this->turn( 0.0, -50.0*getDtime());
-	else if ((lcommand.compare("YAW") == 0)&& (rcommand.compare("LEFT") == 0))
-		this->turn( 50.0*getDtime(), 0.0);
-	else if ((lcommand.compare("YAW") == 0)&& (rcommand.compare("RIGHT") == 0))
-		this->turn( -50.0*getDtime(), 0.0);
+	else if ((lcommand.compare("PITCH") == 0)&& (rcommand.compare("UP") == 0))   _padEvent = NAVPAD_PITCHUP;
+	else if ((lcommand.compare("PITCH") == 0)&& (rcommand.compare("DOWN") == 0)) _padEvent = NAVPAD_PITCHDOWN;
+	else if ((lcommand.compare("YAW") == 0)&& (rcommand.compare("LEFT") == 0))   _padEvent = NAVPAD_TURNLEFT;
+	else if ((lcommand.compare("YAW") == 0)&& (rcommand.compare("RIGHT") == 0))  _padEvent = NAVPAD_TURNRIGHT;
 	else if (lcommand.compare("STOP") == 0){
 		_speed = 0.0;
+		_padEvent = NAVPAD_NONE;
 		}
 	else if ((lcommand.compare("LIFT") == 0)&& (rcommand.compare("UP") == 0)){
-		_bHoldCTRL = true;
-		this->turn( 0.0,-50.0*getDtime() );
-		_bHoldCTRL = false;
+		//_bHoldCTRL = true;
+		_padEvent = NAVPAD_UP;
 		}
 	else if ((lcommand.compare("LIFT") == 0)&& (rcommand.compare("DOWN") == 0)){
-		_bHoldCTRL = true;
-		this->turn( 0.0, 50.0*getDtime() );
-		_bHoldCTRL = false;
+		//_bHoldCTRL = true;
+		_padEvent = NAVPAD_DOWN;
 		}
 
 	else if (lcommand.compare("GOTO") == 0){

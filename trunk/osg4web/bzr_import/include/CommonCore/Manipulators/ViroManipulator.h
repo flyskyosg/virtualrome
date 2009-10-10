@@ -312,6 +312,23 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		bool _bAvoidanceZone;
 		bool _bReqHome;
 
+		// Web NavPad
+		unsigned short _padEvent;
+
+		enum {
+			NAVPAD_NONE = 0,
+			NAVPAD_STRAFELEFT,
+			NAVPAD_STRAFERIGHT,
+			NAVPAD_UP,
+			NAVPAD_DOWN,
+			NAVPAD_TURNLEFT,
+			NAVPAD_TURNRIGHT,
+			NAVPAD_FORWARD,
+			NAVPAD_BACKWARD,
+			NAVPAD_PITCHUP,
+			NAVPAD_PITCHDOWN,
+			};
+
 		double _FlyToCallTime;
 
 		// Scaling-Sensible safe parameters
