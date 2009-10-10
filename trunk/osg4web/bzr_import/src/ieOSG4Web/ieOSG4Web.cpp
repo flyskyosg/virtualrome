@@ -7,10 +7,6 @@
 #include <ieOSG4Web/ieOSG4Web_Helpers.h>
 #include <ieOSG4Web/ieOSG4Web.h>
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-
 
 CieOSG4WebApp NEAR theApp;
 

@@ -11,8 +11,6 @@
 #include <osgUtil/Optimizer>
 
 
-
-
 using namespace CommonCore;
 
 
@@ -28,7 +26,7 @@ CoreBase::CoreBase(std::string corename) : CoreInterface(corename), CommandSched
 		_CurrWidth(550), 
 		_CurrHeight(550)
 {
-#if defined(_DEBUG)
+#if defined(OSG4WEB_DEBUG_INFO_IN_FILE)
 	//Inizializzo il Debug
 	if(! this->initializeLogMessages() )
 		this->sendWarnMessage("CoreBase -> Error redirecting messages."); 

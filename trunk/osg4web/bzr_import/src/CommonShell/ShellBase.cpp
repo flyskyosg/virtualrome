@@ -72,7 +72,7 @@ ShellBase::~ShellBase()
 
 void ShellBase::initializeLog(std::string logname)
 {
-#if defined(_DEBUG)
+#if defined(OSG4WEB_DEBUG_INFO_IN_FILE)
 	if(! this->initializeLogMessages(logname) )
 		this->sendWarnMessage("ShellBase::ShellBase -> Error redirecting messages."); 
 #endif
@@ -511,7 +511,6 @@ bool ShellBase::checkAdvCorePresence()
 				this->sendNotifyMessage( "ShellBase::checkAdvCorePresence-> Advanced library not found!" );
 				return false;
 			}
-		
 		}
 
 		//Setting new directory found
