@@ -166,6 +166,8 @@ bool CoreBase::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string opt
 bool CoreBase::InitCore(Display*, WINDOWIDTYPE, std::string, std::string)
 {
 	//TODO: implement me!!!!
+
+	return false;
 }
 #endif
 
