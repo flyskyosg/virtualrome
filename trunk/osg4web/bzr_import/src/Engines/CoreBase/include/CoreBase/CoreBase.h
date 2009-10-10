@@ -67,7 +67,7 @@ public:
 	virtual std::string handleAction(std::string argument);
 	
 	//Gestisce i comandi dalla Shell e Javascript
-	std::string DoCommand(std::string command);			//FIXME: togliere virtual
+	std::string DoCommand(std::string command);
 	
 	//Rendering pass
 	bool RenderScene();
@@ -94,10 +94,12 @@ protected:
 	virtual void preFrameUpdate(void) {};
 	virtual void postFrameUpdate(void) {};
 
-	void clearCommandRegistry();
-	void addCommandSchedule(CommandSchedule* cschedule);
-
+	//Return the installation directory
 	std::string getInstallationDirectory() { return _InstDir; }
+	//Clear the local Command Registtry
+	void clearCommandRegistry()	{ _CommandRegistry.clear(); }
+	//Add Action to the command schedule
+	void addCommandSchedule(CommandSchedule* cschedule) { _CommandRegistry[cschedule->getCommandScheduleName()] = cschedule; }
 	
 protected:
 	osg::ref_ptr<osg::Camera> _MainCamera;

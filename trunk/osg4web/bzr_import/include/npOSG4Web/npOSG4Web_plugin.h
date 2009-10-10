@@ -41,7 +41,7 @@ public:
 	//inizializza l'istanza del Plug-In
 	NPBool init(NPWindow* aWindow);
 	//inizializza l'istanza del LoadingCore
-	NPBool initLoadCore();
+	NPBool initLoader();
 	//chiude l'istanza del Plug-In
 	void shut();
 	

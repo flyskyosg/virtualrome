@@ -32,7 +32,7 @@ public:
 	#define DISPID_ADVCoreSHA1					103
 	#define DISPID_ADVCoreDep					104
 	#define DISPID_ADVCoreDepSHA1				105
-	#define DISPID_LoadCoreOptions				106 
+	#define DISPID_LoaderOptions				106 
 	#define DISPID_EnableDiskLogs				107
 	#define DISPID_ExecCoreCommand				108
 	#define DISPID_ExecShellCommand				109
@@ -45,7 +45,7 @@ public:
 		dispidADVCoreSHA1					= DISPID_ADVCoreSHA1,
 		dispidADVCoreDep					= DISPID_ADVCoreDep,
 		dispidADVCoreDepSHA1				= DISPID_ADVCoreDepSHA1,
-		dispidLoadCoreOptions				= DISPID_LoadCoreOptions,
+		dispidLoaderOptions					= DISPID_LoaderOptions,
 		dispidEnableDiskLogs				= DISPID_EnableDiskLogs,
 		dispidExecCoreCommand				= DISPID_ExecCoreCommand,  
 		dispidExecShellCommand				= DISPID_ExecShellCommand,
@@ -107,7 +107,7 @@ public:
 	bool				checkRunning();
 
 	//Initialize the Loading Core
-	bool				initLoadCore();
+	bool				initLoader();
 
 	//Switcha il metodo di invio messaggi a JavaScript
 	bool				SwitchSendMethod(std::string);

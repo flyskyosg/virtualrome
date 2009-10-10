@@ -200,7 +200,7 @@ void ieOSG4Web_Ctrl::DoPropExchange(CPropExchange* pPX) //TODO: finire le PX_Str
 	PX_String( pPX, OBJECT_OPTION_ADVCORESHA1, m_ADVCoreSHA1Hash, "" );
 	PX_String( pPX, OBJECT_OPTION_ADVCOREDEP, m_ADVCoreDep, "" );
 	PX_String( pPX, OBJECT_OPTION_ADVCOREDEPSHA1, m_ADVCoreDepSHA1Hash, "" );
-	PX_String( pPX, OBJECT_OPTION_LOADCOREOPT, m_LoadCBOptions, "" );
+	PX_String( pPX, OBJECT_OPTION_LOADEROPT, m_LoadCBOptions, "" );
 	PX_String( pPX, OBJECT_OPTION_ENABLELOGS, m_EnableDiskLogs, "" );
 }
 
@@ -271,7 +271,7 @@ int ieOSG4Web_Ctrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_ShellBase.setObjectOption(OBJECT_OPTION_ADVCORESHA1, (LPCSTR) m_ADVCoreSHA1Hash);
 	m_ShellBase.setObjectOption(OBJECT_OPTION_ADVCOREDEP, (LPCSTR) m_ADVCoreDep);
 	m_ShellBase.setObjectOption(OBJECT_OPTION_ADVCOREDEPSHA1, (LPCSTR) m_ADVCoreDepSHA1Hash);
-	m_ShellBase.setObjectOption(OBJECT_OPTION_LOADCOREOPT, (LPCSTR) m_LoadCBOptions);
+	m_ShellBase.setObjectOption(OBJECT_OPTION_LOADEROPT, (LPCSTR) m_LoadCBOptions);
 	m_ShellBase.setObjectOption(OBJECT_OPTION_ENABLELOGS, (LPCSTR) m_EnableDiskLogs);
 
 
@@ -283,7 +283,7 @@ int ieOSG4Web_Ctrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if(!m_ShellBase.initializeAdvancedCore())
 	{
-		//Reload LoadCore
+		//Reload Loader Core
 		if(!m_ShellBase.startLoadingBaseCore())
 		{
 			m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::OnCreate -> ") + m_ShellBase.getErrorString());

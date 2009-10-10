@@ -8,7 +8,7 @@
 #define		PLUGIN_DESCRIPTION  PLUGIN_NAME			" (OpenSceneGraph Plug-in 4 Firefox)"
 
 //OSG4Web name
-#define		OSG4WEB_SHELL_NAME		"npOSG4Web"
+#define		OSG4WEB_SHELL_NAME						"npOSG4Web"
 
 
 
@@ -38,14 +38,14 @@
 
 
 //Object Options Defines
-#define		OBJECT_OPTION_ADVCORE			"ADVCore"
-#define		OBJECT_OPTION_ADVCSTARTOPT		"ADVCoreStartOptions"
-#define		OBJECT_OPTION_ADVCINITOPT		"ADVCoreInitOptions"
-#define		OBJECT_OPTION_ADVCORESHA1		"ADVCoreSHA1"
-#define		OBJECT_OPTION_ADVCOREDEP		"ADVCoreDep"
-#define		OBJECT_OPTION_ADVCOREDEPSHA1	"ADVCoreDepSHA1"
-#define		OBJECT_OPTION_LOADCOREOPT		"LoadCoreOptions"
-#define		OBJECT_OPTION_ENABLELOGS		"EnableDiskLogs"
+#define		OBJECT_OPTION_ADVCORE					"ADVCore"
+#define		OBJECT_OPTION_ADVCSTARTOPT				"ADVCoreStartOptions"
+#define		OBJECT_OPTION_ADVCINITOPT				"ADVCoreInitOptions"
+#define		OBJECT_OPTION_ADVCORESHA1				"ADVCoreSHA1"
+#define		OBJECT_OPTION_ADVCOREDEP				"ADVCoreDep"
+#define		OBJECT_OPTION_ADVCOREDEPSHA1			"ADVCoreDepSHA1"
+#define		OBJECT_OPTION_LOADEROPT					"LoaderOptions"
+#define		OBJECT_OPTION_ENABLELOGS				"EnableDiskLogs"
 
 
 

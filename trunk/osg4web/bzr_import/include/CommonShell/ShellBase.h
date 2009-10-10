@@ -126,10 +126,10 @@ protected:
 	bool startRendering();
 	bool stopRendering();
 
-	bool checkLoadCorePresence();
+	bool checkLoaderPresence();
 	bool checkAdvCoreDependaciesPresence();
 
-	std::string getInitLoadCoreOptions();
+	std::string getInitLoaderOptions();
 	std::string getInitAdvancedCoreOptions();
 
 

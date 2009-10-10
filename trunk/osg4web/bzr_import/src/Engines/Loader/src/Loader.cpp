@@ -1,5 +1,5 @@
 
-#include <LoadCore/LoadCore.h>
+#include <Loader/Loader.h>
 
 
 #include <osg/MatrixTransform>
@@ -11,8 +11,8 @@
 using namespace CommonCore;
 
 
-//LoadCore Costruttore
-LoadCore::LoadCore(std::string corename) : CoreBase(corename),
+//Loader Costruttore
+Loader::Loader(std::string corename) : CoreBase(corename),
 	_NullManipulator( new Manipulators::NullManipulator() ),
 	_TextMessage(new osgText::Text),
 	_MessageTimer(NULL),
@@ -22,10 +22,10 @@ LoadCore::LoadCore(std::string corename) : CoreBase(corename),
 	_CapsuleBarSD(new osg::ShapeDrawable),
 	_CapsuleBarSwitch(new osg::Switch)
 {
-	this->sendNotifyMessage("LoadCore -> Costructing LoadCore Instance.");
+	this->sendNotifyMessage("Loader -> Costructing Loader Core Instance.");
 
 	//Ridefinisco il nome dello Schedule Command
-	this->setCommandScheduleName("LOADCORE");
+	this->setCommandScheduleName("LOADER");
 
 	//Default value
 	this->setCommandAction("UNKNOWN_ACTION");
@@ -39,8 +39,8 @@ LoadCore::LoadCore(std::string corename) : CoreBase(corename),
 	this->addCommandSchedule((CommandSchedule*) this);
 }
 
-//LoadCore Distruttore
-LoadCore::~LoadCore()
+//Loader Distruttore
+Loader::~Loader()
 {
 	if(_LoadedNode.valid())
 		_LoadedNode = NULL;
@@ -69,10 +69,10 @@ LoadCore::~LoadCore()
 		_MessageTimer = NULL;
 	}
 
-	this->sendNotifyMessage("~LoadCore -> Destructing LoadCore Instance.");
+	this->sendNotifyMessage("~Loader -> Destructing Loader Core Instance.");
 }
 
-bool LoadCore::initSceneData()
+bool Loader::initSceneData()
 {
 	this->sendNotifyMessage("initSceneData -> Building the SceneGraph.");
 
@@ -83,7 +83,7 @@ bool LoadCore::initSceneData()
 	return ret;
 }
 
-bool LoadCore::initManipulators()
+bool Loader::initManipulators()
 {
 	this->sendNotifyMessage("initManipulators -> Initializing Manipulators.");
 	
@@ -96,7 +96,7 @@ bool LoadCore::initManipulators()
 	return true;
 }
 
-bool LoadCore::loadModel(std::string nodename, bool erase)
+bool Loader::loadModel(std::string nodename, bool erase)
 {
 	bool ret = false;
 
@@ -133,7 +133,7 @@ bool LoadCore::loadModel(std::string nodename, bool erase)
 	return ret;
 }
 
-bool LoadCore::refreshStatusBarValue(std::string value)
+bool Loader::refreshStatusBarValue(std::string value)
 {
 	bool ret = false;
 	double newvalue;
@@ -166,7 +166,7 @@ bool LoadCore::refreshStatusBarValue(std::string value)
 	return ret;
 }
 
-bool LoadCore::setStatusBarColor(std::string colorname)
+bool Loader::setStatusBarColor(std::string colorname)
 {
 	bool ret = true;
 
@@ -182,7 +182,7 @@ bool LoadCore::setStatusBarColor(std::string colorname)
 	return ret;
 }
 
-bool LoadCore::setStatusBarVisibility(std::string value)
+bool Loader::setStatusBarVisibility(std::string value)
 {
 	this->sendNotifyMessage("setStatusBarVisibility -> set visibility to " + value);
 
@@ -194,7 +194,7 @@ bool LoadCore::setStatusBarVisibility(std::string value)
 	return true;
 }
 
-bool LoadCore::createOSG4WebLogo()
+bool Loader::createOSG4WebLogo()
 {
 	float radius = 6.5f;
     float height = 0.0f;
@@ -203,7 +203,7 @@ bool LoadCore::createOSG4WebLogo()
 	osg::Vec3 capsulerotateaxis(0.0, 1.0, 0.0);
 	osg::Vec3 capsuleposition(50.0, 0.0, -120.0);
 
-	std::string osglogo(this->getInstallationDirectory() + "/" + OSG4WEB_LOADCORE_LOGO);
+	std::string osglogo(this->getInstallationDirectory() + "/" + OSG4WEB_LOADER_LOGO);
 
 	osg::ref_ptr<osg::Group> scene = new osg::Group;
 	osg::ref_ptr<osg::Group> delight = new osg::Group;
@@ -274,7 +274,7 @@ bool LoadCore::createOSG4WebLogo()
 	return true;
 }
 
-osg::Node* LoadCore::createOSG4WebMessages()
+osg::Node* Loader::createOSG4WebMessages()
 {
 	osg::ref_ptr<osg::Geode> tgeode = new osg::Geode;
 
@@ -287,13 +287,13 @@ osg::Node* LoadCore::createOSG4WebMessages()
 	_CameraNode->addChild(_SwitchMessage.get());
 	_CameraNode->getOrCreateStateSet()->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
 
-	_TextMessage->setFont(this->getInstallationDirectory() + "/" + OSG4WEB_LOADCORE_FONT);
+	_TextMessage->setFont(this->getInstallationDirectory() + "/" + OSG4WEB_LOADER_FONT);
 	_TextMessage->setColor(OSG4WEB_COLORVEC_RED);
-	_TextMessage->setCharacterSize(OSG4WEB_LOADCORE_FONT_SIZE);
+	_TextMessage->setCharacterSize(OSG4WEB_LOADER_FONT_SIZE);
 	_TextMessage->setPosition(osg::Vec3(1280.0 / 2.0, 1024.0 / 3.3, 0.0));
         
 	_TextMessage->setAlignment(osgText::Text::CENTER_BASE_LINE);
-	_TextMessage->setFontResolution(OSG4WEB_LOADCORE_FONT_RES, OSG4WEB_LOADCORE_FONT_RES); 
+	_TextMessage->setFontResolution(OSG4WEB_LOADER_FONT_RES, OSG4WEB_LOADER_FONT_RES); 
         
 	_TextMessage->setText("Initializing OSG4Web...");
 
@@ -309,7 +309,7 @@ osg::Node* LoadCore::createOSG4WebMessages()
 	return _CameraNode.get();
 }
 
-osg::Node* LoadCore::createOSG4WebLogoText()
+osg::Node* Loader::createOSG4WebLogoText()
 {
 	this->sendNotifyMessage("createOSG4WebLogoText -> Creating OSG4Web Logo Text");
 
@@ -319,7 +319,7 @@ osg::Node* LoadCore::createOSG4WebLogoText()
 	osg::ref_ptr<osg::StateSet> stateset = geode->getOrCreateStateSet();
     stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
 
-    std::string font(this->getInstallationDirectory() + "/" + OSG4WEB_LOADCORE_FONT);
+    std::string font(this->getInstallationDirectory() + "/" + OSG4WEB_LOADER_FONT);
 	std::string label("OSG4Web");
 
 	osg::ref_ptr<osgText::Text> text = new  osgText::Text;
@@ -348,7 +348,7 @@ osg::Node* LoadCore::createOSG4WebLogoText()
     return geode;
 }
 
-bool LoadCore::setHUDMessage(std::string msg)
+bool Loader::setHUDMessage(std::string msg)
 {
 	if(_MessageTimer) //Forzo la chiusura del timer precedente
 	{
@@ -373,7 +373,7 @@ bool LoadCore::setHUDMessage(std::string msg)
 	return true;
 }
 
-bool LoadCore::setHUDMessageColor(std::string colorname)
+bool Loader::setHUDMessageColor(std::string colorname)
 {
 	bool ret = true;
 
@@ -389,7 +389,7 @@ bool LoadCore::setHUDMessageColor(std::string colorname)
 	return ret;
 }
 
-void LoadCore::preFrameUpdate() 
+void Loader::preFrameUpdate() 
 {
 	osgViewer::Viewer::Windows windows;
 	_Viewer->getWindows(windows);
@@ -427,7 +427,7 @@ void LoadCore::preFrameUpdate()
 
 
 /** Ridefinizione della funzione di Gestione Comandi per CommandSchedule "this" */
-std::string LoadCore::handleAction(std::string argument)
+std::string Loader::handleAction(std::string argument)
 {
 	this->sendNotifyMessage("handleAction -> serving command: " + argument);
 

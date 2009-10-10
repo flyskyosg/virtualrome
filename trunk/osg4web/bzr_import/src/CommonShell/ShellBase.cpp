@@ -33,7 +33,7 @@ ShellBase::ShellBase() : m_DynLoad(NULL),
 	//Initialize Shell Downloader Thread
 	m_Downloader = new ShellDownloader( this );
 	//Set Cores Default Name
-	m_generalOption.setShellOption(LOAD_CORE_CORENAME, LOAD_CORE_DEFAULT_NAME);
+	m_generalOption.setShellOption(LOADER_CORENAME, LOADER_CORE_DEFAULT_NAME);
 	m_generalOption.setShellOption(ADV_CORE_CORENAME, ADVANCED_CORE_DEFAULT_NAME);
 	//Initialize Logs
 	initializeErrorMessages();
@@ -209,14 +209,14 @@ std::string ShellBase::execCoreCommand(std::string str)
  *
  ************************************************************************/
 
-// Formattazione Stringa di Options al LoadCore:
+// Formattazione Stringa di Options al Loader:
 // "Stringa arg di Object" "PROXY_HOSTNAME=url" <"PROXY_PORT=port">
-std::string ShellBase::getInitLoadCoreOptions()
+std::string ShellBase::getInitLoaderOptions()
 {
 	std::string purl, pport;
 	std::string retstr;
 
-	m_objectOption.getShellOption(OBJECT_OPTION_LOADCOREOPT, retstr);
+	m_objectOption.getShellOption(OBJECT_OPTION_LOADEROPT, retstr);
 
 	if( m_initOption.getShellOption(INIT_OPTION_PROXYHNAME, purl) )
 	{
@@ -325,8 +325,8 @@ bool ShellBase::configuringObjectOptions()
 			this->sendWarnMessage( "ShellBase::configuringObjectOptions -> Advanced Core SHA1 Option not set. Check your web page!" );
 
 			//Setting Error Message
-			this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-			this->execCoreCommand("LOADCORE SETMESSAGE Configuring Shell Options Failed!");
+			this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_RED");
+			this->execCoreCommand("LOADER SETMESSAGE Configuring Shell Options Failed!");
 
 			return false;
 		}
@@ -342,8 +342,8 @@ bool ShellBase::configuringObjectOptions()
 				this->sendWarnMessage( "ShellBase::configuringObjectOptions -> Advanced Core Dependancies SHA1 Option not set. Check your web page!" );
 
 				//Setting Error Message
-				this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-				this->execCoreCommand("LOADCORE SETMESSAGE Configuring Shell Options Failed!");
+				this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_RED");
+				this->execCoreCommand("LOADER SETMESSAGE Configuring Shell Options Failed!");
 
 				return false;
 			}
@@ -362,8 +362,8 @@ bool ShellBase::configuringObjectOptions()
 	if(m_objectOption.getShellOption(OBJECT_OPTION_ADVCORE, test) && !m_objectOption.getShellOption(OBJECT_OPTION_ADVCORESHA1, test))
 	{
 		//Setting Error Message
-		this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->execCoreCommand("LOADCORE SETMESSAGE Advanced Core SHA-1 HASH not set!");
+		this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_RED");
+		this->execCoreCommand("LOADER SETMESSAGE Advanced Core SHA-1 HASH not set!");
 
 		return false;
 	}
@@ -374,9 +374,9 @@ bool ShellBase::configuringObjectOptions()
 }
 
 
-bool ShellBase::checkLoadCorePresence()
+bool ShellBase::checkLoaderPresence()
 {
-	this->sendNotifyMessage( "ShellBase::checkLoadCorePresence-> Checking loading core library");
+	this->sendNotifyMessage( "ShellBase::checkLoaderPresence-> Checking loading core library");
 	std::string coredirectory;
 
 	m_initOption.getShellOption(INIT_OPTION_LOCALINSTDIR , coredirectory); //FIXME: controllare se fare i test
@@ -385,13 +385,13 @@ bool ShellBase::checkLoadCorePresence()
 	//Check library presence
 	std::string s = Utilities::FileUtils::convertFileNameToNativeStyle(
 						coredirectory + "/" + 
-						m_generalOption.getShellOption(LOAD_CORE_CORENAME) + DEBUGAPPEND + 
+						m_generalOption.getShellOption(LOADER_CORENAME) + DEBUGAPPEND + 
 						DynamicLoad::getLibraryExtension()
 						);
 
 	if(!Utilities::FileUtils::fileExists(s)) 
 	{
-		this->sendNotifyMessage( "ShellBase::checkLoadCorePresence-> LoadCore library not found in local install dir. Serching in base install dir." );
+		this->sendNotifyMessage( "ShellBase::checkLoaderPresence-> Loader Core library not found in local install dir. Serching in base install dir." );
 
 		m_initOption.getShellOption(INIT_OPTION_INSTALLDIR , coredirectory); //FIXME: controllare se fare i test
 		coredirectory = Utilities::FileUtils::convertFileNameToNativeStyle(coredirectory);
@@ -399,14 +399,14 @@ bool ShellBase::checkLoadCorePresence()
 		//Check library presence
 		s = Utilities::FileUtils::convertFileNameToNativeStyle(
 						coredirectory + "/" + 
-						m_generalOption.getShellOption(LOAD_CORE_CORENAME) + DEBUGAPPEND + 
+						m_generalOption.getShellOption(LOADER_CORENAME) + DEBUGAPPEND + 
 						DynamicLoad::getLibraryExtension()
 						);
 
 		if(!Utilities::FileUtils::fileExists(s))
 		{
 			this->setErrorCode( 4 );
-			this->sendWarnMessage( "ShellBase::checkLoadCorePresence-> " + this->getErrorString() );
+			this->sendWarnMessage( "ShellBase::checkLoaderPresence-> " + this->getErrorString() );
 			return false;
 		}
 	}
@@ -414,11 +414,11 @@ bool ShellBase::checkLoadCorePresence()
 	if(!m_Environm.addDirectoryToPath(coredirectory))
 	{
 		this->setErrorCode( 5 );
-		this->sendWarnMessage( "ShellBase::checkLoadCorePresence-> " + this->getErrorString() );
+		this->sendWarnMessage( "ShellBase::checkLoaderPresence-> " + this->getErrorString() );
 		return false;
 	}
 
-	m_generalOption.setShellOption(LOAD_CORE_COREDIR, coredirectory);
+	m_generalOption.setShellOption(LOADER_COREDIR, coredirectory);
 
 	return true;
 }
@@ -456,7 +456,7 @@ bool ShellBase::checkAdvCorePresence()
 	{
 		if( !Utilities::FileUtils::makeDirectory(dir) )
 		{
-			this->setErrorCode( 30 ); //FIXME: messaggio di errore al loadcore
+			this->setErrorCode( 30 ); //FIXME: messaggio di errore al core loader
 			this->sendWarnMessage( "ShellBase::checkAdvCorePresence-> " + this->getErrorString() );
 			return false;
 		}
@@ -581,18 +581,18 @@ bool ShellBase::startDownloadedCore(bool timing)
 		PR_Sleep(LOADING_CORE_MESSAGES_MIN);
 
 	//Attivo status bar
-	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
+	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY FALSE");
 
 	//Attivo il messaggio di Download del Core
-	this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
-	this->execCoreCommand("LOADCORE SETMESSAGE Core Found");
+	this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_BLUE");
+	this->execCoreCommand("LOADER SETMESSAGE Core Found");
 
 	if(timing)
 		PR_Sleep(LOADING_CORE_MESSAGES_MID);
 
 	//Attivo il messaggio di Download del Core
-	this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
-	this->execCoreCommand("LOADCORE SETMESSAGE Core Loading ...");
+	this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_BLUE");
+	this->execCoreCommand("LOADER SETMESSAGE Core Loading ...");
 
 	if(timing)
 		PR_Sleep(LOADING_CORE_MESSAGES_MID);
@@ -604,7 +604,7 @@ bool ShellBase::startDownloadedCore(bool timing)
 	{
 		this->sendWarnMessage(std::string("ShellBase::startDownloadedCore -> Loading advanced core failed! Starting Loading Core"));
 
-		//Reload LoadCore
+		//Reload Loader
 		if(!this->startLoadingBaseCore())
 		{
 			this->sendWarnMessage(std::string("ShellBase::startDownloadedCore -> Starting Loading Core failed... BYE BYE..."));
@@ -612,8 +612,8 @@ bool ShellBase::startDownloadedCore(bool timing)
 		}
 
 		//Setting Error Message
-		this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->execCoreCommand("LOADCORE SETMESSAGE Loading Advanced Core Failed!");
+		this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_RED");
+		this->execCoreCommand("LOADER SETMESSAGE Loading Advanced Core Failed!");
 	}
 	else
 		this->sendNotifyMessage(std::string("ShellBase::startDownloadedCore -> Advanced Core is up and running"));
@@ -627,13 +627,13 @@ bool ShellBase::startDownloadedCore(bool timing)
 
 /************************************************************************
  *
- * Starting Downloaded Cores (LoadCore / AdvancedCore)
+ * Starting Downloaded Cores (Loader Core / AdvancedCore)
  *
  ************************************************************************/
 
 bool ShellBase::startLoadingBaseCore()
 {
-	if(m_generalOption.getShellOption(LOAD_CORE_CORENAME).empty())
+	if(m_generalOption.getShellOption(LOADER_CORENAME).empty())
 	{
 		this->setErrorCode( 2 );
 		this->sendWarnMessage( "ShellBase::startLoadingBaseCore -> " + this->getErrorString() );
@@ -647,7 +647,7 @@ bool ShellBase::startLoadingBaseCore()
 		return false;
 	}
 
-	if(!this->checkLoadCorePresence())
+	if(!this->checkLoaderPresence())
 	{
 		//Messaggi già impostati in checkload
 		return false;
@@ -660,7 +660,7 @@ bool ShellBase::startLoadingBaseCore()
 			return false;
 		}
 
-	if( !this->loadDynamicCore(m_generalOption.getShellOption(LOAD_CORE_CORENAME) + DEBUGAPPEND) )
+	if( !this->loadDynamicCore(m_generalOption.getShellOption(LOADER_CORENAME) + DEBUGAPPEND) )
 	{
 		this->sendWarnMessage( "ShellBase::startLoadingBaseCore -> runtime library loading failed!" );
 		return false;
@@ -672,7 +672,7 @@ bool ShellBase::startLoadingBaseCore()
 
 	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr, &ShellBase::requestFileDownload);
 
-	m_coreInit = m_CoreInterface->InitCore(m_hWnd, m_generalOption.getShellOption(LOAD_CORE_COREDIR), this->getInitLoadCoreOptions());
+	m_coreInit = m_CoreInterface->InitCore(m_hWnd, m_generalOption.getShellOption(LOADER_COREDIR), this->getInitLoaderOptions());
 
 	if(m_coreInit)
 	{
@@ -790,12 +790,12 @@ bool ShellBase::startLoadingAdvancedCore()
  *
  ************************************************************************/
 
-bool ShellBase::loadDynamicCore(std::string loadcore)
+bool ShellBase::loadDynamicCore(std::string core)
 {
 	CommonCore::createCoreInterfaceFunction* createClassInstance;
 
 	std::string errmsg;
-	m_DynLoad = DynamicLoad::loadLibrary(loadcore, errmsg);
+	m_DynLoad = DynamicLoad::loadLibrary(core, errmsg);
 
 	if(m_DynLoad == NULL)
 	{
@@ -936,9 +936,9 @@ void ShellBase::initializeErrorMessages()
 
 	m_errormessage.push_back("Unknown error - Default Message"); //0
 	m_errormessage.push_back("Making directory failed"); //1
-	m_errormessage.push_back("LoadCore name not present"); //2
+	m_errormessage.push_back("Loader Core name not present"); //2
 	m_errormessage.push_back("Window pointer not initialized"); //3
-	m_errormessage.push_back("LoadCore library not present"); //4
+	m_errormessage.push_back("Loader Core library not present"); //4
 	m_errormessage.push_back("Accessing environment vars failed"); //5
 	m_errormessage.push_back(std::string()); //6
 	m_errormessage.push_back(std::string()); //7
@@ -1149,20 +1149,20 @@ void ShellBase::startDownloading(bool timing)
 	this->sendNotifyMessage(std::string("ShellBase::startDownloading -> starting Download."));
 
 	//Attivo status bar
-	this->execCoreCommand("LOADCORE STATUSBAR_COLOR LC_OSG_BLUE");
-	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY TRUE");
+	this->execCoreCommand("LOADER STATUSBAR_COLOR LC_OSG_BLUE");
+	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY TRUE");
 	
 	//Attivo il messaggio di Download del Core
-	this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
-	this->execCoreCommand("LOADCORE SETMESSAGE Downloading Files...");
+	this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_BLUE");
+	this->execCoreCommand("LOADER SETMESSAGE Downloading Files...");
 }
 
 void ShellBase::checkSecurityString(bool timing)
 {
 	this->sendNotifyMessage(std::string("ShellBase::checkSecurityString -> checking validity string."));
 
-	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-	this->execCoreCommand("LOADCORE SETMESSAGE Checking Validity...");
+	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY FALSE");
+	this->execCoreCommand("LOADER SETMESSAGE Checking Validity...");
 }
 
 void ShellBase::startUnPackSession(bool timing)
@@ -1170,13 +1170,13 @@ void ShellBase::startUnPackSession(bool timing)
 	this->sendNotifyMessage(std::string("ShellBase::startUnPackSession -> checking validity string."));
 
 	//Unpacking Session
-	this->execCoreCommand("LOADCORE STATUSBAR_COLOR LC_OSG_GREEN");
-	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY TRUE");
-	this->execCoreCommand("LOADCORE STATUSBARVALUE 0"); //Reset Status Bar Lenght
+	this->execCoreCommand("LOADER STATUSBAR_COLOR LC_OSG_GREEN");
+	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY TRUE");
+	this->execCoreCommand("LOADER STATUSBARVALUE 0"); //Reset Status Bar Lenght
 	
 	//Attivo il messaggio di Unpack del Core
-	this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_GREEN");
-	this->execCoreCommand("LOADCORE SETMESSAGE Unpacking Files...");
+	this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_GREEN");
+	this->execCoreCommand("LOADER SETMESSAGE Unpacking Files...");
 }
 
 void ShellBase::downloadFinished(bool timing)
@@ -1184,8 +1184,8 @@ void ShellBase::downloadFinished(bool timing)
 	this->sendNotifyMessage(std::string("ShellBase::downloadFinished -> Loading Unpacked Core."));
 
 	//Loading Session
-	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-	this->execCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
+	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY FALSE");
+	this->execCoreCommand("LOADER SETMESSAGE "); //Spengo i messaggi
 
 	if(timing)
 		PR_Sleep(LOADING_CORE_MESSAGES_MIN);
@@ -1196,11 +1196,11 @@ void ShellBase::downloadCoreFileFinished(std::string tempfile, bool timing)
 	this->sendNotifyMessage(std::string("ShellBase::downloadFinished -> Loading Unpacked Core."));
 
 	//Loading Session
-	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-	this->execCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
+	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY FALSE");
+	this->execCoreCommand("LOADER SETMESSAGE "); //Spengo i messaggi
 
 	//Send Load information at the Core
-	this->execCoreCommand("LOADCORE LOADREQFILE " + tempfile);
+	this->execCoreCommand("LOADER LOADREQFILE " + tempfile);
 
 	if(timing)
 		PR_Sleep(LOADING_CORE_MESSAGES_MIN);
@@ -1221,19 +1221,19 @@ void ShellBase::downloadError(int error)
 
 	this->sendWarnMessage(std::string("ShellBase::downloadError -> Downloading File Failed: Error: " + errmsg));
 
-	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-	this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-	this->execCoreCommand("LOADCORE SETMESSAGE Downloading Failed!");
+	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY FALSE");
+	this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_RED");
+	this->execCoreCommand("LOADER SETMESSAGE Downloading Failed!");
 }
 
 void ShellBase::securityStringError()
 {
 	this->sendWarnMessage(std::string("ShellBase::securityStringError -> check validity failed!."));
 
-	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
+	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY FALSE");
 
-	this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-	this->execCoreCommand("LOADCORE SETMESSAGE Validity Control Failed!");
+	this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_RED");
+	this->execCoreCommand("LOADER SETMESSAGE Validity Control Failed!");
 }
 
 void ShellBase::unpackError(int error)
@@ -1247,15 +1247,15 @@ void ShellBase::unpackError(int error)
 
 	this->sendWarnMessage(std::string("ShellBase::unpackError -> Unpacking Error. CODE: " + errmsg));
 
-	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
+	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY FALSE");
 
-	this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-	this->execCoreCommand("LOADCORE SETMESSAGE Unpacking " + errmsg);
+	this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_RED");
+	this->execCoreCommand("LOADER SETMESSAGE Unpacking " + errmsg);
 }
 
 int ShellBase::doProgressDLStatus(double downtot, double downnow, double ultotal, double ulnow)
 {
-	std::string statmsg("LOADCORE STATUSBAR_VALUE ");
+	std::string statmsg("LOADER STATUSBAR_VALUE ");
 
 	std::ostringstream convstream; //creates an ostringstream object
 	convstream << ( downnow / downtot ) << std::flush;
@@ -1268,7 +1268,7 @@ int ShellBase::doProgressDLStatus(double downtot, double downnow, double ultotal
 
 int ShellBase::doProgressUnpackStatus(unsigned int cicleno, int filenumber)
 {
-	std::string statmsg("LOADCORE STATUSBAR_VALUE ");
+	std::string statmsg("LOADER STATUSBAR_VALUE ");
 
 	double dcicl = cicleno;
 	double dfnum = filenumber;

@@ -1,0 +1,11 @@
+#ifndef __OSG4WEB_COREOGLTEAPOTS_DEFINES__
+#define	__OSG4WEB_COREOGLTEAPOTS_DEFINES__ 1
+
+
+#define		OSG4WEB_COREOGLTEAPOTS_LIBNAME		"osg4web : CoreOpenGLTeapots"
+#define		OSG4WEB_COREOGLTEAPOTS_VERSION 		"1.0.0.0"
+#define		OSG4WEB_COREOGLTEAPOTS_NAME			"CoreOpenGLTeapots"
+
+#endif //__OSG4WEB_COREOGLTEAPOTS_DEFINES__
+
+// here place additional defines

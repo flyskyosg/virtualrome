@@ -8,6 +8,9 @@
 #include <CommonCore/CommandSchedule.h>
 #include <CommonCore/CoreInterface.h>
 
+#include <gl/gl.h>
+#include <gl/glu.h>
+
 #include <map>
 
 
@@ -83,8 +86,8 @@ protected:
 	virtual bool renderImplementation();
 
 private:
-	//Demo: Rotating Grid and Cube
-	void drawDemoGridAndCube();
+	//Demo: Rotating Grid and Teapot
+	void drawDemoGridAndTeapot();
 	//Model Rotation
 	float _theta;
 

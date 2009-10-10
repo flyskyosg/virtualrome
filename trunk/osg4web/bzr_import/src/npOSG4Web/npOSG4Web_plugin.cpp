@@ -480,11 +480,11 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 	return true;
 }
 
-NPBool nsPluginInstance::initLoadCore()
+NPBool nsPluginInstance::initLoader()
 {
 	mInitialized = true; //FIXME: controllare se va messo a false in caso di errore 
 
-	mShellBase.sendNotifyMessage("nsPluginInstance::initLoadCore -> starting the Loading Core.");
+	mShellBase.sendNotifyMessage("nsPluginInstance::initLoader -> starting the Loading Core.");
 	if(!mShellBase.startLoadingBaseCore())
 		return false;
 
@@ -492,14 +492,14 @@ NPBool nsPluginInstance::initLoadCore()
 
 	if(!mShellBase.initializeAdvancedCore())
 	{
-		//Reload LoadCore
+		//Reload Core Loader
 		if(!mShellBase.startLoadingBaseCore())
 		{
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + mShellBase.getErrorString());
+			mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoader -> ") + mShellBase.getErrorString());
 			return false;
 		}
 
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> Initializing Advanced Core Failed!"));
+		mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoader -> Initializing Advanced Core Failed!"));
 	}
 	
 	return mInitialized;
@@ -776,7 +776,7 @@ static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT eventmsg, WPARAM wParam, L
 	else
 		return plugin->handleWindowEvents(hWnd, eventmsg, wParam, lParam);
 
-	return (0L);
+	return (::DefWindowProc(hWnd, eventmsg, wParam, lParam)); //Passo il default alla window sopra
 }
 
 #else

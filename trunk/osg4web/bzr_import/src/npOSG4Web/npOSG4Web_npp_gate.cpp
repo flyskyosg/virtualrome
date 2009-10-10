@@ -117,7 +117,7 @@ NPError NPP_SetWindow (NPP instance, NPWindow* pNPWindow)
 
   // window just created
   if(!plugin->isInitialized() && (pNPWindow->window != NULL)) { 
-	plugin->initLoadCore(); //FIXME: controllare il ritorno 
+	plugin->initLoader(); //FIXME: controllare il ritorno 
   }
 
   // window goes away
