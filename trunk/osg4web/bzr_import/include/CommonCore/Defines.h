@@ -3,8 +3,12 @@
 
 #if defined (WIN32)
 #define WINDOWIDTYPE HWND //Win32 type
+#define WINDOWHGLRC HGLRC
+#define WINDOWHDC HDC
 #else
 #define WINDOWIDTYPE Window //X11 type
+#define WINDOWHGLRC //TODO
+#define WINDOWHDC //TODO
 #endif
 
 

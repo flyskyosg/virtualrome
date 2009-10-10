@@ -277,7 +277,7 @@ int ieOSG4Web_Ctrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_ShellBase.sendNotifyMessage("ieOSG4Web_Ctrl::OnCreate -> starting the Loading Core.");
 	if(!m_ShellBase.startLoadingBaseCore())
-		return -1;
+		return 0;
 
 	m_Loading = false;
 

@@ -58,22 +58,24 @@ ENDIF(WIN32)
 
 ############################################################
 #
-# Find Packages
-#
-############################################################
-
-FIND_PACKAGE(OSG)
-FIND_PACKAGE(CURL QUIET)
-
-
-############################################################
-#
 # Include Files
 #
 ############################################################
 
 INCLUDE(GrabFiles)
 INCLUDE(SetupCoreRuntime)
+INCLUDE(FindOpenGL)
+
+
+############################################################
+#
+# Find Packages
+#
+############################################################
+
+FIND_PACKAGE(OSG)
+FIND_PACKAGE(CURL QUIET)
+FIND_PACKAGE(OpenGL)
 
 
 ############################################################
@@ -105,6 +107,7 @@ ENDFOREACH(BTYPE Debug Release)
 FIND_PROGRAM(FIREFOX_EXE Firefox ${FIREFOX_DIR})
 FIND_PROGRAM(IEXPLORE_EXE iexplore ${IEXPLORE_DIR})
 
+MARK_AS_ADVANCED(FIREFOX_EXE IEXPLORE_EXE)
 
 ############################################################
 #
@@ -162,4 +165,7 @@ ADD_SUBDIRECTORY(src/npOSG4Web)
 IF(MSVC)
 	ADD_SUBDIRECTORY(src/ieOSG4Web)
 ENDIF(MSVC)
+
+
+MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH)
 
