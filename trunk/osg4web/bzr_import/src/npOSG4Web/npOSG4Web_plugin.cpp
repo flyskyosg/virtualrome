@@ -159,6 +159,7 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	mADVStartOptions(NULL),
 	mLoadCBOptions(new std::string( "useOriginalExternalReferences noLoadExternalReferenceFiles" )),
 	mInstDir(new std::string()),
+	mLocalInstDir(new std::string()),
 	mTempDir(new std::string()),
 	mCoreInstallDir(new std::string()),
 	mThread(NULL),
@@ -190,7 +191,6 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	{
 		s_PluginMessageError = "retrieve proxy info failed!";
 		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve proxy info failed!");
-		delete mInstDir;
 		return;
 	}
 
@@ -199,14 +199,20 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	{
 		s_PluginMessageError = "retrieve plugin directory failed!";
 		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve plugin directory failed!");
+		delete mInstDir; //Serve per il non far inizializzare il ciclo di rendering... FIXME: da rifare 
 		return;
 	}
-//TODO: controllare
-#if defined(_DEBUG) //Attach Debug directory or Profile OSG4Web Extension directory
+
+	rv = getCurrPlugDir(mLocalInstDir, NPOSG4WEB_DIRECTORY_LOCAL);
+	if(rv != NS_OK)
+	{
+		s_PluginMessageError = "retrieve plugin directory failed!";
+		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve local plugin directory failed!");
+		return;
+	}
+
 	mInstDir->append(APPEND_NPOSG4WEB_DIRECTORY);
-#else
-	mInstDir->append(APPEND_NPOSG4WEB_EXTINSTALLDIR);
-#endif
+	mLocalInstDir->append(APPEND_NPOSG4WEB_DIRECTORY);
 
 	rv = getCurrPlugDir(mTempDir, NS_OS_TEMP_DIR);
 	if(rv != NS_OK)
@@ -239,6 +245,13 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	{
 		s_PluginMessageError = mShellBase.getErrorString();
 		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> setting install directory failed!");
+		return;
+	}
+
+	if(!mShellBase.setLocalInstallDirectory(*mLocalInstDir))
+	{
+		s_PluginMessageError = mShellBase.getErrorString();
+		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> setting local install directory failed!");
 		return;
 	}
 
@@ -297,6 +310,9 @@ nsPluginInstance::~nsPluginInstance()
 
 	if( mInstDir )
 		delete mInstDir;
+
+	if( mLocalInstDir )
+		delete mLocalInstDir;
 
 	if( mTempDir )
 		delete mTempDir;

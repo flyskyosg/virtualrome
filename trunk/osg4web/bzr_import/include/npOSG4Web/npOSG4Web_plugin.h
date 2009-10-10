@@ -151,6 +151,9 @@ private:
 	//Installation Directory
 	std::string *mInstDir;
 
+	//Local Installation Directory
+	std::string *mLocalInstDir;
+
 	//Temporary Directory
 	std::string *mTempDir;
 

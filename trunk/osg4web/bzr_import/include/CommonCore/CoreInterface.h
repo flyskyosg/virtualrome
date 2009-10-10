@@ -32,7 +32,13 @@ namespace OSG4WebCC
 	class CoreInterface
 	{
 	public:
-		CoreInterface(std::string corename = OSG4WEB_COREINTERFACE_NAME) : m_corename(corename)
+		CoreInterface(std::string corename = OSG4WEB_COREINTERFACE_NAME) : _CoreName(corename),
+			_coutbuf(NULL),
+			_cerrbuf(NULL),
+			_fout(NULL),
+			_EventFPtr(NULL),
+			_ClassEPtr(NULL)
+
 		{ }
 
 		//Distruttore dell Core Interface
@@ -83,27 +89,27 @@ namespace OSG4WebCC
 		//Messaggi di Warning
 		virtual void sendWarnMessage(std::string warnmessage)
 		{
-			if(m_fout != NULL)
-				std::cerr.rdbuf( m_fout->rdbuf() );
+			if(_fout != NULL)
+				std::cerr.rdbuf( _fout->rdbuf() );
 	
-			std::cerr << "ERROR: "<< m_corename << "::" << warnmessage << std::endl;
+			std::cerr << "ERROR: "<< _CoreName << "::" << warnmessage << std::endl;
 		}
 
 		//Messaggi di Notify
 		virtual void sendNotifyMessage(std::string notifymessage)
 		{
-			if(m_fout != NULL)
-				std::cout.rdbuf( m_fout->rdbuf() );
+			if(_fout != NULL)
+				std::cout.rdbuf( _fout->rdbuf() );
 	
-			std::cout << "NOTIFY: " << m_corename << "::" << notifymessage << std::endl;
+			std::cout << "NOTIFY: " << _CoreName << "::" << notifymessage << std::endl;
 		}
 
 	protected:
 		//Inizializza il salvatagggio dei Log
 		virtual bool initializeLogMessages()
 		{
-			m_coutbuf = std::cout.rdbuf();
-			m_cerrbuf = std::cerr.rdbuf();
+			_coutbuf = std::cout.rdbuf();
+			_cerrbuf = std::cerr.rdbuf();
 	
 			std::string fname(this->getCoreName() + "_log_");
 
@@ -113,17 +119,17 @@ namespace OSG4WebCC
 
 			fname += "_ID.txt";
     
-			m_fout = new std::ofstream( fname.c_str() );
+			_fout = new std::ofstream( fname.c_str() );
 	
-			if(m_fout->fail())
+			if(_fout->fail())
 			{
-				delete m_fout;
-				m_fout = NULL;
+				delete _fout;
+				_fout = NULL;
 				return false;
 			}
 
-			std::cout.rdbuf( m_fout->rdbuf() );
-			std::cerr.rdbuf( m_fout->rdbuf() );
+			std::cout.rdbuf( _fout->rdbuf() );
+			std::cerr.rdbuf( _fout->rdbuf() );
 
 			return true;
 		}
@@ -131,14 +137,14 @@ namespace OSG4WebCC
 		//Conclude i messaggi di Log
 		virtual bool restoreLogMessages()
 		{
-			if(m_fout)
+			if(_fout)
 			{
-				m_fout->close();
+				_fout->close();
 	
-				delete m_fout;
+				delete _fout;
 
-				std::cout.rdbuf( m_coutbuf );
-				std::cout.rdbuf( m_cerrbuf );
+				std::cout.rdbuf( _coutbuf );
+				std::cout.rdbuf( _cerrbuf );
 
 				return true;
 			}
@@ -160,7 +166,7 @@ namespace OSG4WebCC
 			return sendEvent(_ClassEPtr, eventmessage);
 		}
 
-		virtual std::string getCoreName() { return m_corename; }
+		virtual std::string getCoreName() { return _CoreName; }
 
 	private:
 
@@ -170,12 +176,12 @@ namespace OSG4WebCC
 		void* _ClassEPtr;
 
 		//Strutture per il log
-		std::streambuf* m_coutbuf;
-		std::streambuf* m_cerrbuf;
-		std::ofstream* m_fout;
+		std::streambuf* _coutbuf;
+		std::streambuf* _cerrbuf;
+		std::ofstream* _fout;
 
 		//Nome del core
-		std::string m_corename;
+		std::string _CoreName;
 	};
 
 	//Definizioni

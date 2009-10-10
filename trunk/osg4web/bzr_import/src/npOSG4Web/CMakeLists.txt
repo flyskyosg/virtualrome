@@ -136,10 +136,3 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Shell_${PROJECT_
 #		"${myvar} -->${${myvar}}<-\n"
 #	)
 #ENDFOREACH(myvar)
-
-#########attenzione, inserire flags di compilazione:
-#  debug
-# MOZILLA_STRICT_API;XPCOM_GLUE;XP_WIN;XP_WIN32;_X86_;WIN32;_WINDOWS;_DEBUG;_USRDLL
-#
-#  release
-# MOZILLA_STRICT_API;XPCOM_GLUE;XP_WIN32;XP_WIN;_X86_;WIN32;_WINDOWS;NDEBUG;_USRDLL

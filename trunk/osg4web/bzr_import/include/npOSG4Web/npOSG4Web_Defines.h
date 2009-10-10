@@ -13,11 +13,8 @@
 
 #if defined (WIN32) //Windows DEBUG
 
-#if defined (_DEBUG)
 #define		NPOSG4WEB_DIRECTORY		NS_OS_CURRENT_PROCESS_DIR //FIXME: ripristinare
-#else
-#define		NPOSG4WEB_DIRECTORY		"ProfD"
-#endif
+#define		NPOSG4WEB_DIRECTORY_LOCAL		"ProfD"
 
 #define		APPEND_NPOSG4WEB_DIRECTORY	"\\plugins"
 #define		APPEND_NPOSG4WEB_EXTINSTALLDIR	"\\plugins"

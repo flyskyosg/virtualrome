@@ -3,7 +3,7 @@
 
 #define		SHELL_VERSION_STRING	"OSG4Web - Shell Version: 1.0.0.0"
 
-#define		OSG4WEB_LOADCORE_NAME	"loadcore"
+#define		OSG4WEB_LOADCORE_NAME	"LoadCore"
 
 #if defined( _DEBUG )
 #define		DEBUGAPPEND				"d"   
