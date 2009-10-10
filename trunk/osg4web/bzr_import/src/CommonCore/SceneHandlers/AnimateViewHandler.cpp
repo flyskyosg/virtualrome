@@ -49,7 +49,7 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 	if( ms < animTime)
 	{
 		double blend_factor = ms / animTime;
-		double rot_blend_factor = sqrt(blend_factor); //FIXME: trovare il modo fi anticipare la rotazione - OK test con sqrt
+		double rot_blend_factor;	//FIXME: trovare il modo fi anticipare la rotazione
 				
 		osg::Quat rotation;
 		osg::Vec3 position, scale;
@@ -70,7 +70,7 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 		//p3 = osg::Vec3(p2.x(),p2.y(),(p2.z()-D));
 		double t,tmp;
 		tmp = blend_factor - 1.0;
-		t = cos(tmp*tmp*tmp*osg::PI_2);
+		t = cos(tmp*tmp*osg::PI_2);
 		//t = 1.0 - (tmp*tmp);
 		//t = atan(blend_factor*5.0);
 
@@ -78,6 +78,9 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 		double h = cos((t-0.5)*osg::PI);
 		position = ( p1 * (1.0 - t) + p2 * t);
 		position += osg::Vec3(0.0,0.0,h*D);
+
+		rot_blend_factor = sqrt( t );			// Anticipa l'orientamento della camera rispetto al movimento camera
+		//rot_blend_factor = t*t;				// Ritarda l'orientamento della camera rispetto al movimento camera
 
 		scale = _oldMatrix.getScale();
 		rotation.slerp(rot_blend_factor, _oldMatrix.getRotate(), animMatrix.getRotate());
