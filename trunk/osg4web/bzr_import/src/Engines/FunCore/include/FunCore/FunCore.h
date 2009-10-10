@@ -103,6 +103,9 @@ protected:
 
 	//Inizializzazione del Main SceneGraph
 	bool _maininit;
+
+	//Environment
+	bool _envdone;
 };
 
 #endif //__OSG4WEB_FUNCORE__

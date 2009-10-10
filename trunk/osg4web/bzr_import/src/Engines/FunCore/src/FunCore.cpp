@@ -35,6 +35,7 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	_SupportNode( new osg::Group ),
 	_sendCEventToJSTime( osg::Timer::instance()->tick() ),
 	_jsMapActive(false),
+	_envdone(false),
 	_maininit(false)
 {
 	this->sendNotifyMessage("FunCore -> Costructing FunCore Instance.");
@@ -300,7 +301,10 @@ bool FunCore::loadModelToNode(std::string arguments)
 void FunCore::preFrameUpdate()
 {
 	this->handleLoadingThreads();
-	this->handleEnvironment();
+
+	if(!_envdone)
+		this->handleEnvironment();
+
 	this->handleTooltips();
 
 	this->sendLookAtToJS();
@@ -347,6 +351,8 @@ void FunCore::handleEnvironment()
 	
 	if( fnvenvironment.getNodeFoundSize() == 0)
 		return;
+
+	_envdone = true;
 
 	unsigned int npgeosize = fnvenvironment.getNodeByIndex(0).size();
 
