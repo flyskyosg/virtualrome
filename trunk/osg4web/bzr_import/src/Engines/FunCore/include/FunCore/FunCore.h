@@ -39,6 +39,7 @@ public:
 		DEACTIVATE_JSMAP_MESSAGES,
 		GET_JSMAP_COORDINATES,
 		SETHOMEPOSITION,
+		SETBOUNDS
 	};
 
 	//Costruttore/Distruttore
@@ -81,6 +82,7 @@ protected:
 
 	//Manipolatori
 	bool setHomePosition(std::string arguments);
+	bool setBounds(std::string arguments);
 	osg::ref_ptr<Manipulators::walkManipulator> _WalkManip;
 	osg::ref_ptr<Manipulators::ViroManipulator> _ViRoMan;
 
