@@ -39,7 +39,7 @@ public:
 	//Core initialization
 #if defined(WIN32)
 	bool InitCore(WINDOWIDTYPE, std::string, std::string);
-	
+	//Handle Window Event
 	virtual LRESULT handleNativeWindowWin32Event(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam);
 #else
 	bool InitCore(Display*, WINDOWIDTYPE, std::string, std::string);
@@ -50,21 +50,26 @@ public:
 	//Rendering pass
 	bool RenderScene();
 	
-	//Setta a True (fine)
+	//Set Rendering Stop
 	void setDone() { _done = true; }
+	//Check if rendering engine is currently work
 	bool isDone() { return _done; }
 
 protected:
 	std::string getInstallationDirectory() { return _InstDir; }
-
+	//OpenGL Initialization
 	virtual void initializeOpenGL();
-
+	//OpenGL Window Resize
 	virtual bool windowResize(int windowX, int windowY, int windowWidth, int windowHeight);
-
+	//OpenGL Rendering Scene
 	virtual bool renderImplementation();
 
 private:
+	//Demo: Rotating Grid and Cube
+	void drawDemoGridAndCube();
+	float _theta;
 
+private:
 	//Registry dei Comandi 
 	std::map<std::string, CommandSchedule*> _CommandRegistry;
 
@@ -75,8 +80,6 @@ private:
 	bool _openglinit;
 	bool _needresize;
 	bool _done;
-
-	float _theta;
 };
 
 

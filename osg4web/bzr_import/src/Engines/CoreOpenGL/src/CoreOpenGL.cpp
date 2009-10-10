@@ -51,6 +51,8 @@ CoreOpenGL::~CoreOpenGL()
 #if defined(WIN32)
 bool CoreOpenGL::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string options) 
 {
+	this->sendNotifyMessage("InitCore -> Inizializing CoreOpenGL Instance.");
+
 	_InstDir = instdir; //Directory di installazione del Core attuale
 	
 	return this->initializeWindow(mhWnd);
@@ -72,6 +74,8 @@ LRESULT CoreOpenGL::handleNativeWindowWin32Event(HWND hWnd, UINT eventmsg, WPARA
 	default:
 		break;
 	}
+	
+	//TODO: fare gli eventi tastiera e mouse
 
 	return ::DefWindowProc(hWnd, eventmsg, wParam, lParam);
 }
@@ -99,7 +103,7 @@ bool CoreOpenGL::RenderScene()
 {
 	if(!this->isDone())
 	{
-		//IMPORTANTE:	ricordarsi sempre di tenere le direttive OGL sempre all'interno del thread chiamante altrimenti 
+		//IMPORTANTE:	ricordarsi sempre di tenere le direttive OGL all'interno del thread chiamante altrimenti 
 		//				gli stati si corrompono e vengono ignorati
 		if(!_openglinit)
 		{
@@ -110,7 +114,8 @@ bool CoreOpenGL::RenderScene()
 
 		if(_needresize)
 		{
-			this->windowResize(this->getWindowsX(), this->getWindowsY(), this->getWindowsWidth(), this->getWindowsHeight());
+			WindowSupport::WindowDimension dimension = this->getWindowsDimension();
+			this->windowResize(dimension.getX(), dimension.getY(), dimension.getWidth(), dimension.getHeight());
 			_needresize = false;
 		}
 
@@ -132,7 +137,14 @@ bool CoreOpenGL::renderImplementation()
 	glLoadIdentity();
 	
 	gluLookAt(0.0, 2.5, -11.0, 0.0, 0.75, -5.0, 0.0, 1.0, 0.0);
+		
+	this->drawDemoGridAndCube();
 	
+	return true;
+}
+
+void CoreOpenGL::drawDemoGridAndCube()
+{
 	glPushMatrix();
 	glRotatef( _theta, 0.0f, 1.0f, 0.0f );
 	for(float i = -500; i <= 500; i += 5)
@@ -182,18 +194,16 @@ bool CoreOpenGL::renderImplementation()
 	glPopMatrix();
 
 	_theta += 0.75f;
-
-	return true;
 }
 
 bool CoreOpenGL::windowResize(int windowX, int windowY, int windowWidth, int windowHeight)
 {
-	glViewport(0, 0, (GLsizei) windowWidth, (GLsizei) windowHeight);
+	glViewport(windowX, windowY, (GLsizei) windowWidth, (GLsizei) windowHeight);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	gluPerspective(45.0f,(GLfloat)windowWidth/(GLfloat)windowHeight,0.1f,100.0f);
+	gluPerspective(45.0f, (GLfloat) windowWidth / (GLfloat) windowHeight, 0.1f, 100.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -209,5 +219,3 @@ void CoreOpenGL::initializeOpenGL()
 	glDepthFunc(GL_LEQUAL);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
-
-//TODO: fare gli eventi tastiera e mouse
