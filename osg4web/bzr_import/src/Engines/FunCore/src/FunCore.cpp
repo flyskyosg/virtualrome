@@ -180,13 +180,14 @@ bool FunCore::initManipulators()
 	_ViRoMan->setImpactDistance( 0.2 );
 	_ViRoMan->setAvoidanceDistance( 2.0 );
 
-	// distanza di impatto da terra
-	_ViRoMan->setGroundDistance( 2.0 );
+	// distanza di impatto da terra (Altezza avatar)
+	_ViRoMan->setGroundDistance( 1.6 );
 
 	// Glass Prison
 	osg::BoundingBox BB;									
 	BB.set( osg::Vec3d(OSG4WEB_VROME_XMIN,OSG4WEB_VROME_YMIN,OSG4WEB_VROME_ZMIN), osg::Vec3d(OSG4WEB_VROME_XMAX,OSG4WEB_VROME_YMAX,OSG4WEB_VROME_ZMAX) );
 	_ViRoMan->setGlassPrison( BB );
+	_ViRoMan->scaleParameters( BB );
 
 	//Attacca al Command Registry il Manipolator CommandSchedule
 	//this->addCommandSchedule((CommandSchedule*) _WalkManip.get());
@@ -368,6 +369,11 @@ void FunCore::preFrameUpdate()
 	this->handleTooltips();
 
 	this->sendLookAtToJS();
+
+	if ( _HUD.get() ){
+		//_HUD->setCurrentLoad( (unsigned int) _LoaderThreadHandler->isLoading() );
+		_HUD->Update();
+		}
 }
 
 void FunCore::sendLookAtToJS()
@@ -615,6 +621,7 @@ void FunCore::handleLoadingThreads()
 					_WalkManip->setStepAmount( node->getBound().radius() / 80.0f, node->getBound().radius() / 80.0f);
 					_WalkManip->setIntersectSegmenteMultiplier(1.5, 1.0);	
 					*/
+					//_ViRoMan->setNode( node.get() );
 				}
 				//else _WalkManip->searchDefaultPos();
 			}
@@ -634,7 +641,7 @@ void FunCore::handleLoadingThreads()
 			// Andrebbe in buildMainScene()
 			//-----------------------------
 			if ( _ViRoMan.get() ){
-				// Crea HUD
+				// Crea HUD e attach al ViRo manipulator
 				_HUD = new ViroHud( _ViRoMan.get() );
 				//_HUD->setViewportSize(this->getCurrentWinWidth(),this->getCurrentWinHeight());
 				_HUD->setViewportSize(1400,700);
@@ -643,8 +650,8 @@ void FunCore::handleLoadingThreads()
 				_MainNode->addChild( _HUD.get()->getHUD() );
 
 				// Crea Callback di aggiornamento HUD
-				ViroHudUpdater* hupd = new ViroHudUpdater( _HUD.get() );
-				_HUD->getHUD()->setUpdateCallback( hupd );
+				//ViroHudUpdater* hupd = new ViroHudUpdater( _HUD.get() );
+				//_HUD->getHUD()->setUpdateCallback( hupd );
 
 				// setup
 				_HUD->setServerPrefix( _LoaderThreadHandler->getServerPrefix() );
