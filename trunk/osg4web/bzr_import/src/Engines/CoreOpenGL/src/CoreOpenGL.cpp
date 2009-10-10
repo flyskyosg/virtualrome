@@ -16,8 +16,7 @@ CoreOpenGL::CoreOpenGL(std::string corename) : CoreInterface(corename), CommandS
 {
 #if defined(OSG4WEB_DEBUG_INFO_IN_FILE)
 	//Inizializzo il Debug
-	if(! this->initializeLogMessages() )
-		this->sendWarnMessage("CoreOpenGL -> Error redirecting messages."); 
+	this->initializeLogMessages();
 
 	this->sendNotifyMessage("CoreOpenGL -> Starting Log Redirection.");
 #endif

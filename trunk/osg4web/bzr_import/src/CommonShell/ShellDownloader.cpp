@@ -17,6 +17,8 @@
 ShellDownloader::ShellDownloader(ShellBase* rbase) : _proxyhost(""),
 	_proxyport("8080"),
 	_curlctr(NULL),
+	_isLoading(false),
+	_isDone(false),
 	_unpackerctr(NULL)
 {
 	//Check ShellBase existance
@@ -50,13 +52,20 @@ ShellDownloader::~ShellDownloader()
 	}
 }
 
-bool ShellDownloader::closeDownloader() //FIXME: controllare 
+bool ShellDownloader::closeDownloader()
 {
+	_isDone = true;
+
+	while( _requestqueue.size() != 0 )
+		_requestqueue.pop();
+
 	if(_unpackerctr)
 		_unpackerctr->stopUnpacking();
 
 	if(_curlctr)
 		_curlctr->stopDownloading();
+
+	while(_isLoading) { } //this line waits the core loading critical session
 
 	if(this->joinThread())
 		return true;
@@ -66,19 +75,22 @@ bool ShellDownloader::closeDownloader() //FIXME: controllare
 
 void ShellDownloader::addDownloadRequest(ShellDownloader::RequestDownload reqdl)
 {
+	if(_isDone)
+		return;
+
 	_requestqueue.push(reqdl); 
 }
 
 void ShellDownloader::clearDownloadRequestQueue()
 {
+	while( _requestqueue.size() != 0 )
+		_requestqueue.pop();
+
 	if(_unpackerctr)
 		_unpackerctr->stopUnpacking();
 
 	if(_curlctr)
 		_curlctr->stopDownloading();
-
-	while( _requestqueue.size() != 0 )
-		_requestqueue.pop();
 }
 
 void ShellDownloader::setProxy(std::string hostname, std::string port)
@@ -123,26 +135,45 @@ bool ShellDownloader::doCallBack()
 
 void ShellDownloader::handleCoreDownload(RequestDownload curreq)
 {
+	if(_isDone)
+		return;
+
+	_isLoading = true;
 	if(_dwnlcontrol->checkAdvCorePresence())
 	{
 		if(_dwnlcontrol->startDownloadedCore())
+		{
+			_isLoading = false;
 			return;
+		}
 	}
-
+	
 	if(this->performDownload(curreq))
 		_dwnlcontrol->startDownloadedCore(); //Starting Downloaded Core
+	_isLoading = false;
 }
 
 void ShellDownloader::handleDepCoreDownload(RequestDownload curreq)
 {
-	if(_dwnlcontrol->checkAdvCorePresence())
-		return; //Discarding downloading because adv core is found
+	if(_isDone)
+		return;
 
+	_isLoading = true;
+	if(_dwnlcontrol->checkAdvCorePresence())
+	{
+		_isLoading = false;
+		return; //Discarding downloading because adv core is found
+	}
+	
 	this->performDownload(curreq);
+	_isLoading = false;
 }
 
 void ShellDownloader::handleSimpleFile(RequestDownload curreq)
 {
+	if(_isDone)
+		return;
+
 	this->performDownload(curreq, false);
 }
 

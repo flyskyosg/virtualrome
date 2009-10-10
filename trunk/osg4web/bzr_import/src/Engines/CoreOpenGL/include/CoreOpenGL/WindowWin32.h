@@ -267,12 +267,8 @@ protected:
 	//Rilascia il contesto
 	bool releaseContextImplementation()
 	{
-	    if (!::wglMakeCurrent(_hdc, NULL))
-	    {
-	        logError("WindowSupport::releaseContextImplementation() - Unable to release current OpenGL rendering context", ::GetLastError());
-			return false;
-		}
-
+	    ::wglMakeCurrent(_hdc, NULL);
+	    
 		_current = false;
 
 		return true;
@@ -284,8 +280,7 @@ protected:
 		if (!_initialized) 
 			return;
 	
-		if (!::SwapBuffers(_hdc))
-			logError("WindowSupport::swapBuffersImplementation() - Unable to swap display buffers", ::GetLastError());
+		::SwapBuffers(_hdc);
 	}
 
 	//Registrazione delle procedure di finestra (WindProc)

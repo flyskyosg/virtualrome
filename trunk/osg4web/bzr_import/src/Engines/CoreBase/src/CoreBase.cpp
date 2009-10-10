@@ -28,8 +28,7 @@ CoreBase::CoreBase(std::string corename) : CoreInterface(corename), CommandSched
 {
 #if defined(OSG4WEB_DEBUG_INFO_IN_FILE)
 	//Inizializzo il Debug
-	if(! this->initializeLogMessages() )
-		this->sendWarnMessage("CoreBase -> Error redirecting messages."); 
+	this->initializeLogMessages();
 
 	this->sendNotifyMessage("CoreBase -> Starting Log Redirection.");
 #endif
@@ -75,9 +74,9 @@ CoreBase::~CoreBase()
 
 	this->sendNotifyMessage("~CoreBase -> Stopping Log Redirection if Present.");
 
-	if(this->isLogMessagesInitialized())
+	/* if(this->isLogMessagesInitialized())
 		if(! this->restoreLogMessages() )
-			this->sendWarnMessage("~CoreBase -> Error closing messages redirection."); 
+			this->sendWarnMessage("~CoreBase -> Error closing messages redirection."); */
 		
 	//FIXME: Controllare il delete... aggiunto solo per fare testing
 	//Killing Registry instance (ovviamente mi si inchioda tutto!!!)
@@ -189,10 +188,7 @@ bool CoreBase::RenderScene()
 		this->postFrameUpdate();
 	}
 	else
-	{
-		this->sendWarnMessage("RenderScene -> Core not initialized, Rendering skipped!");
 		return false;
-	}
 
 	return true;
 }
