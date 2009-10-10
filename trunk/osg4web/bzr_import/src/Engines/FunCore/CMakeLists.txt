@@ -57,6 +57,7 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommonCore)
 
 	ADD_TEST(${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=file:\"//${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
 	ADD_TEST(webcin_${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=http://3d.cineca.it/storage/terrain/demo/top.html\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
+	ADD_TEST(modweb${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=file:\"//${HTML_TEST_DIR}/${PROJECT_NAME}.html\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
 
 
 INCLUDE(ModuleInstall OPTIONAL)
