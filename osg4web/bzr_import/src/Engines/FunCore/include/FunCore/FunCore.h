@@ -10,6 +10,7 @@
 #include <CommonCore/SceneHandlers/SceneModifier.h>
 #include <CommonCore/SceneHandlers/LoadThreadsHandler.h>
 #include <CommonCore/SceneHandlers/TooltipsSceneModifier.h>
+#include <CommonCore/SceneHandlers/GetBackHandler.h>
 
 #include <CommonCore/Manipulators/walkManipulator.h>
 
@@ -70,11 +71,13 @@ protected:
 	osg::ref_ptr<Manipulators::walkManipulator> _WalkManip;
 
 	//Scene Handlers
+	osg::ref_ptr<SceneHandlers::GetBackHandler> _GetBackHandler;
 	osg::ref_ptr<SceneHandlers::AnimateViewHandler> _AnimateHandler;
 	osg::ref_ptr<SceneHandlers::SceneModifier> _SceneModifier;
 	osg::ref_ptr<SceneHandlers::LoadThreadsHandler> _LoaderThreadHandler;
 	osg::ref_ptr<SceneHandlers::TooltipsSceneModifier> _TooltipsSceneModifier;
 	osg::ref_ptr<SceneHandlers::NodeParserHandler> _TooltipsParserHandler;
+	osg::ref_ptr<SceneHandlers::NodeParserHandler> _StandardNodeParserHandler;
 
 	//Main Node
 	osg::ref_ptr<osg::Group> _MainNode;
