@@ -489,7 +489,7 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 	if(!mShellBase.getObjectShellOption(OBJECT_OPTION_DISABLEOPENGLCONF, ogltest))
 	{
 		mShellBase.sendNotifyMessage("nsPluginInstance::init -> configuring DC.");
-
+/* FIXME: RIPRISTINAAAA
 		PIXELFORMATDESCRIPTOR pixelFormat;
 
 		ZeroMemory( &pixelFormat, sizeof( pixelFormat ) );
@@ -525,6 +525,7 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 		    ::ReleaseDC(mhWnd, hdc);
 		    return mInitialized;
 		}
+		*/
 	}
 
 	// subclass window so we can intercept window messages and
@@ -701,11 +702,12 @@ void nsPluginInstance::shut()
 	if(!mShellBase.getObjectShellOption(OBJECT_OPTION_DISABLEOPENGLCONF, ogltest))
 	{
 		mShellBase.sendNotifyMessage("nsPluginInstance::shut -> release DC.");
-
+/* FIXME: RIPRISTINAAAA
 		HDC hdc = ::GetDC( mhWnd );
 		
 		if(hdc)
 			::ReleaseDC(mhWnd, hdc);
+			*/
 	}
 
 	// subclass it back
