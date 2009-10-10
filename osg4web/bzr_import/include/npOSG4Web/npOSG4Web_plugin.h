@@ -1,6 +1,7 @@
 #ifndef __NPOSG4WEB_PLUGIN_H__
 #define __NPOSG4WEB_PLUGIN_H__ 1
 
+#define GET_EVENT_THREADSAFE 1
 
 #include "xpcom-config.h"
 #include "nspr.h"
@@ -123,7 +124,11 @@ private:
 
 	//Check di setting opzioni iniziali critiche
 	bool mInitOptionsSet;
-
+#if defined(GET_EVENT_THREADSAFE)
+	std::string mGetEvent_Message;
+	bool mGetEvent_do;
+	PRLock* mGetEvent_Lock;
+#endif
 #if defined(WIN32)
 	//Vecchio Window Procedure
 	WNDPROC lpOldProc;

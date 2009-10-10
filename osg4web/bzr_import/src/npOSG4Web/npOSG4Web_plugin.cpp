@@ -123,6 +123,7 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	mInitOptionsSet(false),
 	mScriptablePeer(NULL),
 	mLoading(true),
+	mGetEvent_do(false),
 #if defined(WIN32)
 	lpOldProc(NULL),
   	mhWnd(NULL)
@@ -134,6 +135,12 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
   	mFontInfo(0)
 #endif
 {
+	//Lock Creation
+	mGetEvent_Lock = PR_NewLock();
+	//Check di esistenza del lock
+	assert(mGetEvent_Lock);
+	mGetEvent_Message.assign("");
+
 	mShellBase.initializeLog("npOSG4Web");
 
 	mShellBase.sendNotifyMessage("nsPluginInstance::nsPluginInstance -> Default Constructor");
@@ -692,6 +699,19 @@ bool nsPluginInstance::resetWindowHandler()
 
 LRESULT nsPluginInstance::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam)
 {
+#if defined(GET_EVENT_THREADSAFE)
+	//handle registered dispatch GetEvents to the browser
+	if(mGetEvent_do) {
+		PR_Lock(mGetEvent_Lock);
+		NPError errcode;
+ 	
+		//Invio segnale al browser
+		errcode = NPN_GetURL(mInstance, mGetEvent_Message.c_str(), "_self");
+		mGetEvent_do=false;
+		PR_Unlock(mGetEvent_Lock);
+	}
+#endif
+
 	switch (eventmsg) 
 	{
 #if (_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)
@@ -967,14 +987,20 @@ std::string nsPluginInstance::execCoreCommand(std::string line )
 //
 NPError nsPluginInstance::SendGetEvent(std::string evnt)
 {
-	NPError errcode;
 	std::string eventstr("javascript:eventCatcher(\"");
 	
 	eventstr +=  evnt + std::string("\")");
 
 	//Invio segnale al browser
+#if defined(GET_EVENT_THREADSAFE)
+		PR_Lock(mGetEvent_Lock);
+		mGetEvent_Message.assign(eventstr);
+		mGetEvent_do=true;
+		PR_Unlock(mGetEvent_Lock);
+		return 0;
+#else
+	NPError errcode;
 	errcode = NPN_GetURL(mInstance, eventstr.c_str(), "_self");
-
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::SendGetEvent -> Sending Message to JS"));
 
 	if(errcode != NPERR_NO_ERROR)
@@ -986,6 +1012,8 @@ NPError nsPluginInstance::SendGetEvent(std::string evnt)
 	}
 
 	return errcode;
+#endif
+
 }
 
 bool nsPluginInstance::TransportEvent(void* classptr, std::string eventstr)
