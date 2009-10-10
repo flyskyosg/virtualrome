@@ -39,7 +39,7 @@
       <br>
       <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="500" height="500" type="application/osg4web-plugin" >
 	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
-	<param name="ADVCoreSHA1" value="test_CoreExampleEditManip">
+	<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
 	<param name="ADVCoreStartOptions" value="COREEDIT LOAD_TERRAIN http://3d.cineca.it/storage/terrain/demo/out_run_2/demo2.ive"> 
       </object>
 
