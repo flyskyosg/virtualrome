@@ -30,7 +30,7 @@ ShellBase::ShellBase() : m_DynLoad(NULL),
 	m_coutbuf(NULL),
 	m_cerrbuf(NULL),
 	m_coreInit(false),
-	m_advancedcore("core_run")
+	m_advancedcore("dummy_core_run")
 {
 
 }
@@ -186,6 +186,14 @@ std::string ShellBase::execShellCommand(std::string str)
 	case ShellCommand::SC_SET_COREADV: //Core da caricare
 		{
 			m_advancedcoreaddress = scommandp.getShellArgument();
+			std::string fileName( getAdvancedCoreFileName() );
+
+			std::string::size_type dot = fileName.find_last_of('.');
+			if (dot==std::string::npos) 
+				m_advancedcore = fileName;
+			else
+				m_advancedcore = std::string(fileName.begin(),fileName.begin()+dot);
+	
 			retstr = "DONE";
 		}
 		break;

@@ -1,6 +1,11 @@
 
 Change Log
 
+
+28/01/2008
+- Ripristinato il nome dll a nome di progetto (per release e test usare lo stesso nome dello sha1)
+- Varie modifiche e improv
+
 11/12/2007
 - Rilasciata R2
 - Modificati i progetti

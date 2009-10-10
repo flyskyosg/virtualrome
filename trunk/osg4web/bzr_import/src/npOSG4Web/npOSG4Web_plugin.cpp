@@ -194,9 +194,6 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 		return;
 	}
 
-#if defined(NPOSG4WEB_CUSTOM_INSTDIR)
-	mInstDir = new std::string(NPOSG4WEB_CUSTOM_COREINSTDIR);
-#else
 	rv = getCurrPlugDir(mInstDir, NPOSG4WEB_DIRECTORY);
 	if(rv != NS_OK)
 	{
@@ -204,7 +201,6 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve plugin directory failed!");
 		return;
 	}
-
 //TODO: controllare
 #if defined(_DEBUG) //Attach Debug directory or Profile OSG4Web Extension directory
 	mInstDir->append(APPEND_NPOSG4WEB_DIRECTORY);
@@ -212,11 +208,6 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	mInstDir->append(APPEND_NPOSG4WEB_EXTINSTALLDIR);
 #endif
 
-#endif
-
-#if defined(NPOSG4WEB_CUSTOM_TEMPDIR)
-	mTempDir = new std::string(NPOSG4WEB_CUSTOM_TEMPDIR);
-#else
 	rv = getCurrPlugDir(mTempDir, NS_OS_TEMP_DIR);
 	if(rv != NS_OK)
 	{
@@ -226,12 +217,13 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	}
 
 	mTempDir->append(APPEND_TEMP_DIRECTORY);
-#endif
 
-#if defined(NPOSG4WEB_CUSTOM_COREINSTDIR)
-	mCoreInstallDir = new std::string(NPOSG4WEB_CUSTOM_COREINSTDIR);
+#if defined(NPOSG4WEB_COREDIR_PLUGIN) //Se settata imposto la directory di lavoro dei core in plugin di firefox
+	rv = getCurrPlugDir(mCoreInstallDir, NPOSG4WEB_DIRECTORY); 
 #else
 	rv = getCurrPlugDir(mCoreInstallDir, COREINSTALL_DIRECTORY);
+#endif
+
 	if(rv != NS_OK)
 	{
 		s_PluginMessageError = "retrieve core directory failed!";
@@ -240,7 +232,6 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	}
 
 	mCoreInstallDir->append(APPEND_CORES_DIRECTORY);
-#endif
 
 	mShellBase.sendNotifyMessage("nsPluginInstance::nsPluginInstance -> configuring ShellBase with firefox settings");
 
