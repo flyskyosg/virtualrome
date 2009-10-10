@@ -14,25 +14,65 @@ AnimateViewHandler::AnimateViewHandler(osgViewer::Viewer* viewer) : CommandSched
 	_mainViewer(viewer),
 	_options(new osgDB::ReaderWriter::Options),
 	_activateTransition(false),
-	_animationTime(2500.0) //TODO: spostare da qualche parte o farlo dinamico
+	_sequenceTransitionMatrix(osg::Matrix::identity()),
+	_transitionMatrix(osg::Matrix::identity()),
+	_animationTime(DEFAULT_ANIMATION_TIME)
 {
 	//Default value
 	this->setCommandAction( "UNKNOWN_ACTION" );
-	this->setCommandAction( "GET_MATRIX" );
-	this->setCommandAction( "SET_MATRIX" );
-
-	//TODO: set animation time
+	this->setCommandAction( "GET_CURRENT_MATRIX" );
+	this->setCommandAction( "GO_TO_MATRIX_DIRECTLY" );
+	this->setCommandAction( "GET_ANIMATION_TIME" );
+	this->setCommandAction( "SET_ANIMATION_TIME" );
+	this->setCommandAction( "SET_ANIMATION_KEY" );
+	this->setCommandAction( "START_ANIMATION" );
+	this->setCommandAction( "CONTINUE_ANIMATION" );
+	this->setCommandAction( "STOP_ANIMATION" );
+	this->setCommandAction( "RESET_DEFAULT" );
 }
         
 AnimateViewHandler::~AnimateViewHandler()
 {
-	_activateTransition = false;
-
+	this->resetSettings();
+	
 	if(_mainViewer.valid())
 		_mainViewer = NULL;
 
 	if(_options.valid())
 		_options = NULL;
+}
+#include <iostream>
+bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
+{
+	double ms = osg::Timer::instance()->delta_m( _startTime, osg::Timer::instance()->tick() );
+	
+	if( ms < animTime)
+	{
+		double blend_factor = ms / animTime;
+		double rot_blend_factor = blend_factor; //FIXME: trovare il modo fi anticipare la rotazione
+				
+		osg::Quat rotation;
+		osg::Vec3 position, scale;
+
+		osg::Vec3 p1, p2;
+
+		osg::Matrix matrix;
+		
+		p1 = _oldMatrix.getTrans();
+		p2 = animMatrix.getTrans();
+
+		position = ( p1 * (1.0 - blend_factor) + p2 * blend_factor);
+
+		scale = _oldMatrix.getScale();
+		rotation.slerp(rot_blend_factor, _oldMatrix.getRotate(), animMatrix.getRotate());
+		matrix.set(osg::Matrix::rotate(rotation)*osg::Matrix::scale(scale)*osg::Matrix::translate(position));
+
+		_mainViewer->getCameraManipulator()->setByMatrix( matrix );
+
+		return true;
+	}
+	else
+		return false;
 }
 
 bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa)
@@ -43,40 +83,54 @@ bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActio
 		{
 		    case(osgGA::GUIEventAdapter::FRAME):
 		    {
-				double ms = osg::Timer::instance()->delta_m( _startTime, osg::Timer::instance()->tick() );
-
-				if(ms < _animationTime) 
+				if(_transitionMatrix != osg::Matrix::identity()) //Transizione diretta
 				{
-					double blend_factor = ms / _animationTime;
-					osg::Matrix matrix = _mainViewer->getCameraManipulator()->getMatrix();
-					
-					osg::Quat rotation;
-					osg::Vec3 position, scale;
+					if(!this->doTransition(_transitionMatrix, _animationTime))
+					{
+						_mainViewer->getCameraManipulator()->setByMatrix( _transitionMatrix );
 
-					osg::Vec3 p1, p2;
-
-					p1 = matrix.getTrans();
-					p2 = _transitionMatrix.getTrans();
-
-					position = ( p1 * (1.0 - blend_factor) + p2 * blend_factor);
-					scale = matrix.getScale();
-					rotation.slerp(blend_factor, matrix.getRotate(), _transitionMatrix.getRotate()); //TODO: check
-
-					matrix.set(osg::Matrix::rotate(rotation)*osg::Matrix::scale(scale)*osg::Matrix::translate(position));
-
-					_mainViewer->getCameraManipulator()->setByMatrix( matrix );
+						_oldMatrix.set(osg::Matrix::identity());
+						_transitionMatrix.set(osg::Matrix::identity());
+						_activateTransition = false;
+					}
 				}
 				else
 				{
-					_mainViewer->getCameraManipulator()->setByMatrix( _transitionMatrix );
+					if(!this->doTransition(_sequenceTransitionMatrix, _sequenceAnimationTime))
+					{
+						_mainViewer->getCameraManipulator()->setByMatrix( _sequenceTransitionMatrix );
 
-					_oldMatrix.set(osg::Matrix::identity());
-					_transitionMatrix.set(osg::Matrix::identity());
-					_activateTransition = false;
+						if(!_animationMatrixArray.empty() && !_animationTimeArray.empty())
+						{
+							_sequenceTransitionMatrix.set( _animationMatrixArray.front() );
+							_sequenceAnimationTime = _animationTimeArray.front();
+
+							_animationMatrixArray.pop();
+							_animationTimeArray.pop();
+
+							//Setto la posizione corrente della camera
+							_oldMatrix.set(_mainViewer->getCameraManipulator()->getMatrix() );
+
+							_startTime = osg::Timer::instance()->tick();
+						}
+						else
+						{
+							_oldMatrix.set(osg::Matrix::identity());
+							_sequenceTransitionMatrix.set(osg::Matrix::identity());
+							_activateTransition = false;
+						}
+					}
 				}
 				
 				return false;
-			}    
+			}
+			case(osgGA::GUIEventAdapter::KEYDOWN):
+			case(osgGA::GUIEventAdapter::KEYUP):
+			case(osgGA::GUIEventAdapter::RELEASE):
+		    {
+				this->stopAnimation();
+			}
+				break;
 			default:
 			    return false;
 		}
@@ -98,12 +152,38 @@ std::string AnimateViewHandler::handleAction(std::string argument)
 	
 	switch(this->getCommandActionIndex(lcommand))
 	{
-	case GET_MATRIX:
+	case GET_CURRENT_MATRIX:
 		retstr = this->getViewMatrix();
 		break;
-	case SET_MATRIX:	
-		if(!this->setViewMatrix(rcommand))
+	case GO_TO_MATRIX_DIRECTLY:	
+		if(!this->setViewMatrixAndGoTo(rcommand))
 			retstr = "STREAM_ERROR";
+		break;
+	case SET_ANIMATION_KEY:
+		if(!this->setAnimationKey(rcommand))
+			retstr = "STREAM_ERROR";
+		break;
+	case GET_ANIMATION_TIME:
+		retstr = this->getViewAnimationTime();
+		break;
+	case SET_ANIMATION_TIME:	
+		if(!this->setViewAnimationTime(rcommand))
+			retstr = "STREAM_ERROR";
+		break;
+	case START_ANIMATION:
+		if(!this->startAnimation())
+			retstr = "NO_ANIMATION";
+		break;
+	case CONTINUE_ANIMATION:
+		if(!this->continueAnimation())
+			retstr = "NO_ANIMATION";
+		break;
+	case STOP_ANIMATION:
+		if(!this->stopAnimation())
+			retstr = "NO_ANIMATION";
+		break;
+	case RESET_DEFAULT:
+		this->resetSettings();
 		break;
 	default:
 		retstr = "UNKNOWN_ACTION";
@@ -134,8 +214,11 @@ std::string AnimateViewHandler::getViewMatrix()
 }
 
 
-bool AnimateViewHandler::setViewMatrix( std::string viewstring )
+bool AnimateViewHandler::setViewMatrixAndGoTo( std::string viewstring )
 {
+	if(_activateTransition)
+		return false;
+
 	std::stringstream s(viewstring);
     
     osg::ref_ptr<osgDB::ReaderWriter> reader = osgDB::Registry::instance()->getReaderWriterForExtension(std::string("osg"));
@@ -149,15 +232,142 @@ bool AnimateViewHandler::setViewMatrix( std::string viewstring )
 	{
 		osg::ref_ptr<osg::MatrixTransform> m1 = static_cast<osg::MatrixTransform *> (res.getObject());
 
-		_oldMatrix.set(_mainViewer->getCameraManipulator()->getMatrix() );
+		//Setto la matrice di trasformazione finale
 		_transitionMatrix.set( m1->getMatrix() );
-		
+
+		//Setto la posizione corrente della camera
+		_oldMatrix.set(_mainViewer->getCameraManipulator()->getMatrix() );
+	
+		//Setto lo start time
 		_startTime = osg::Timer::instance()->tick();
-		
+
+		//
 		_activateTransition = true;
 	} 
 	else
 		return false;
 
 	return true;
+}
+
+std::string AnimateViewHandler::getViewAnimationTime()
+{
+	double time = _animationTime / 1000.0; //Riporto in secondi 
+	std::ostringstream convstream;
+	convstream << time << std::flush;
+	return convstream.str();
+}
+
+bool AnimateViewHandler::setViewAnimationTime(std::string animtime)
+{
+	if(_activateTransition)
+		return false;
+
+	std::istringstream atstream(animtime);
+	double anitemp = DEFAULT_ANIMATION_TIME;
+	
+	if(!(atstream >> anitemp >> std::dec).fail())
+	{
+		_animationTime = anitemp * 1000; //riporto in ms
+		return true;
+	}
+
+	return false;
+}
+
+bool AnimateViewHandler::startAnimation()
+{
+	if( (_animationMatrixArray.size() < 1) || (_animationTimeArray.size() < 1) || _activateTransition)
+		return false;
+
+	 //Setto la posizione corrente della camera
+	_oldMatrix.set(_mainViewer->getCameraManipulator()->getMatrix() );
+	
+	//Setto la prima matrice e il primo tempo 
+	_sequenceTransitionMatrix = _animationMatrixArray.front();
+	_sequenceAnimationTime = _animationTimeArray.front();
+
+	_animationMatrixArray.pop();
+	_animationTimeArray.pop();
+
+	//Setto lo start time
+	_startTime = osg::Timer::instance()->tick();
+
+	_activateTransition = true;
+
+	return true;
+}
+
+bool AnimateViewHandler::continueAnimation()
+{
+	if( (_animationMatrixArray.size() < 1) || (_animationTimeArray.size() < 1) || !_activateTransition)
+		return false;
+
+	_activateTransition = true;
+	return true;
+}
+
+bool AnimateViewHandler::stopAnimation()
+{
+	_activateTransition = false;
+	return true;
+}
+
+void AnimateViewHandler::resetSettings()
+{
+	while(_animationMatrixArray.size())
+		_animationMatrixArray.pop();
+
+	while(_animationTimeArray.size())
+		_animationTimeArray.pop();
+
+	_animationTime = DEFAULT_ANIMATION_TIME;
+	_activateTransition = false;
+}
+
+bool AnimateViewHandler::setAnimationKey( std::string key )
+{
+	if(_activateTransition)
+		return false;
+
+	std::string lcommand, rcommand;
+	double anitemp = DEFAULT_ANIMATION_TIME;
+
+	this->splitActionCommand(key, lcommand, rcommand);
+
+	if(lcommand != "TIME")
+		return false;
+
+	this->splitActionCommand(rcommand, lcommand, rcommand);
+	
+	std::istringstream atstream(lcommand);
+		
+	if( (atstream >> anitemp >> std::dec).fail() )
+		return false;
+	
+	this->splitActionCommand(rcommand, lcommand, rcommand);
+
+	if(lcommand != "MATRIX")
+		return false;
+
+	std::stringstream s(rcommand);
+    
+    osg::ref_ptr<osgDB::ReaderWriter> reader = osgDB::Registry::instance()->getReaderWriterForExtension(std::string("osg"));
+	
+	if( !reader.valid() ) 
+		return false;
+	
+	osgDB::ReaderWriter::ReadResult res = reader->readObject( s, _options.get() );
+	
+	if(res.validObject()) 
+	{
+		osg::ref_ptr<osg::MatrixTransform> m1 = static_cast<osg::MatrixTransform *> (res.getObject());
+
+		_animationMatrixArray.push( m1->getMatrix() );
+		_animationTimeArray.push(anitemp * 1000.0); //Riporto in millisecondi
+		
+		return true;
+	} 
+	else
+		return false;
 }
