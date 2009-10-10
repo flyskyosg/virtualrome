@@ -1733,34 +1733,34 @@ static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT eventmsg, WPARAM wParam, L
 				plugin->doRenderFrame();
 		break;
     case WM_PAINT: //TODO: finire
-		if (!plugin)
 		{
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hWnd, &ps);
-			RECT rc;
-			GetClientRect(hWnd, &rc);
-			FrameRect(hdc, &rc, GetStockBrush(BLACK_BRUSH));
-			std::string errormsg("OSG4Web Instance Error: Windows pointer error");
-			DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-			EndPaint(hWnd, &ps);
-
-			return 0;
-		}
-		else
-		{
-			if(!plugin->checkRunning())
+			if (!plugin)
 			{
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(hWnd, &ps);
 				RECT rc;
 				GetClientRect(hWnd, &rc);
 				FrameRect(hdc, &rc, GetStockBrush(BLACK_BRUSH));
-				std::string errormsg("OSG4Web Instance Error: " + s_PluginMessageError);
-				DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);	
+				std::string errormsg("OSG4Web Instance Error: Windows pointer error");
+				DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 				EndPaint(hWnd, &ps);
-
-				return 0;
 			}
+			else
+			{
+				if( plugin->checkErrorPresence() )
+				{
+					PAINTSTRUCT ps;
+					HDC hdc = BeginPaint(hWnd, &ps);
+					RECT rc;
+					GetClientRect(hWnd, &rc);
+					FrameRect(hdc, &rc, GetStockBrush(BLACK_BRUSH));
+					std::string errormsg("OSG4Web Instance Error: " + s_PluginMessageError);
+					DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);	
+					EndPaint(hWnd, &ps);
+				}
+			}
+
+			return 0;
 		}
 		break;
 	case WM_ERASEBKGND: //Corregge il problema di flickering durante il ridimensionamento e la selezione
@@ -1768,13 +1768,13 @@ static LRESULT CALLBACK PluginWinProc(HWND hWnd, UINT eventmsg, WPARAM wParam, L
 			if(plugin->checkRunning())
 				return 0;
 		break;
-	case WM_KEYUP: //FIXME: non ne grabba nessuno... non vengono passati dall'handler di firefox
+/*	case WM_KEYUP: //FIXME: non ne grabba nessuno... non vengono passati dall'handler di firefox
 		Beep(1000,100);
 		break;
 	case WM_KEYDOWN:
 		Beep(1000,100);
 		break;
-/*
+
 	case WM_NCACTIVATE:
 		Beep(1000,100);
 		break;
@@ -1900,6 +1900,15 @@ bool nsPluginInstance::checkRunning()
 	else
 		return true;
 }
+
+bool nsPluginInstance::checkErrorPresence()
+{
+	if(mShellBase.isThereErrors())
+		return true;
+	
+	return false;
+}
+
 
 // ==============================
 // ! Scriptability related code !
