@@ -1,49 +1,120 @@
+############################################################
+#
+# FunCore Sub Project
+#
+# Dinamic Core library generation
+#
+############################################################
+
 PROJECT(FunCore)
 
-SET(CMAKE_DEBUG_POSTFIX  "d")
 
+############################################################
+#
+# Adding Definition
+#
+############################################################
 
 ADD_DEFINITIONS(-DOSG4WEBCORE_LIBRARY)
 
-SET(${PROJECT_NAME}_BIN_PATH "${PROJECT_NAME}")
 
+############################################################
+#
+# Setting variables
+#
+############################################################
+
+#SET(${PROJECT_NAME}_BIN_PATH "${PROJECT_NAME}")
+SET(CMAKE_DEBUG_POSTFIX  "d")
 SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)
-GRAB_FILES( "${PROJECT_NAME}_src" )
+SET("${PROJECT_NAME}_include_dir" ${CMAKE_CURRENT_SOURCE_DIR}/include)
+SET("${PROJECT_NAME}_include" ${CMAKE_CURRENT_SOURCE_DIR}/include/FunCore)
 
-SET("${PROJECT_NAME}_include" ${CMAKE_CURRENT_SOURCE_DIR}/include)
-SET("${PROJECT_NAME}_includef" ${CMAKE_CURRENT_SOURCE_DIR}/include/FunCore)
-GRAB_FILES( "${PROJECT_NAME}_includef" )
+
+############################################################
+#
+# Grabbing src and include files
+#
+############################################################
+
+GRAB_FILES( "${PROJECT_NAME}_src" )
+GRAB_FILES( "${PROJECT_NAME}_include" )
+
+
+############################################################
+#
+# Adding grabbed files to project
+#
+############################################################
 
 ADD_LIBRARY(${PROJECT_NAME}
 	SHARED
-	${${PROJECT_NAME}_includef_FILES}
+	${${PROJECT_NAME}_include_FILES}
     	${${PROJECT_NAME}_src_FILES}
     	${OSG4WEB_ROOT}/src/Engines/CoreBase/src/CoreBase.cpp
 )
-SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Engine_${PROJECT_NAME}")
-SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-#INCLUDE_DIRECTORIES( ${OSG_INCLUDE_DIR} ${OSG4WEB_ROOT}/src/Engines/CoreBase/include ${${PROJECT_NAME}_include} )
 
-INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_include} ${OSG_INCLUDE_DIR} ${OSG4WEB_ROOT}/src/Engines/CoreBase/include  ${OSG4WEB_ROOT}/include)
+############################################################
+#
+# Adding ext libraries include directories
+#
+############################################################
+
+INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_include_dir} ${OSG_INCLUDE_DIR} ${OSG4WEB_ROOT}/src/Engines/CoreBase/include  ${OSG4WEB_ROOT}/include )
+
+
+############################################################
+#
+# Linking to ext libraries
+#
+############################################################
 
 LINK_WITH_VARIABLES(${PROJECT_NAME} OSG_LIBRARY OSGUTIL_LIBRARY OSGDB_LIBRARY OSGGA_LIBRARY OSGFX_LIBRARY OSGTEXT_LIBRARY OSGVIEWER_LIBRARY OPENTHREADS_LIBRARY)
 
+
+############################################################
+#
+# Adding Library Dependancies
+#
+############################################################
+
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommonCore)
 
-SETUP_CORE_RUNTIME(Engine)
 
-########################### test stuff ##################################
-	CONFIGURE_FILE(${OSG4WEB_ROOT}/run_firefox.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake @ONLY)
+############################################################
+#
+# Setting target properties
+#
+############################################################
 
-	SET(HTML_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/html)
-	CONFIGURE_FILE(${HTML_TEST_DIR}/${PROJECT_NAME}.html.in ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html @ONLY)
-
-
-	ADD_TEST(${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=file:\"//${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
-	ADD_TEST(Demo_VirtualRome_${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=http://localhost/vrome/\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
-	ADD_TEST(Demo2_VirtualRome_${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=http://localhost:8080/vrome/htdocs/\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Engine_${PROJECT_NAME}")
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
 
+############################################################
+#
+# Coping Target Result in Debug Directory
+#
+############################################################
+
+SETUP_CORE_RUNTIME(Engine ${PROJECT_NAME})
+
+
+############################################################
+#
+# Configuring HTML Tests
+#
+############################################################
+
+CONFIGURE_HTML_TEST(${CMAKE_CURRENT_SOURCE_DIR}/html)
+
+
+############################################################
+#
+# Include ModuleInsall #TODO: forse da togliere...
+#
+############################################################
 INCLUDE(ModuleInstall OPTIONAL)
+
 

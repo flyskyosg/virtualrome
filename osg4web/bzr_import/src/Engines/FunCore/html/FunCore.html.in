@@ -98,10 +98,10 @@ function SwitchManipulator()
 				AC_AX_RunContent( 'name','OSG','id','@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0','width','800','height','600','type','application/osg4web-plugin','advcore','http://localhost/osg4webtest/corebase.rar','advcoresha1','@DUMMY_SHA1@','advcorestartoptions','FUNCORE SETMAINSCENEGRAPH http://3d.cineca.it/storage/terrain/demo/newtop.osg' ); //end AC code
 			  </script>
 			  <noscript> -->
-              <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="800" height="600" type="application/osg4web-plugin" >
-				<param name="ADVCore" value="http://localhost/osg4webtest/@DUMMY_SHA1@.rar">
-				<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
-				<param name="ADVCoreStartOptions" value="FUNCORE SETMAINSCENEGRAPH http://localhost:8080/vrome/_v_top_v_.osg"> 
+              <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="800" height="600" type="application/osg4web-plugin" @IE_CLASSID_DEBUG@ >
+				<param name="ADVCore" value="http://localhost/osg4webtest/@PROJECT_NAME@.rar">
+				<param name="ADVCoreSHA1" value="@PROJECT_NAME@">
+				<param name="ADVCoreStartOptions" value="FUNCORE SETMAINSCENEGRAPH http://localhost/vrome/_v_top_v_.osg"> 
               </object>
 		<!--	  </noscript> -->
             </td>

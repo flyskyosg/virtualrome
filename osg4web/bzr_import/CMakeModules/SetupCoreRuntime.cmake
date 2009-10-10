@@ -1,15 +1,26 @@
+############################################################
+#
+# Additional Options
+#
+############################################################
+
 OPTION(PLACE_IN_PLUGIN "If on place output files into Firefox/plugin" OFF)
 
-MACRO(COPY_TARGET_POST_BUILD MYTARGET )
 
-########################### cmake string to copy only if exists ###############################
-	SET(mycmakestring 
+############################################################
+#
+# Coping Cores in Debug Directory
+#
+############################################################
+
+MACRO(COPY_TARGET_POST_BUILD CORE_TYPE_PREFIX )
+	# cmake string to copy only if exists
+	SET( mycmakestring 
 	"GET_FILENAME_COMPONENT(MY_FULL_PATH \"@in_file@\" ABSOLUTE)
 	 GET_FILENAME_COMPONENT(MY_FULL_OUT_PATH \"@out_file@\" ABSOLUTE)
 	IF(EXISTS \${MY_FULL_PATH})
-	
 		EXEC_PROGRAM(\${CMAKE_COMMAND} 
-			ARGS -E copy_if_different \${MY_FULL_PATH} \\\"\${MY_FULL_OUT_PATH}\\\"
+			ARGS -E copy \${MY_FULL_PATH} \\\"\${MY_FULL_OUT_PATH}\\\"
 			OUTPUT_VARIABLE myout
 			RETURN_VALUE myret
 		)
@@ -19,104 +30,141 @@ MACRO(COPY_TARGET_POST_BUILD MYTARGET )
 	"
 	)
 
-	GET_TARGET_PROPERTY(${MYTARGET}_Debug_LOCATION ${MYTARGET} DEBUG_LOCATION)
-	GET_TARGET_PROPERTY(${MYTARGET}_Release_LOCATION ${MYTARGET} RELEASE_LOCATION)
+	# Getting locations
+	GET_TARGET_PROPERTY(${CORE_TYPE_PREFIX}_Debug_LOCATION ${CORE_TYPE_PREFIX} DEBUG_LOCATION)
+	GET_TARGET_PROPERTY(${CORE_TYPE_PREFIX}_Release_LOCATION ${CORE_TYPE_PREFIX} RELEASE_LOCATION)
 	
 	FOREACH(BTYPE Debug Release)
-		GET_FILENAME_COMPONENT( MYNAME_${BTYPE} ${${MYTARGET}_${BTYPE}_LOCATION} NAME)
+		GET_FILENAME_COMPONENT( MYNAME_${BTYPE} ${${CORE_TYPE_PREFIX}_${BTYPE}_LOCATION} NAME)
 
-		FILE(TO_CMAKE_PATH ${${MYTARGET}_${BTYPE}_LOCATION} in_file)
-		#SET(in_file ${${MYTARGET}_${BTYPE}_LOCATION})
+		FILE(TO_CMAKE_PATH ${${CORE_TYPE_PREFIX}_${BTYPE}_LOCATION} in_file)
 		FILE(TO_CMAKE_PATH "${OUTPUT_${BTYPE}_DIR}/${MYNAME_${BTYPE}}" out_file)
-		#SET(out_file "${OUTPUT_${BTYPE}_DIR}/${MYNAME_${BTYPE}}")
-		#message("out_file-->${out_file}")
 		STRING(CONFIGURE ${mycmakestring} mycmakestring_out @ONLY)
-		FILE(WRITE "${CMAKE_BINARY_DIR}/copy_${MYTARGET}_${BTYPE}.cmake" "${mycmakestring_out}")
-		ADD_CUSTOM_COMMAND(	TARGET ${MYTARGET}
-												POST_BUILD
-												COMMAND ${CMAKE_COMMAND} -P "${CMAKE_BINARY_DIR}/copy_${MYTARGET}_${BTYPE}.cmake"
+		FILE(WRITE "${CMAKE_BINARY_DIR}/copy_${CORE_TYPE_PREFIX}_${BTYPE}.cmake" "${mycmakestring_out}")
+		ADD_CUSTOM_COMMAND(
+			TARGET ${CORE_TYPE_PREFIX}
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -P "${CMAKE_BINARY_DIR}/copy_${CORE_TYPE_PREFIX}_${BTYPE}.cmake"
 		)
 	ENDFOREACH(BTYPE Debug Release)
-ENDMACRO(COPY_TARGET_POST_BUILD MYTARGET )
-	
-MACRO(SETUP_CORE_RUNTIME CORE_TYPE_PREFIX)
+ENDMACRO(COPY_TARGET_POST_BUILD CORE_TYPE_PREFIX )
 
-	
-########################### copy in debug place ###############################
-		SET(DUMMY_SHA1 "${PROJECT_NAME}")
-		IF(PLACE_IN_PLUGIN)
-#			MESSAGE("PLACE_IN_PLUGIN on --- ${PROJECT_NAME} -->${PLACE_IN_PLUGIN}")
-			SET(OUTPUT_Debug_DIR ${FIREFOX_PLUGIN_DIR}/${DUMMY_SHA1})
-			SET(OUTPUT_Release_DIR ${FIREFOX_PLUGIN_DIR}/${DUMMY_SHA1})
-		ELSE(PLACE_IN_PLUGIN)
-#			MESSAGE("PLACE_IN_PLUGIN off --- ${PROJECT_NAME} -->${PLACE_IN_PLUGIN}")
-			SET(OUTPUT_Debug_DIR $ENV{APPDATA}/osg4web/${DUMMY_SHA1})
-			SET(OUTPUT_Release_DIR $ENV{APPDATA}/osg4web/${DUMMY_SHA1})
-		ENDIF(PLACE_IN_PLUGIN)
 
-		COPY_TARGET_POST_BUILD(	${PROJECT_NAME} )		
-
-#		GET_TARGET_PROPERTY(${PROJECT_NAME}_Debug_LOCATION ${PROJECT_NAME} DEBUG_LOCATION)
-#		GET_TARGET_PROPERTY(${PROJECT_NAME}_Release_LOCATION ${PROJECT_NAME} RELEASE_LOCATION)
-#		GET_FILENAME_COMPONENT( MYNAME_Debug ${${PROJECT_NAME}_Debug_LOCATION} NAME)
-#		GET_FILENAME_COMPONENT( MYNAME_Release ${${PROJECT_NAME}_Release_LOCATION} NAME)
-#		ADD_CUSTOM_COMMAND(
-#			OUTPUT ${OUTPUT_Debug_DIR}/${MYNAME_Debug}
-#    			COMMAND ${CMAKE_COMMAND} -E copy ${${PROJECT_NAME}_Debug_LOCATION} ${OUTPUT_Debug_DIR}
-#    			DEPENDS ${PROJECT_NAME}
-#    		)
-#		ADD_CUSTOM_COMMAND(
-#			OUTPUT ${OUTPUT_Release_DIR}/${MYNAME_Release}
-#    			COMMAND ${CMAKE_COMMAND} -E copy ${${PROJECT_NAME}_Release_LOCATION} ${OUTPUT_Release_DIR}
-#    			DEPENDS ${PROJECT_NAME}
-#    		)
+############################################################
 #
-#		ADD_CUSTOM_TARGET(${CORE_TYPE_PREFIX}_${PROJECT_NAME}_Prepare_Debug
-#			DEPENDS ${OUTPUT_Debug_DIR}/${MYNAME_Debug}
-#			)
-#		ADD_CUSTOM_TARGET(${CORE_TYPE_PREFIX}_${PROJECT_NAME}_Prepare_Release
-#			DEPENDS ${OUTPUT_Release_DIR}/${MYNAME_Release}
-#			)
+# Setup Runtime Cores
+#
+############################################################
+
+MACRO(SETUP_CORE_RUNTIME CORE_TYPE_PREFIX)
+	IF(PLACE_IN_PLUGIN OR IS_LOAD_CORE)
+		SET(OUTPUT_Debug_DIR ${FIREFOX_PLUGIN_DIR}/${PROJECT_NAME})
+		SET(OUTPUT_Release_DIR ${FIREFOX_PLUGIN_DIR}/${PROJECT_NAME})
+	ELSE(PLACE_IN_PLUGIN OR IS_LOAD_CORE)
+		SET(OUTPUT_Debug_DIR $ENV{APPDATA}/osg4web/${PROJECT_NAME})
+		SET(OUTPUT_Release_DIR $ENV{APPDATA}/osg4web/${PROJECT_NAME})
+	ENDIF(PLACE_IN_PLUGIN OR IS_LOAD_CORE)
+
+	COPY_TARGET_POST_BUILD(	${PROJECT_NAME} )		
 ENDMACRO(SETUP_CORE_RUNTIME CORE_TYPE_PREFIX)
 
-MACRO (SETUP_CORE_EXAMPLE)
-	GET_FILENAME_COMPONENT(MY_PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-	PROJECT(${MY_PROJECT_NAME})
-	
-	SET(CMAKE_DEBUG_POSTFIX  "d")
 
+############################################################
+#
+# Configuring IE and FFox HTML Tests
+#
+############################################################
+
+MACRO(CONFIGURE_HTML_TEST HTML_TEST_DIR)
+	CONFIGURE_FILE(${OSG4WEB_ROOT}/CMakeIN/run_firefox.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake @ONLY)
+	CONFIGURE_FILE(${OSG4WEB_ROOT}/CMakeIN/run_iexplore.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_iexplore.cmake @ONLY)
+
+	FOREACH(HTML_CURRENT_DEFINITION ie np)
+		IF(HTML_CURRENT_DEFINITION STREQUAL ie)
+			SET(IE_CLASSID_DEBUG "classid=\"CLSID:559F0DCD-759E-48EE-B1F2-C917AA6FB7EA\"")
+		ELSE(HTML_CURRENT_DEFINITION STREQUAL ie)
+			SET(IE_CLASSID_DEBUG "")
+		ENDIF(HTML_CURRENT_DEFINITION STREQUAL ie)
+	
+		CONFIGURE_FILE(${HTML_TEST_DIR}/${PROJECT_NAME}.html.in ${CMAKE_CURRENT_BINARY_DIR}/${HTML_CURRENT_DEFINITION}${PROJECT_NAME}.html @ONLY)
+	ENDFOREACH(HTML_CURRENT_DEFINITION ie np)
+
+	# Adding test
+	ADD_TEST(${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=file:\"//${CMAKE_CURRENT_BINARY_DIR}/np${PROJECT_NAME}.html\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
+	ADD_TEST(${PROJECT_NAME}_run_iexplore ${CMAKE_COMMAND} -DURL=${CMAKE_CURRENT_BINARY_DIR}/ie${PROJECT_NAME}.html -P ${CMAKE_CURRENT_BINARY_DIR}/run_iexplore.cmake ) 
+ENDMACRO(CONFIGURE_HTML_TEST)
+
+
+############################################################
+#
+# TODO: DA RIFARE
+#
+# Copies extra files into Debug dirs
+#
+############################################################
+
+MACRO(COPY_EXTRA_FILES DIR DATA)
+	GET_FILENAME_COMPONENT(DATA_TGT ${DATA} NAME)
+	ADD_CUSTOM_COMMAND(
+		TARGET ${PROJECT_NAME}
+		POST_BUILD
+#		OUTPUT ${DIR}/${DATA_TGT}
+    		COMMAND ${CMAKE_COMMAND} -E copy ${DATA} ${DIR}
+#		DEPENDS ${PROJECT_NAME}
+	    	)
+ENDMACRO(COPY_EXTRA_FILES)
+
+
+############################################################
+#
+# Setup Runtime Example Cores
+#
+############################################################
+
+MACRO(SETUP_CORE_EXAMPLE)
+	# CoreExample Sub Project
+	GET_FILENAME_COMPONENT(THIS_PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+	PROJECT(${THIS_PROJECT_NAME})
+
+	# Adding Definition
 	ADD_DEFINITIONS(-DOSG4WEBCORE_LIBRARY)
 
+	# Setting variables
+	SET(CMAKE_DEBUG_POSTFIX  "d")
 	SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+	# Grabbing src and include files
 	GRAB_FILES( "${PROJECT_NAME}_src" )
 
+	# Adding grabbed files to project
 	ADD_LIBRARY(${PROJECT_NAME}
 		SHARED
-    	${${PROJECT_NAME}_src_FILES}
-    	${OSG4WEB_ROOT}/src/Engines/CoreBase/src/CoreBase.cpp
+	    	${${PROJECT_NAME}_src_FILES}
+	    	${OSG4WEB_ROOT}/src/Engines/CoreBase/src/CoreBase.cpp
 	)
+
+	# Adding ext libraries include directories
+	INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_src} ${OSG_INCLUDE_DIR} ${OSG4WEB_ROOT}/src/Engines/CoreBase/include  ${OSG4WEB_ROOT}/include)
+
+	# Linking to ext libraries
+	LINK_WITH_VARIABLES(${PROJECT_NAME} OSG_LIBRARY OSGUTIL_LIBRARY OSGDB_LIBRARY OSGGA_LIBRARY OSGFX_LIBRARY OSGTEXT_LIBRARY OSGVIEWER_LIBRARY OPENTHREADS_LIBRARY)
+
+	# Adding Library Dependancies
+	TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommonCore)
+
+	# Setting target properties
 	SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Example_${PROJECT_NAME}")
 	SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-	INCLUDE_DIRECTORIES( ${${PROJECT_NAME}_src} ${OSG_INCLUDE_DIR} ${OSG4WEB_ROOT}/src/Engines/CoreBase/include  ${OSG4WEB_ROOT}/include)
+	# Coping Target Result in Debug Directory
+	SETUP_CORE_RUNTIME(Example ${PROJECT_NAME})
 
-	LINK_WITH_VARIABLES(${PROJECT_NAME} OSG_LIBRARY OSGUTIL_LIBRARY OSGDB_LIBRARY OSGGA_LIBRARY OSGFX_LIBRARY OSGTEXT_LIBRARY OSGVIEWER_LIBRARY OPENTHREADS_LIBRARY)
+	# Configuring HTML Default Tests
+	CONFIGURE_HTML_TEST(${CMAKE_CURRENT_SOURCE_DIR}/html)
 
-	TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommonCore)
-
-
-	########################### copy in debug place ###############################
-	SETUP_CORE_RUNTIME(Example)
-	########################### test stuff ##################################
-	CONFIGURE_FILE(${OSG4WEB_ROOT}/run_firefox.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake @ONLY)
-
-	SET(HTML_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/html)
-	CONFIGURE_FILE(${HTML_TEST_DIR}/${PROJECT_NAME}.html.in ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html @ONLY)
-
-
-	ADD_TEST(${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=file:\"//${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
-
-
+	# Include ModuleInsall #TODO: forse da togliere...
 	INCLUDE(ModuleInstall OPTIONAL)
+ENDMACRO(SETUP_CORE_EXAMPLE)
 
-ENDMACRO (SETUP_CORE_EXAMPLE)
+
+
