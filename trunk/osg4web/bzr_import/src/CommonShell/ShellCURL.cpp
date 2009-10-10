@@ -1,5 +1,5 @@
 
-
+#include <curl/curl.h>
 #include <CommonShell/ShellCURL.h>
 
 #include <Utilities/FileUtils.h>

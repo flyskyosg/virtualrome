@@ -3,7 +3,7 @@
 
 #include <CommonShell/Defines.h>
 
-#include <curl/curl.h>
+//#include <curl/curl.h>
 #include <string>
 #include <sstream>
 
@@ -69,7 +69,7 @@ private:
 	bool _stopdownloading;
 	bool _downloaded;
 
-	CURL* _curl;
+	void* _curl;
 };
 
 
