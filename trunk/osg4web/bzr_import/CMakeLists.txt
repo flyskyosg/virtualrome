@@ -51,6 +51,7 @@ ENDIF(USER_DEFINED_MODULE_PATH)
 ############################################################
 
 OPTION(PLACE_IN_PLUGIN "If on place output files into Firefox/plugin" ON)
+OPTION(USE_OPENGL_LOADER "The loader is Opengl only" ON)
 
 SET(EXTENSION_NAME "OSG4Web_test@cineca.it" CACHE STRING "Name of the extension")
 
