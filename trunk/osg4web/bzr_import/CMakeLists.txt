@@ -52,6 +52,7 @@ ENDIF(USER_DEFINED_MODULE_PATH)
 
 OPTION(PLACE_IN_PLUGIN "If on place output files into Firefox/plugin" OFF)
 OPTION(DEBUG_INFO_IN_FILE "If on redirect debug output in file" OFF)
+OPTION(DISABLE_SHA1_CHECK "If on disable package sh1 testing" OFF)
 
 
 ############################################################

@@ -187,6 +187,7 @@ bool ShellDownloader::performDownload(RequestDownload curreq, bool timing)
 		return false;
 	}
 
+#if !defined(DISABLE_SHA1_CHECK)
 	if(!curreq.getSecurityString().empty())
 	{
 		_dwnlcontrol->checkSecurityString(timing);
@@ -197,6 +198,7 @@ bool ShellDownloader::performDownload(RequestDownload curreq, bool timing)
 			return false;
 		}
 	}
+#endif
 
 	if(curreq.getUnpackFlag())
 	{
