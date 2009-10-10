@@ -429,7 +429,6 @@ bool ieOSG4Web_Ctrl::SendGetBackEventToJS(CString& jsFunctionName, CStringArray&
 					{
 						CString error = GetSystemErrorMessage(hr);
 						m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::SendGetBackEventToJS -> Invoking Javascript Method Error: ") + std::string( (LPCTSTR) error ) );
-						//::MessageBox(NULL,"ieOSG4Web Error Message",CString("ieOSG4Web_Ctrl::SendGetBackEvent\nInvoking Javascript Method:\n") + error,MB_OK);
 						return retval;
 					}
 
