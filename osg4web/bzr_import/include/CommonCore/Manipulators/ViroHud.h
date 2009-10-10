@@ -29,8 +29,9 @@
 
 #include <osg/NodeCallback>
 
-#define VIROHUD_SIDECOLOR	0.94,0.91,0.78,0.7
-#define VIROHUD_HUDCOLOR	0.94,0.91,0.78,0.4	//1.0,1.0,0.0,0.4
+#define VIROHUD_SIDECOLOR			0.94,0.91,0.78,0.7
+#define VIROHUD_HUDCOLOR			0.94,0.91,0.78,0.4	//1.0,1.0,0.0,0.4
+#define VIROHUD_COMPASSNORTHCOLOR	0.94,0.91,0.78,1.0
 
 using namespace osg;
 using namespace Manipulators;
@@ -55,16 +56,19 @@ class ViroHud : public Referenced {
 		void Update();
 		void Init();
 
+		void CreateCompass(float px,float py, float size);
+
 	private:
 		osg::ref_ptr<Manipulators::ViroManipulator> _vm;
 		osg::ref_ptr<osgViewer::Viewer> _viewer;
 		osg::ref_ptr<osg::Projection> _HUD;
 		osg::ref_ptr<osgText::Text> _HUDlabel;
+		osg::ref_ptr<osg::PositionAttitudeTransform> _CompassPAT;
+		osg::ref_ptr<osg::Geode> _Compass;
 
 		double _vp_height, _vp_width;
 		std::ostringstream _HUDstring;
 		//char _HUDstring[512];	// Piu' performante
-
 };
 
 class ViroHudUpdater : public osg::NodeCallback {
