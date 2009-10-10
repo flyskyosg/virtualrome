@@ -428,10 +428,14 @@ bool PickEditHandler::removeGizmo( osg::Node* model, osg::Node* parent, osg::Nod
 		{
 			mt_parent->removeChildren(0,1);	//rimuove il primo figlio (root del gizmo)	
 			sel->removeChild( model );
+			this->storeMatrixStream( mt_parent.get() );
 		}
 		
 		else
+		{
+			this->_poseMatrixString = "DIRTY MATRIX";
 			return false;
+		}
 
 	}
 
@@ -566,6 +570,9 @@ std::string PickEditHandler::handleAction(std::string argument)
 		if(_waitingCommit == true)
 			_commit = true;
 		break;
+	case 7:	//GET_MATRIX
+	retstr = this->getPoseMatrix();
+		break;
 	default:
 		break;
 
@@ -573,6 +580,36 @@ std::string PickEditHandler::handleAction(std::string argument)
 	
 	return retstr;
 }
+
+
+void PickEditHandler::storeMatrixStream(osg::MatrixTransform* m)
+{
+	std::stringstream s;
+	std::string retstring = "STREAM_ERROR";
+	
+	osg::ref_ptr<osgDB::ReaderWriter> writer = osgDB::Registry::instance()->getReaderWriterForExtension(std::string("osg"));
+	
+	if( !writer.valid() ) 
+		this->_poseMatrixString = retstring;
+	
+	else
+	{
+
+		osgDB::ReaderWriter::WriteResult res = writer->writeObject(*m, s, _options.get());
+    
+		if( res.success() )
+			this->_poseMatrixString = s.str();
+	
+	}
+
+}
+
+
+std::string PickEditHandler::getPoseMatrix()
+{
+	return this->_poseMatrixString;
+}
+
 
 
 void PickEditHandler::handleSceneGraph()
@@ -641,7 +678,10 @@ void PickEditHandler::handleSceneGraph()
 		model_matrix.preMult( model_translate );
 		//model_matrix.preMult( model_scale );
 				
-		model_mt->setMatrix( model_matrix );		
+		model_mt->setMatrix( model_matrix );
+		
+		this->storeMatrixStream( model_mt.get() );
+
 		model_mt->addChild( model.get() );
 		_added_models->addChild( model_mt.get() );
 		this->resetFlag();

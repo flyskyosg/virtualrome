@@ -52,7 +52,8 @@ namespace SceneHandlers
 				_ready_to_remove(false),
 				_waitingCommit(false),
 				_commit(false),
-				_added_models(nd)
+				_added_models(nd),
+				_poseMatrixString("EMPTY")
 				{
 					//aggiungo i comandi per cambio modalità
 					this->setCommandAction("VIEW");						//0
@@ -70,6 +71,9 @@ namespace SceneHandlers
 
 					//comando per staccare il gizmo
 					this->setCommandAction("COMMIT");					//6
+
+					//cattura ultima matrice di posa
+					this->setCommandAction("GET_MATRIX");				//7
 				
 				}   
 
@@ -127,6 +131,11 @@ namespace SceneHandlers
 			//virtual void AddStartOptions(std::string str, bool erase = true);
 			virtual std::string handleAction(std::string argument);
 
+			//crea stringa a partire dalla matrice di posa
+			void storeMatrixStream(osg::MatrixTransform* m);
+			std::string getPoseMatrix();
+
+
 	private:	
 			
 			unsigned int _mode;
@@ -158,7 +167,10 @@ namespace SceneHandlers
 			osg::ref_ptr<osgText::Text> textDragger;
 			osg::ref_ptr<osgText::Text> textModel;
 
-			osg::ref_ptr<osg::Group> _added_models;
+			osg::ref_ptr<osg::Group>	_added_models;
+
+			std::string					_poseMatrixString;		//per memorizzazione matrice di posa
+			osg::ref_ptr<osgDB::ReaderWriter::Options> _options;
 
 	};
 };

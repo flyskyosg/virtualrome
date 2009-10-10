@@ -39,8 +39,8 @@
       <br>
       <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="500" height="500" type="application/osg4web-plugin" >
 	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
-	<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
-	<param name="ADVCoreStartOptions" value="COREEDIT LOAD_TERRAIN http://3d.cineca.it/storage/terrain/demo/out_run_2/demo2.ive"> 
+	<param name="ADVCoreSHA1" value="test_CoreEdit">
+	<param name="ADVCoreStartOptions" value="COREEDIT LOAD_TERRAIN http://3d.cineca.it/storage/terrain/demo/top.osg"> 
       </object>
 
 <script language="JavaScript">
@@ -89,6 +89,17 @@ function ExecCoreCommand(command)
   compcommand = command;
 	document.OSG.execCoreCommand(compcommand);
 }
+
+function GetMatrix() 
+{
+	retcommand = document.OSG.execCoreCommand('PICKEDIT GET_MATRIX');
+	
+	if(retcommand != 'STREAM_ERROR')
+		document.getElementById('MatrixArea').value = retcommand;
+	else
+		alert('Possible Stream Error. BAD COMMAND');
+}
+
 </script>
 
 
@@ -121,7 +132,9 @@ function ExecCoreCommand(command)
       <!-- Elenco modelli diponibili -->
       <option value="Mucca" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_MODEL http://localhost/osg4webtest/cow.ive')">Mucca</option>
       <option value="Cessna" onclick="javascript:ExecCoreCommand('PICKEDIT CHANGE_MODEL http://localhost/osg4webtest/cessna.ive')">Cessna</option>
-    </select>
+    </select><br><br>
+    <input type="button" name="get_matrix" value="Get Matrix" onclick="javascript:GetMatrix()"><br>
+    <textarea name="MatrixArea" id="MatrixArea" cols="60" rows="8" wrap="hard" readonly="yes"></textarea>
     </form>
 	<p>&nbsp;</p></td>
   </tr>
