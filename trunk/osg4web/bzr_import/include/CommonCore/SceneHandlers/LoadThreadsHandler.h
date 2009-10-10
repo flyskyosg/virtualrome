@@ -42,6 +42,8 @@ namespace SceneHandlers
 			//Ritorna true se il nodo è stato attaccato
 			bool isNodeFound() { return _attached;}
 
+			void setRangedNode(double min, double max);
+
 		protected:
 			//Definisce se il nodo va attaccato a tutti i gruppi corrispondenti a nodeName o solo al primo trovato
 			bool _multipleattach;
@@ -50,6 +52,10 @@ namespace SceneHandlers
 			
 			//Node Name da trovare
 			std::string _nodeName;
+
+			bool _ranged;
+
+			double _min, _max;
 
 			//Nodo da attaccare
 			osg::ref_ptr<osg::Node> _attachNode;

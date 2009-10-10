@@ -35,7 +35,7 @@ void NodeParserHandler::parsingNode()
 	//Parse del NodePath
 	for(osg::NodePath::iterator iter = _savenp.begin(); iter != _savenp.end(); iter++)
 	{
-		osg::ref_ptr<osg::Node> node = dynamic_cast<osg::Node*>( *iter );
+		osg::ref_ptr<osg::Node> node = (osg::Node*) *iter;
 	
 		if( node->getDescriptions().size() != 0)
 			_ndcommlist.addNodeCommand(node.get(), iter);
