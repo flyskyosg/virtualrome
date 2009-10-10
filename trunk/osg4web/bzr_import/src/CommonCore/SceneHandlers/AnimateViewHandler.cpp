@@ -14,7 +14,7 @@ AnimateViewHandler::AnimateViewHandler(osgViewer::Viewer* viewer) : CommandSched
 	_mainViewer(viewer),
 	_options(new osgDB::ReaderWriter::Options),
 	_activateTransition(false),
-	_animationTime(1800.0)
+	_animationTime(2500.0) //TODO: spostare da qualche parte o farlo dinamico
 {
 	this->setCommandAction( "GET_MATRIX" );
 	this->setCommandAction( "SET_MATRIX" );
@@ -62,10 +62,12 @@ bool AnimateViewHandler::handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActio
 
 					matrix.set(osg::Matrix::rotate(rotation)*osg::Matrix::scale(scale)*osg::Matrix::translate(position));
 
-					_mainViewer->getCameraManipulator()->setByMatrix(matrix );
+					_mainViewer->getCameraManipulator()->setByMatrix( matrix );
 				}
 				else
 				{
+					_mainViewer->getCameraManipulator()->setByMatrix( _transitionMatrix );
+
 					_oldMatrix.set(osg::Matrix::identity());
 					_transitionMatrix.set(osg::Matrix::identity());
 					_activateTransition = false;

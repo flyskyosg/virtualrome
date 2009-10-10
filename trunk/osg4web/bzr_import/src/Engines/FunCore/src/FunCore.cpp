@@ -39,6 +39,7 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	
 	this->setCommandAction("SETMAINSCENEGRAPH");
 	this->setCommandAction("ADDFILETONODE");
+	this->setCommandAction("CHECKNODEPRESENCE");
 	this->setCommandAction("SETOPTIMIZATION");
 
 	this->setCommandAction("SWITCH_MANIPULATORS");
@@ -165,6 +166,14 @@ std::string FunCore::handleAction(std::string argument)
 		{
 			if( !this->loadModelToNode(rcommand) )
 				retstr = "REQUEST_IN_QUEUE";
+		}
+		break;
+	case CHECKNODEPRESENCE:
+		{
+			if( !_LoaderThreadHandler->checkNodePresenceByName(rcommand) )
+				retstr = "NODE_NOT_FOUND";
+			else
+				retstr = "NODE_FOUND";
 		}
 		break;
 	case SETOPTIMIZATION:

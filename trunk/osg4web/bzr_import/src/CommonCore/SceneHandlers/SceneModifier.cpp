@@ -17,6 +17,8 @@ using namespace SceneHandlers;
 /**
  *	ISTRUZIONI PER L'USO:
  *
+ *  Nome Handler: SCENEMODIFIER
+ *
  *	FIXME: capire come fare sta roba senza un Parser e senza usare i marker di stringa
  *	TIPS: per adesso i nomi NON POSSONO contenere spazi
  *

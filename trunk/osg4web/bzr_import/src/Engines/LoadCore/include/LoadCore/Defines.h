@@ -16,6 +16,9 @@
 #define		OSG4WEB_COLORVEC_RED			osg::Vec4(1.0f,0.12f,0.06f,1.0f)
 #define		OSG4WEB_COLORVEC_BLUE			osg::Vec4(0.20f,0.45f,0.60f,1.0f)
 
+
+#define		OSG4WEB_CLEARCOLOR_BACKGROUND	osg::Vec4(0.0f,0.0f,0.0f,0.0f)
+
 #define		OSG4WEB_MESSAGE_TIMER_ADDER		300 //Tempo in secondi di durata dei messaggi (5 minuti max)
 
 #endif //__OSG4WEB_LOADCORE_DEFINES__

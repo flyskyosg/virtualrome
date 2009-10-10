@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2007/12/18 19:09:59 $
-Version:   $Revision: 1.6 $
+Date:      $Date: 2007/12/19 04:34:23 $
+Version:   $Revision: 1.7 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -194,7 +194,7 @@ void walkManipulator::searchDefaultPos()
   C.Camera_Pitch = _pitch;
   C.Camera_Roll = 0.0f;
   setPosition(C, false);
-  setStepAmount(radius / 10.0f, radius / 10.0f);
+  setStepAmount(50.0f, 30.0f); //FIXME: mettere una step sensata  VECCHIA   setStepAmount(radius / 25.0f, radius / 25.0f);
 
   IntersectTerrain();
 }
@@ -225,7 +225,7 @@ void walkManipulator::searchPosUsingSubNode(osg::Node* subnode, double ydistfrom
   C.Camera_Pitch = _pitch;
   C.Camera_Roll = 0.0f;
   setPosition(C, false);
-  setStepAmount(radius / 10.0f, radius / 10.0f);
+  setStepAmount(50.0f, 30.0f);  //FIXME: mettere una step sensata     VECCHIA   setStepAmount(radius / 25.0f, radius / 25.0f);
 
   IntersectTerrain();
 }
@@ -1128,7 +1128,7 @@ void walkManipulator::setNearFar(double Near, double Far)
     _viewer->getCamera()->setProjectionMatrixAsPerspective(fovy, lensaspect, Near, Far);
   }
   else
-    _viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::ComputeNearFarMode::COMPUTE_NEAR_FAR_USING_BOUNDING_VOLUMES);
+    _viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::COMPUTE_NEAR_FAR_USING_BOUNDING_VOLUMES);
 }
 
 //--------------------------------------------------------------------
