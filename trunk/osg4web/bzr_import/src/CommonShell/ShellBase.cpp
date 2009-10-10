@@ -898,7 +898,7 @@ std::string ShellBase::getInitLoadCoreOptions()
 		retstr += "PROXY_HOSTNAME=";
 		retstr += purl;
 		
-		if(!getInitOption(INIT_OPTION_PROXYHPORT, pport))
+		if( getInitOption(INIT_OPTION_PROXYHPORT, pport) )
 		{
 			retstr += " PROXY_PORT=";
 			retstr += pport;
@@ -928,7 +928,7 @@ std::string ShellBase::getInitAdvancedCoreOptions()
 		retstr += "PROXY_HOSTNAME=";
 		retstr += purl;
 		
-		if(!getInitOption(INIT_OPTION_PROXYHPORT, pport))
+		if( getInitOption(INIT_OPTION_PROXYHPORT, pport) )
 		{
 			retstr += " PROXY_PORT=";
 			retstr += pport;
@@ -936,6 +936,21 @@ std::string ShellBase::getInitAdvancedCoreOptions()
 	}
 
 	return retstr;
+}
+
+//TODO: finire lo spostamento di tutto in ShellBase
+std::string ShellBase::unpackDownloadedCore(std::string ofname, int& fno)
+{
+	int coreunpack = 0; //Condizione di loading
+	//Opening Archive List
+	fno = this->openCompressedCore(ofname);
+
+	if(fno < 0)
+		return "Unpacking Failed! Error opening archive";
+	else if(fno == 0)
+		return "Unpacking Failed! Empty archive";
+	else
+		return std::string(); 
 }
 
 int ShellBase::openCompressedCore(std::string filename)
