@@ -26,12 +26,15 @@ BOOL PropPage::PropPageFactory::UpdateRegistry(BOOL bRegister)
 		return AfxOleUnregisterClass(m_clsid, NULL);
 }
 
-PropPage::PropPage() : COlePropertyPage(IDD, IDS_IEOSG4WEB_PPG_CAPTION)
-	, m_ADVCore(_T(""))
-	, m_ADVStartOptions(_T(""))
-	, m_ADVInitOptions(_T(""))
-	, m_ADVCoreSHA1Hash(_T(""))
-	, m_LoadCBOptions(_T(""))
+PropPage::PropPage() : COlePropertyPage(IDD, IDS_IEOSG4WEB_PPG_CAPTION),
+	m_ADVCore(_T("")),
+	m_ADVStartOptions(_T("")),
+	m_ADVInitOptions(_T("")),
+	m_ADVCoreSHA1Hash(_T("")),
+	m_ADVCoreDep(_T("")),
+	m_ADVCoreDepSHA1Hash(_T("")),
+	m_LoadCBOptions(_T("")),
+	m_EnableDiskLogs(_T(""))
 {
 }
 
@@ -48,9 +51,18 @@ void PropPage::DoDataExchange(CDataExchange* pDX)
 
 	DDP_Text(pDX, IDC_ADVCORESHA1HASH, m_ADVCoreSHA1Hash, _T("ADVCoreSHA1Hash"));
 	DDX_Text(pDX, IDC_ADVCORESHA1HASH, m_ADVCoreSHA1Hash);
+		
+	DDP_Text(pDX, IDC_ADVCOREDEP, m_ADVCoreDep, _T("ADVCoreDep"));
+	DDX_Text(pDX, IDC_ADVCOREDEP, m_ADVCoreDep);
+
+	DDP_Text(pDX, IDC_ADVCOREDEPSHA1HASH, m_ADVCoreDepSHA1Hash, _T("ADVCoreDepSHA1Hash"));
+	DDX_Text(pDX, IDC_ADVCOREDEPSHA1HASH, m_ADVCoreDepSHA1Hash);
 
 	DDP_Text(pDX, IDC_LOADCBOPTIONS, m_LoadCBOptions, _T("LoadCBOptions"));
 	DDX_Text(pDX, IDC_LOADCBOPTIONS, m_LoadCBOptions);
+
+	DDP_Text(pDX, IDC_ENABLEDISKLOGS, m_EnableDiskLogs, _T("EnableDiskLogs"));
+	DDX_Text(pDX, IDC_ENABLEDISKLOGS, m_EnableDiskLogs);
 
 	DDP_PostProcessing(pDX);
 }
