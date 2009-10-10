@@ -1,0 +1,11 @@
+#ifndef __OSG4WEB_COREANIMATEVIEW_DEFINES__
+#define	__OSG4WEB_COREANIMATEVIEW_DEFINES__ 1
+
+
+#define		OSG4WEB_COREANIMATEVIEW_LIBNAME		"osg4web : CoreAnimateView"
+#define		OSG4WEB_COREANIMATEVIEW_VERSION 		"1.0.0.0"
+#define		OSG4WEB_COREANIMATEVIEW_NAME			"CoreAnimateView"
+
+#endif //__OSG4WEB_COREANIMATEVIEW_DEFINES__
+
+// here place additional defines

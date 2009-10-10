@@ -1,0 +1,15 @@
+The RAR archiver 2.90 for Windows
+Integrated archive manager
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+- complete RAR and ZIP support
+- unpacking of CAB,ARJ,LZH,ACE,UUE,TAR,
+  GZ,BZ2,JAR
+- GUI and console 32-bit versions
+- tight general and multimedia compression
+- data recovery record option
+- tested to handle over 10 million files
+- archive sizes up to 8,589,934 TeraBytes
+- support for NTFS security and streams
+- encryption, ANSI color comments
+- customizable self-extracting archives
+- support for Unicode in file names

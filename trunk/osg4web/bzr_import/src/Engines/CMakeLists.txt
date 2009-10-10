@@ -1,0 +1,7 @@
+
+SUBDIRS(
+	CoreBase
+	LoadCore
+	FunCore
+)
+

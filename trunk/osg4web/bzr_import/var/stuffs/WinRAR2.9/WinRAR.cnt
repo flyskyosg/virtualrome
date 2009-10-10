@@ -1,0 +1,158 @@
+:Base winrar.hlp
+1 About WinRAR
+2 What is WinRAR=HELPRarInfo
+2 WinRAR limitations=HELPLimitations
+2 Console RAR version=HELPConsoleRAR
+2 Acknowledgments=HELPAcknowledgments
+1 Quick start for novices
+2 Shell and command line modes=HELPQuickStart
+2 How to extract files
+3 How to extract files using WinRAR shell mode=HELPSimpleShellExtracting
+3 How to extract files using command line=HELPSimpleCommandLineExtracting
+3 How to extract files in Explorer or Desktop=HELPSimpleWindowsExtracting
+2 How to archive files
+3 How to archive files using WinRAR shell mode=HELPSimpleShellArchiving
+3 How to archive files using command line=HELPSimpleCommandLineArchiving
+3 How to archive files in Explorer or Desktop=HELPSimpleWindowsArchiving
+1 Archive types and parameters
+2 RAR versus ZIP=HELPRARVersusZIP
+2 Support of other archive formats=HELPArcNonRAR
+2 Solid archives=HELPArcSolid
+2 Volumes (split archives)=HELPArcVolumes
+2 Self-extracting (SFX) archives=HELPArcSFX
+2 Encryption=HELPArcEncryption
+2 Archive comment=HELPArcComment
+2 Protecting archives from damage=HELPArcRecovery
+2 Locking archives=HELPArcLocking
+2 How to choose optimal archiving settings=HELPArcOptimal
+1 WinRAR interface
+2 Introduction
+3 Introduction to WinRAR interface=HELPInterfaceIntro
+3 File management and archive management modes=HELPShellModes
+3 Selecting files=HELPInterfaceSelecting
+2 Viewing files
+3 Viewing files=HELPInterfaceViewing
+3 Internal viewer=HELPInterfaceInternalViewer
+2 File management commands
+3 Add to archive=HELPCommandsAdd
+3 Extract to the specified folder=HELPCommandsExtractTo
+3 Test files=HELPCommandsTest
+3 View file=HELPCommandsView
+3 Delete files=HELPCommandsDelete
+3 Repair archive=HELPCommandsRepair
+3 Estimate compression=HELPCommandsEstimate
+2 Archive management commands
+3 Add to archive=HELPCommandsAdd
+3 Extract to the specified folder=HELPCommandsExtractTo
+3 Test files=HELPCommandsTest
+3 View file=HELPCommandsView
+3 Delete files=HELPCommandsDelete
+3 Extract without confirmation=HELPCommandsExtract
+3 Add archive comment=HELPCommandsComment
+3 Protect archive from damage=HELPCommandsProtect
+3 Lock archive=HELPCommandsLock
+3 Convert archive to SFX=HELPCommandsSFX
+3 Show archive information=HELPCommandsInfo
+2 WinRAR menus
+3 File menu=HELPFileMenu
+3 Commands menu=HELPCommandsMenu
+3 Favorites menu=HELPFavoritesMenu
+3 Options menu=HELPOptionsMenu
+3 Help menu=HELPHelpMenu
+1 Integration with Windows shell
+2 How to open an archive from Windows shell=HELPWinShellOpen
+2 Using context menus=HELPWinShellMenu
+2 Drag and drop support=HELPWinShellDrag
+1 Command line mode
+2 Command line syntax=HELPCommandLineSyntax
+2 Commands
+3 Alphabetic commands list=HELPCommands
+3 "A" - Add to an archive=HELPCmdA
+3 "C" - Add an archive comment=HELPCmdC
+3 "D" - Delete from an archive=HELPCmdD
+3 "E" - Extract from an archive ignoring paths=HELPCmdE
+3 "F" - Freshen files within an archive=HELPCmdF
+3 "K" - Lock an archive=HELPCmdK
+3 "M" - Move files and folders to an archive=HELPCmdM
+3 "R" - Repair a damaged archive=HELPCmdR
+3 "RR[N]" - Add data recovery record=HELPCmdRR
+3 "S[name]" - Convert an archive to a self-extracting type=HELPCmdS
+3 "S-" - Remove SFX module=HELPCmdSm
+3 "T" - Test archived files=HELPCmdT
+3 "U" - Update files within an archive=HELPCmdU
+3 "X" - Extract files from an archive with full paths=HELPCmdX
+2 Switches
+3 Alphabetic switches list=HELPSwitches
+3 "-ac" - clear "Archive" attribute=HELPSwAC
+3 "-ag[format]" - generate archive name using the current date and time=HELPSwAG
+3 "-ao" - add files with "Archive" attribute set=HELPSwAO
+3 "-ap" - set path inside archive=HELPSwAP
+3 "-as" - synchronize archive contents=HELPSwAS
+3 "-av" - apply authenticity verification=HELPSwAV
+3 "-av-" - disable adding authenticity verification=HELPSwAVm
+3 "-cl" - convert file names to lower case=HELPSwCL
+3 "-cu" - convert file names to upper case=HELPSwCU
+3 "-df" - delete files after archiving=HELPSwDF
+3 "-dh" - open shared files=HELPSwDH
+3 "-ds" - do not sort archiving files=HELPSwDS
+3 "-ep" - exclude paths from names=HELPSwEP
+3 "-ep1" - exclude base folder from names=HELPSwEP1
+3 "-ep2" - expand paths to full=HELPSwEP2
+3 "-f" - freshen files=HELPSwF
+3 "-ibck" - run WinRAR in background=HELPSwIBCK
+3 "-inul" - disable error messages=HELPSwINUL
+3 "-k" -  lock archive=HELPSwK
+3 "-kb" - keep broken extracted files=HELPSwKB
+3 "-m<n>" - set compression method=HELPSwM
+3 "-md<n>" - select dictionary size=HELPSwMD
+3 "-mm" - multimedia compression=HELPSwMM
+3 "-mmf" - force multimedia compression=HELPSwMMF
+3 "-os" - save NTFS streams=HELPSwOS
+3 "-ow" - process file security information=HELPSwOW
+3 "-o+" - overwrite existing files=HELPSwOp
+3 "-o-" - do not overwrite existing files=HELPSwOm
+3 "-p<pwd>" - set password=HELPSwP
+3 "-r" - recurse subfolders=HELPSwR
+3 "-r0" - recurse subfolders for wildcard names only=HELPSwR0
+3 "-rr[N]" - add data recovery record=HELPSwRR
+3 "-s" - create solid archive=HELPSwS
+3 "-s<n>" - create solid groups using file count=HELPSwSN
+3 "-se" - create solid groups using extension=HELPSwSE
+3 "-sv" - create independent solid volumes=HELPSwSV
+3 "-sv-" - create dependent solid volumes=HELPSwSVm
+3 "-s-" - disable solid archiving=HELPSwSm
+3 "-sfx[name]" - create self-extracting archive=HELPSwSFX
+3 "-tk" - keep original archive time=HELPSwTK
+3 "-tl" - set archive time to newest file=HELPSwTL
+3 "-tn<time>" - process files newer than the specified time=HELPSwTN
+3 "-to<time>" - process files older than the specified time=HELPSwTO
+3 "-u" - update files=HELPSwU
+3 "-v<n>[k|b|f|m|M]" - create volumes=HELPSwV
+3 "-vd" - erase disk contents before creating volume=HELPSwVD
+3 "-vp" - pause before each volume=HELPSwVP
+3 "-x<file>" - exclude specified file=HELPSwX
+3 "-x@<listfile>" - exclude files using a specified list file=HELPSwXa
+3 "-y" - assume Yes on all queries=HELPSwY
+3 "-z<file>" - read archive comment from file=HELPSwZ
+3 "--" - stop switches scanning=HELPSwMinus
+1 Configuration settings
+2 General settings dialog=HELPGeneralSettings
+2 Compression settings dialog=HELPCompressionSettings
+2 Paths settings dialog=HELPPathsSettings
+2 File list settings dialog=HELPFileListSettings
+2 Viewer settings dialog=HELPViewerSettings
+2 Integration settings dialog=HELPIntegrationSettings
+2 Compression profiles=HELPProfiles
+2 RAR environment variable=HELPRARVar
+2 Optimizing files sorting - rarfiles.lst file=HELPRARFILESLST
+1 Self-extracting modules
+2 GUI RAR and ZIP SFX modules (Default.SFX and Zip.SFX)=HELPGUISFX
+2 Console RAR SFX module (WinCon.SFX)=HELPConsoleSFX
+2 DOS and OS/2 RAR SFX modules (Dos.SFX and Os2.SFX)=HELPNonWin32SFX
+1 Frequently asked questions and hints
+2 List of frequently asked questions=HELPFAQ
+2 Hints=HELPHints
+1 License and registration information
+2 WinRAR license=HELPLicense
+2 Registration information=HELPRegistering
+2 Information for registered users of WinRAR 2.00 - 2.50=HELPReregister

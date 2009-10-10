@@ -1,0 +1,15 @@
+
+//ATTENZIONE: NON METTERE GLI SPAZI TRA [scriptable] e interface altrimenti NON FUNZIONA !!!!!!
+
+#include "nsISupports.idl"
+
+//Interfaccia di esposizione dei metodi a JavaScript
+
+[scriptable, uuid(ce4fd450-9735-11da-956d-00e08161165f)]
+interface nsIScriptablePluginOSG : nsISupports 
+{
+	void getEvent(in string line);
+	string execCoreCommand(in string line);
+	string execShellCommand(in string line);
+ };
+

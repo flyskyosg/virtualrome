@@ -1,0 +1,9 @@
+#ifndef __OSG4WEB_FUNCORE_DEFINES__
+#define	__OSG4WEB_FUNCORE_DEFINES__ 1
+
+
+#define		OSG4WEB_FUNCORE_LIBNAME		"osg4web : FunCore"
+#define		OSG4WEB_FUNCORE_VERSION		"1.0.0.0"
+#define		OSG4WEB_FUNCORE_NAME		"FunCore"
+
+#endif //__OSG4WEB_FUNCORE_DEFINES__

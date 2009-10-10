@@ -1,0 +1,75 @@
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(5B3E8016-185D-47AB-8473-408C8B4C2978), version(1.0),
+  helpfile("ieOSG4Web.hlp"),
+  helpstring("ieOSG4Web ActiveX Control module"),
+  control ]
+
+library ieOSG4WebLib
+{
+	importlib(STDOLE_TLB);
+
+	const int DISPID_StartCore						= 100;
+	const int DISPID_StartString					= 101;
+	const int DISPID_ExecCoreCommand				= 102;
+	const int DISPID_ExecShellCommand				= 103;
+	
+
+	//  Primary dispatch interface for Ctrl
+
+	[ 
+		uuid(F72EBA29-BC35-4001-B291-1A0851F34888),
+		helpstring("Dispatch interface for ieOSG4Web Control 1.0")
+	]
+		
+	dispinterface _DieOSG4Web
+	{
+	properties:
+		[id(DISPID_StartCore), helpstring("property StartCore")] 
+			BSTR StartCore;
+		[id(DISPID_StartString), helpstring("property StartString")] 
+			BSTR StartString;
+	
+	methods:
+		[id(DISPID_ExecCoreCommand), helpstring("method ExecCoreCommand")] 
+			BSTR ExecCoreCommand(BSTR Command);
+		[id(DISPID_ExecShellCommand), helpstring("method ExecShellCommand")] 
+			BSTR ExecShellCommand(BSTR Command);
+	};
+
+
+
+	//  Event dispatch interface for Ctrl
+	const int EVENTID_GetEvent						= 500;
+
+       
+	[ 
+		uuid(AFFD9D00-91CC-468D-84C5-19F15FFCFD90),
+		helpstring("Event interface for ieOSG4Web Control 1.0")
+	]
+	
+	dispinterface _DieOSG4WebEvents
+	{
+	properties:
+		//  Event interface has no properties
+
+	methods:
+		[id(EVENTID_GetEvent), helpstring("event method GetEvent")] 
+			void GetEvent(BSTR eventstr);
+	};
+
+	//  Class information for Ctrl
+
+	[ 
+		uuid(559F0DCD-759E-48EE-B1F2-C917AA6FB7EA),
+		helpstring("ieOSG4Web Control 1.0"), 
+		control 
+	]
+	
+	coclass ieOSG4Web
+	{
+		[default] dispinterface _DieOSG4Web;
+		[default, source] dispinterface _DieOSG4WebEvents;
+	};
+};
