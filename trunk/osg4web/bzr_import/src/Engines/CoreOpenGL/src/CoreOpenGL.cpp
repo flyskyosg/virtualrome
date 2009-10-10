@@ -8,11 +8,7 @@ using namespace CommonCore;
 
 //CoreOpenGL Costruttore
 CoreOpenGL::CoreOpenGL(std::string corename) : CoreInterface(corename), CommandSchedule("COREOPENGL"),
-#if defined(WIN32)
-		WindowWin32(), //Costruttore di WindowWin32
-#else
-		//TODO: Linux...
-#endif
+		WindowSupport(),
 		_needresize(true),
 		_openglinit(false),
 		_theta(0.0),
@@ -86,7 +82,7 @@ bool CoreOpenGL::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string o
 	return this->initializeWindow(mhWnd);
 }
 
-LRESULT CoreOpenGL::handleNativeWindowWin32Event(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam)
+LRESULT CoreOpenGL::handleNativeWindowSupportEvent(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (eventmsg) 
 	{
