@@ -40,7 +40,6 @@ MACRO(GRAB_FILES VARNAME)
 		FILE(GLOB tmp ${${VARNAME}}/*.def)
 		SET(${VARNAME}_FILES ${${VARNAME}_FILES} ${tmp})
 	ENDIF(${last_path} STREQUAL "res")
-
 ENDMACRO(GRAB_FILES VARNAME)
 
 #######################################################################################################

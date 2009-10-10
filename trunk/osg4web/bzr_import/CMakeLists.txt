@@ -155,17 +155,25 @@ ADD_SUBDIRECTORY(src/Utilities)
 IF(OSG_FOUND)
 	ADD_SUBDIRECTORY(src/CommonCore)
 ELSE(OSG_FOUND)
-	MESSAGE("OSG NOT FOUND: specify an OSG_DIR in order to compile OSG Cores")
+	MESSAGE("OSG NOT FOUND: specify an OSG_DIR in order to compile OSG CommonCore Library")
 ENDIF(OSG_FOUND)
 
 ADD_SUBDIRECTORY(src/Engines)
 ADD_SUBDIRECTORY(src/Examples)
-ADD_SUBDIRECTORY(src/npOSG4Web)
 
-IF(MSVC)
-	ADD_SUBDIRECTORY(src/ieOSG4Web)
-ENDIF(MSVC)
+IF(FIREFOX_PLUGIN_DIR)
+	ADD_SUBDIRECTORY(src/npOSG4Web)
 
+	IF(MSVC)
+		ADD_SUBDIRECTORY(src/ieOSG4Web) # it needs firefox for npsr library
+	ELSE(MSVC)
+		IF(WIN32)
+			MESSAGE("Internet Explorer NOT FOUND: specify an IE Directory in order to compile OSG4Web IE ActiveX")
+		ENDIF(WIN32)
+	ENDIF(MSVC)
+ELSE(FIREFOX_PLUGIN_DIR)
+	MESSAGE("Firefox NOT FOUND: specify a Firefox Directory in order to compile OSG4Web Firefox Plugin")
+ENDIF(FIREFOX_PLUGIN_DIR)
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH)
 
