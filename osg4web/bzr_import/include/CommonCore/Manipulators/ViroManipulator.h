@@ -139,6 +139,11 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		Vec3d getPosition() const { return _vEye; };
 		double getSpeed(){ return _speed; }
 		Vec3d getLastPickedPoint(){ return _vLastPickedPoint; }
+		osgViewer::Viewer* getViewer(){ return _Viewer; };
+		bool getHoldLock(){ return _bHoldCTRL; };
+		bool getHardImpact(){ return _bImpact; };
+		bool getSoftImpact(){ return _bAvoidanceZone; };
+		bool getZlock(){ return _bLockZ; };
 
 		void tuneDistances(double mult){
 			BumpDistance *= mult;
@@ -293,6 +298,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		double		_UserControlPercentage;			// User Control (0 = None, 1 = Full)
 		double		_CurrentGravityAcceleration;	// UNUSED
 		double		_currentGroundDistance;
+		double		_zLock;
 
 		double		_modelScale;
 		osg::Vec3d	_vIpoint;				// Current Intersection Point (or avg)
@@ -312,7 +318,8 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		bool _bImpact;
 		bool _bAvoidanceZone;
 		bool _bReqHome;
-		bool _bLockDir;
+		bool _bLockZ;
+		bool _bMidButton;
 
 		// Web NavPad
 		unsigned short _padEvent;
