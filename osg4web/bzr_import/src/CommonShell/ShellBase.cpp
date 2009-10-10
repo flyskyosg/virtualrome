@@ -73,6 +73,11 @@ void ShellBase::forcingShutDown()
 {
 	this->sendNotifyMessage("ShellBase::forcingShutDown -> Forcing Shut Down.");
 	
+	if(m_Renderer)
+	{
+		m_Renderer->setPausePlay();
+	}
+	
 	if(m_Downloader)
 	{
 		m_Downloader->closeDownloader();
@@ -1084,6 +1089,7 @@ bool ShellBase::stopRendering()
 
 				ret = true;
 			}
+
 			else
 			{
 				//TODO: messages

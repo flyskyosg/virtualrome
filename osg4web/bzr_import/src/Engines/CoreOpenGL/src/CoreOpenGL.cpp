@@ -128,9 +128,10 @@ bool CoreOpenGL::RenderScene()
 	{
 		//IMPORTANTE:	ricordarsi sempre di tenere le direttive OGL all'interno del thread chiamante altrimenti 
 		//				gli stati si corrompono e vengono ignorati
+		this->makeCurrentImplementation();
+
 		if(!_openglinit)
 		{
-			this->makeCurrentImplementation();
 			this->initializeOpenGL();
 			_openglinit = true;
 		}
@@ -144,6 +145,8 @@ bool CoreOpenGL::RenderScene()
 
 		this->renderImplementation();
 		this->swapBuffersImplementation();
+
+		this->restoreCurrentImplementation();
 	}
 	else
 	{

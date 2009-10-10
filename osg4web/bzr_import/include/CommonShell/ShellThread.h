@@ -14,10 +14,18 @@
 class ShellThread
 {
 public:
-	ShellThread();
+	ShellThread(PRThreadPriority tpriority);
 	~ShellThread();
 
 	static void threadCallBack(void* instance);
+
+	bool isRunning() { return (_Thread != NULL); }
+	bool isShuttingDown() { return _Shutdown; }
+
+	bool isPaused() { return _pPause; }
+	bool isBusy() { return _NeedWait; }
+
+	void setPausePlay() { _pPause = !_pPause; }
 
 protected:
 	const PRThread* getThread() { return _Thread; }
@@ -29,12 +37,10 @@ protected:
 	void waitCondition();
 	void notifyCondition();
 
-	bool isRunning() { return (_Thread != NULL); }
-	bool isShuttingDown() { return _Shutdown; }
-
-	bool isBusy() { return _NeedWait; }
-
 	void makeSleep(unsigned int sleeptime) { PR_Sleep(sleeptime); }
+
+	void setThreadDelay(unsigned int delay) { _ThreadDelay = delay; }
+	unsigned int getThreadDelay() { return _ThreadDelay; }
 	
 	virtual bool doCallBack() { return false; }
 
@@ -46,7 +52,11 @@ private:
 	PRCondVar* _CondVar;
 	PRThread* _Thread;
 
+	unsigned int _ThreadDelay;
+
 	bool _NeedWait;
+
+	bool _pPause;
 
 	bool _Shutdown;
 };

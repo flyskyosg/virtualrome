@@ -4,11 +4,13 @@
 
 
 
-ShellThread::ShellThread() : _Lock(NULL),
+ShellThread::ShellThread(PRThreadPriority tpriority) : _Lock(NULL),
 	_CondVar(NULL),
 	_Thread(NULL),
+	_ThreadDelay( THREAD_DELAY ),
 	_NeedWait(false),
-	_Shutdown(false)
+	_Shutdown(false),
+	_pPause(false)
 {
 	//Lock Creation
 	_Lock = PR_NewLock();
@@ -21,7 +23,7 @@ ShellThread::ShellThread() : _Lock(NULL),
 	assert(_CondVar);
 
 	//Thread creation
-	_Thread = PR_CreateThread(PR_USER_THREAD, ShellThread::threadCallBack, this, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
+	_Thread = PR_CreateThread(PR_USER_THREAD, ShellThread::threadCallBack, this, tpriority, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
 	//Check di esistenza del thread
 	assert(_Thread);
 }
@@ -56,6 +58,7 @@ bool ShellThread::joinThread()
 {
 	if(_Thread)
 	{
+		_pPause = true;
 		_Shutdown = true;
 		
 		this->notifyCondition();
@@ -102,7 +105,7 @@ void ShellThread::threadCallBack(void* instance)
 {
 	ShellThread* shellinstance = (ShellThread*) instance;
 
-	if(instance)
+	if(shellinstance)
 		shellinstance->doCallBack();
 	else
 	{
