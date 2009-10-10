@@ -5,6 +5,10 @@
 #include <CoreBase/CoreBase.h>
 #include <Defines.h>
 #include <CommonCore/SceneHandlers/SceneModifier.h>
+#include <CommonCore/SceneHandlers/AnimateViewHandler.h>
+#include <CommonCore/SceneHandlers/GetBackHandler.h>
+
+
 
 using namespace CommonCore;
 
@@ -39,6 +43,16 @@ protected:
 
 	//Modificatore di scena
 	osg::ref_ptr<SceneHandlers::SceneModifier> _SceneModifier;
+
+	//Animate Handler
+	osg::ref_ptr<SceneHandlers::AnimateViewHandler> _AnimateHandler;
+
+	//Handler NodeParser per JS Call
+	osg::ref_ptr<SceneHandlers::NodeParserHandler> _ParserHandler;
+
+	//Handler per GetBack Calls
+	osg::ref_ptr<SceneHandlers::GetBackHandler> _GetBackHandler;
+
 
 	//Main Node
 	osg::ref_ptr<osg::Group> _MainNode;
