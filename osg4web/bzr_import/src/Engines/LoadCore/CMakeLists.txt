@@ -25,7 +25,6 @@ ADD_DEFINITIONS(-DOSG4WEBCORE_LIBRARY)
 ############################################################
 
 SET(CMAKE_DEBUG_POSTFIX  "d")
-SET(IS_LOAD_CORE TRUE)
 SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)
 SET("${PROJECT_NAME}_include_dir" ${CMAKE_CURRENT_SOURCE_DIR}/include)
 SET("${PROJECT_NAME}_include" ${CMAKE_CURRENT_SOURCE_DIR}/include/LoadCore)
@@ -104,7 +103,7 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Engine_${PROJECT
 #
 ############################################################
 
-SETUP_CORE_RUNTIME(Engine ${PROJECT_NAME})
+SETUP_LOADCORE_RUNTIME(Engine ${PROJECT_NAME})
 
 
 ############################################################
