@@ -36,7 +36,8 @@ public:
 		RESET_SCENE,
 		ACTIVATE_JSMAP_MESSAGES,
 		DEACTIVATE_JSMAP_MESSAGES,
-		GET_JSMAP_COORDINATES
+		GET_JSMAP_COORDINATES,
+		SETHOMEPOSITION,
 	};
 
 	//Costruttore/Distruttore
@@ -78,6 +79,7 @@ protected:
 	std::string getJSMapCoordinates();
 
 	//Manipolatori
+	bool setHomePosition(std::string arguments);
 	osg::ref_ptr<Manipulators::walkManipulator> _WalkManip;
 	osg::ref_ptr<Manipulators::ViroManipulator> _ViRoMan;
 
