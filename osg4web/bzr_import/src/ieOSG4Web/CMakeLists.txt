@@ -119,3 +119,9 @@ IF(FIREFOX_PLUGIN_DIR)
 		DEPENDS ${PROJECT_NAME}
     	)
 ENDIF(FIREFOX_PLUGIN_DIR)
+
+
+
+
+#TODO midl.exe /D "_DEBUG" /nologo /char signed /env win32  /tlb ".\Debug/osgactivex.tlb" /h "./idl/osgactivexidl.h"
+#TODO midl.exe /D "NDEBUG" /mktyplib203 /nologo /char signed /env win32  /tlb ".\Release/osgactivex.tlb" /h "./idl/osgactivexidl.h"

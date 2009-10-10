@@ -19,9 +19,12 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	CString m_ADVCore;
-	CString m_ADVStartOptions;
-	CString m_ADVInitOptions;
-	CString m_ADVCoreSHA1Hash;
-	CString m_LoadCBOptions;
+	CString	m_ADVCore;
+	CString	m_ADVStartOptions;
+	CString	m_ADVInitOptions;
+	CString	m_ADVCoreSHA1Hash;
+	CString	m_ADVCoreDep;
+	CString	m_ADVCoreDepSHA1Hash;
+	CString	m_LoadCBOptions;
+	CString	m_EnableDiskLogs;
 };

@@ -134,15 +134,6 @@ private:
 	void				requestExplicitRendering();
 	bool				showFatalCoreErrors();
 
-	//segnale di terminazione del main thread di rendering
-	//bool				getThreadShutDown() { return m_ShutdownThread; }
-	//segnale di terminazione del thread di download dei core avanzati
-	//bool				getDlCoreThreadShutDown() { return m_DlCoreShutdownThread; }
-	//Rilascia il Thread di Download
-	//bool				releaseDownloadCore();
-	//Direttive interne al LoadCore
-	//std::string			loadingCoreCommand(std::string line);
-
 	//Formattazione messaggi di errore
 	CString				GetSystemErrorMessage(DWORD dwError);
 

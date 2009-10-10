@@ -9,6 +9,8 @@
 
 
 //Object Options Defines
+//
+// In caso di modifica tenere allineato anche IDL 
 #define		OBJECT_OPTION_ADVCORE			"ADVCore"
 #define		OBJECT_OPTION_ADVCSTARTOPT		"ADVCoreStartOptions"
 #define		OBJECT_OPTION_ADVCINITOPT		"ADVCoreInitOptions"
