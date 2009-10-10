@@ -60,9 +60,9 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 		double rot_blend_factor;	//FIXME: trovare il modo fi anticipare la rotazione
 				
 		osg::Quat rotation;
-		osg::Vec3 position, scale;
+		osg::Vec3d position, scale;
 
-		osg::Vec3 p1,p2;
+		osg::Vec3d p1,p2;
 
 		osg::Matrix matrix;
 		
@@ -91,7 +91,7 @@ bool AnimateViewHandler::doTransition(osg::Matrix animMatrix, double animTime)
 		else {
 			t = 0.5 * (cos(tmp*osg::PI) + 1.0);
 
-			osg::Vec3 p0,p3,A,B;
+			osg::Vec3d p0,p3,A,B;
 
 			p0 = _prevTensor.getTrans();
 			p3 = _nextTensor.getTrans();
@@ -504,8 +504,8 @@ bool AnimateViewHandler::setAnimationKey( std::string key )
 		return false;
 }
 
-osg::Vec3 AnimateViewHandler::interpolateCR(double t, osg::Vec3 p0, osg::Vec3 p1, osg::Vec3 p2, osg::Vec3 p3){
-	osg::Vec3 R;
+osg::Vec3d AnimateViewHandler::interpolateCR(double t, osg::Vec3d p0, osg::Vec3d p1, osg::Vec3d p2, osg::Vec3d p3){
+	osg::Vec3d R;
 	double t2,t3;
 	t2 = t * t;
 	t3 = t2 * t;
