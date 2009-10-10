@@ -69,35 +69,35 @@ function ExecCoreCommand(command)
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td width="27%"><div align="center">
-              	<a onMouseDown="javascript:ExecCoreCommand('WALK YAW LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW LEFT</a>
+              	<a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK YAW LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW LEFT</a>
                 </div></td>
-              <td width="14%"><div align="center"><a onMouseDown="javascript:ExecCoreCommand('WALK FORWARD UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD UP</a></div></td>
+              <td width="14%"><div align="center"><a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK FORWARD UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD UP</a></div></td>
               <td width="29%"><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK YAW RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW RIGHT</a>
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK YAW RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW RIGHT</a>
               </div></td>
               <td width="3%"><div align="center"></div></td>
               <td width="27%"><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK PITCH UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH UP</a>
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK PITCH UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH UP</a>
               </div></td>
             </tr>
             <tr>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK STRAFE LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE LEFT</a>
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK STRAFE LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE LEFT</a>
               </div></td>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK FORWARD DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD DOWN</a>
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK FORWARD DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD DOWN</a>
               </div></td>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK STRAFE RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE RIGHT</a>
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK STRAFE RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE RIGHT</a>
               </div></td>
               <td><div align="center"></div></td>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK PITCH DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH DOWN</a>
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK PITCH DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH DOWN</a>
               </div></td>
             </tr>
             <tr>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK SETSTEPS 10.0 10.0'); javascript:ExecCoreCommand('WALK GOTO 292498.22775 4653219.68388 200.0 0.0 0.0 0.0');" href="javascript:void(0)">GOTO position</a>
+              <a onmouseout="javascript:ExecCoreCommand('WALK STOP')" onMouseDown="javascript:ExecCoreCommand('WALK SETSTEPS 10.0 10.0'); javascript:ExecCoreCommand('WALK GOTO 292498.22775 4653219.68388 200.0 0.0 0.0 0.0');" href="javascript:void(0)">GOTO position</a>
               </div></td>
             </tr>
         </table>

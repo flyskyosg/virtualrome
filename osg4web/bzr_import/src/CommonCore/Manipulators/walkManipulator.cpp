@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2007/12/12 16:53:30 $
-Version:   $Revision: 1.2 $
+Date:      $Date: 2007/12/14 16:04:57 $
+Version:   $Revision: 1.3 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -104,13 +104,45 @@ walkManipulator::~walkManipulator()
   stop_walking();
 }
 //--------------------------------------------------------------------
+void walkManipulator::setByMatrix(const osg::Matrixd& matrix)
+//--------------------------------------------------------------------
+{
+ 	osg::Quat q = matrix.getRotate();
+    
+	double qx,qy,qz,qw;
+
+	qx = q.x();
+	qy = q.y();
+	qz = q.z();
+	qw = q.w();
+   
+	_yaw = osg::RadiansToDegrees( atan2( 2*qy*qw-2*qx*qz , 1 - 2*qy*qy - 2*qz*qz) );
+	_pitch = osg::RadiansToDegrees( asin(2*qx*qy + 2*qz*qw) );
+	_roll = osg::RadiansToDegrees( atan2(2*qx*qw-2*qy*qz , 1 - 2*qx*qz - 2*qz*qz) );
+
+	_position = matrix.getTrans(); 
+
+    IntersectTerrain();
+}
+//--------------------------------------------------------------------
 osg::Matrixd walkManipulator::getMatrix() const
 //--------------------------------------------------------------------
 {
-  osg::Quat rot = 
-    osg::Quat((_pitch+90)*ToRad, osg::Vec3(1.0,0.0,0.0)) *
-    osg::Quat((_roll)*ToRad, osg::Vec3(0.0,1.0,0.0)) *
-    osg::Quat((_yaw)*ToRad, osg::Vec3(0.0,0.0,1.0));
+	double heading, attitude, bank;
+	heading = osg::DegreesToRadians(_yaw);
+	attitude = osg::DegreesToRadians(_pitch);
+	bank = osg::DegreesToRadians(_roll);
+
+	double c1 = cos(heading/2);    
+	double s1 = sin(heading/2);    
+	double c2 = cos(attitude/2);    
+	double s2 = sin(attitude/2);    
+	double c3 = cos(bank/2);    
+	double s3 = sin(bank/2);
+    double c1c2 = c1*c2;    
+	double s1s2 = s1*s2;    
+	
+	osg::Quat rot( c1c2*s3 + s1s2*c3, s1*c2*c3 + c1*s2*s3, c1*s2*c3 - s1*c2*s3, c1c2*c3 - s1s2*s3);
 
   return 
     osg::Matrixd::rotate(rot)* 
@@ -420,19 +452,7 @@ bool walkManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
     }
     return true; // event handled
 }
-//--------------------------------------------------------------------
-void walkManipulator::setByMatrix(const osg::Matrixd& matrix)
-//--------------------------------------------------------------------
-{
-    /*
-       todo: estrarre la rotazione dalla matrice
-    */
-    _position = matrix.getTrans(); 
-    _yaw =0;
-    _pitch = 0;
-    _roll = 0;
-    IntersectTerrain();
-}
+
 //--------------------------------------------------------------------
 void walkManipulator::setGroundCollisionOnOff(bool on)
 //--------------------------------------------------------------------
