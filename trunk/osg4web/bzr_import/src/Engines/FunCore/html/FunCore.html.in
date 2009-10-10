@@ -101,7 +101,7 @@ function SwitchManipulator()
               <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="800" height="600" type="application/osg4web-plugin" >
 				<param name="ADVCore" value="http://localhost/osg4webtest/@DUMMY_SHA1@.rar">
 				<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
-				<param name="ADVCoreStartOptions" value="FUNCORE SETMAINSCENEGRAPH http://192.167.233.151:8080/vrome/_v_top_v_.osg"> 
+				<param name="ADVCoreStartOptions" value="FUNCORE SETMAINSCENEGRAPH http://localhost:8080/vrome/_v_top_v_.osg"> 
               </object>
 		<!--	  </noscript> -->
             </td>

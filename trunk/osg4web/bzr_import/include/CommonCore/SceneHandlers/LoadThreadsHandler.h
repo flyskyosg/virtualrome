@@ -227,6 +227,12 @@ namespace SceneHandlers
 		//Cancella tutti i loading correnti e le richieste associate
 		bool cancelAllLoading();
 
+		//pulisco la cache dei nodi caricati
+		bool clearNodeCache();
+
+		//Pulisco lo strutture della classe, richieste e threads attivi
+		bool clear();
+
 		//Metodo di Clean delle richiesta contramite nome
 		bool cancelLoadingByFileName(std::string filename);
 
@@ -255,12 +261,6 @@ namespace SceneHandlers
 	protected:
 		//Distruttore
 		~LoadThreadsHandler();
-
-		//Pulisco lo strutture della classe, richieste e threads attivi
-		bool clear();
-
-		//pulisco la cache dei nodi caricati
-		bool clearNodeCache();
 
 		//Refresh del Loading Mark
 		void refreshLoadingMark();

@@ -6,6 +6,7 @@
 #include <osg/MatrixTransform>
 
 #include <osgDB/FileNameUtils>
+#include <osgDB/Registry>
 #include <osgDB/ReadFile>
 
 #include <osgUtil/Optimizer>
@@ -46,6 +47,9 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	this->setCommandAction("SETOPTIMIZATION");
 
 	this->setCommandAction("SWITCH_MANIPULATORS");
+
+	this->setCommandAction("RESET_SCENE");
+	
 /*
 	this->setCommandAction("STATUSBAR_VALUE");
 	this->setCommandAction("STATUSBAR_COLOR");
@@ -227,7 +231,13 @@ std::string FunCore::handleAction(std::string argument)
 				_KeySwitchManipulator->selectMatrixManipulator(0);
 
 		}
-		break;	
+		break;
+	case RESET_SCENE:
+		{
+			if( !this->loadModel(rcommand, true) )
+				retstr = "REQUEST_IN_QUEUE";
+		}
+		break;
 	default: //UNKNOWN_COMMAND
 		retstr = "UNKNOWN_COMMAND";
 		break;
@@ -236,11 +246,16 @@ std::string FunCore::handleAction(std::string argument)
 	return retstr;
 }
 
-
 bool FunCore::loadModel(std::string nodename, bool erase)
 {
 	if(erase)
+	{
+		osgDB::Registry::instance()->getOrCreateDatabasePager()->clear();
+		osgDB::Registry::instance()->getOrCreateDatabasePager()->resetStats();
+		_LoaderThreadHandler->clear();
 		_ModiSceneGraph->removeChildren(0, _ModiSceneGraph->getNumChildren()); //Clear di tutta la parte di scenegraph modelli
+		_maininit = false;
+	}
 
 	std::string address, filename;
 
