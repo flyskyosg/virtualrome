@@ -7,6 +7,7 @@
 #include <Utilities/EnvUtils.h>
 
 #include <CommonShell/Defines.h>
+#include <CommonShell/ShellThread.h>
 
 #include <unrarlib.h>
 
@@ -35,10 +36,6 @@ public:
 	bool initializeAdvancedCore();
 
 	bool closeAllLibraries();
-
-	bool isRunning(){ return m_coreInit; }
-	
-	bool doRendering();
 
 	std::string getErrorString();
 	std::string getErrorString(unsigned int no);
@@ -96,6 +93,12 @@ public:
 	int openCompressedCore(std::string filename);
 	int unpackCompressedCoreFile();
 	void freeCompressedCore();
+
+	bool isRunning(){ return m_coreInit; }
+	bool prepareRendering();
+	bool closeRendering();
+	bool doRendering();
+	static void callDoRendering(void* maininst);
 
 protected:
 	bool initializeLogMessages(std::string logname);
@@ -180,6 +183,12 @@ protected:
 	std::streambuf* m_coutbuf;
 	std::streambuf* m_cerrbuf;
 	std::ofstream* m_fout;
+
+	ShellThread* renderingThread;
+
+
+	//TODO
+
 };
 
 #endif //__OSG4WEB_SHELLBASE__
