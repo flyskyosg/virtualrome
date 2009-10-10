@@ -43,6 +43,9 @@ namespace SceneHandlers
 	    
 		bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa);
 
+		// Catmull-Rom Interpolation (p1,p2)
+		osg::Vec3 interpolateCR(float t, osg::Vec3 p0, osg::Vec3 p1, osg::Vec3 p2, osg::Vec3 p3);
+
 		//Ridefinizioni del Gestore dei Comandi
 		virtual std::string handleAction(std::string argument);
 	    

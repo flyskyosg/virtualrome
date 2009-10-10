@@ -61,15 +61,18 @@ void TooltipsSceneModifier::createTooltipSceneGraph()
 
 	//Inizializzo il testo
 	_textnd->setName("Tooltip_Testo");
-	_textnd->setFont("fonts/arial.ttf"); //FIXME
-    _textnd->setCharacterSize(15.0);
+	_textnd->setFont("arial.ttf"); //FIXME
+    _textnd->setCharacterSize(20.0);
 	_textnd->setPosition(osg::Vec3(0.0,0.0,0.0));
-	_textnd->setColor(osg::Vec4(1.0f, 153.0f / 255.0f, 0.0f, 1.0f)); //FIXME: ripristinare
+	//_textnd->setColor(osg::Vec4(1.0f, 153.0f / 255.0f, 0.0f, 1.0f)); //FIXME: ripristinare
+	_textnd->setColor(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	_textnd->setAlignment(osgText::Text::CENTER_BOTTOM);
 
-	_textnd->setBackdropType(osgText::Text::OUTLINE);
-    _textnd->setBackdropImplementation(osgText::Text::POLYGON_OFFSET);
-    _textnd->setBackdropOffset(0.025f);
-    _textnd->setBackdropColor(osg::Vec4(176.0f / 255.0f, 106.0f / 255.0f, 0.0f, 1.0f));
+	//_textnd->setBackdropType(osgText::Text::OUTLINE);
+    //_textnd->setBackdropImplementation(osgText::Text::POLYGON_OFFSET);
+    //_textnd->setBackdropOffset(0.030f);
+    //_textnd->setBackdropColor(osg::Vec4(176.0f / 255.0f, 106.0f / 255.0f, 0.0f, 1.0f));
+	//_textnd->setBackdropColor(osg::Vec4(0.0f, 0.0f, 0.0f, 0.8f));
 
 	//Disabilito il modello di illuminazione per i tooltip
 	osg::ref_ptr<osg::StateSet> globstateset = _geodend->getOrCreateStateSet();
@@ -78,7 +81,7 @@ void TooltipsSceneModifier::createTooltipSceneGraph()
 	//Teso e Geometria dello sfondo sotto Geode
 	_geodend->setName("Tooltip_Backgroud");
 	_geodend->addDrawable(_textnd.get());
-	_geodend->addDrawable(_geombox.get());
+	//_geodend->addDrawable(_geombox.get());
 
 	//Geode su MatrixTransform
 	_matrtrans->addChild(_geodend.get());
@@ -147,15 +150,21 @@ void TooltipsSceneModifier::switchOnTooltip(std::string argument)
 
 void TooltipsSceneModifier::createTooltipBackgroud(osg::BoundingBox bb)
 {
+
 	float depth = bb.zMin() - 0.1; //Profondità
+/*
 	float scar = 0.1; //Adder sulla dimensione della BBox
 
 	//Calcolo la BBox con aggiunta dell'Adder
-	float deltax = abs( abs( bb.xMin()) - abs(bb.xMax() ) ) * ( scar / 10.0f); //FIXME: / 10.f prova
+	float deltax = abs( abs( bb.xMin()) - abs(bb.xMax() ) ) * ( scar / 80.0f); //FIXME: / 10.f prova
 	float deltay = abs( abs( bb.yMin()) - abs(bb.yMax() ) ) * scar;
 	bb.set(bb.xMin() - deltax, bb.yMin() - deltay, bb.zMin(), bb.xMax() + deltax, bb.yMax() + deltay, bb.zMax());
+*/
+	float padding = _textnd->getCharacterHeight() * 0.5f;		// Specifica il Padding tra testo e background quad.
+	bb.expandBy( bb.corner(7) + osg::Vec3f(padding,padding,padding) );
+	bb.expandBy( bb.corner(0) - osg::Vec3f(padding,padding,padding) );
 
-	//Creo il rettangolo 
+	//Creo il rettangolo
 	osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array;
 	vertices->push_back(osg::Vec3(bb.xMin(),bb.yMax(),depth));
 	vertices->push_back(osg::Vec3(bb.xMin(),bb.yMin(),depth));
@@ -171,7 +180,8 @@ void TooltipsSceneModifier::createTooltipBackgroud(osg::BoundingBox bb)
 
 	//Associo Colore
 	osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
-	colors->push_back(osg::Vec4(192.0f / 255.0f, 192.0f / 255.0f, 192.0f / 255.0f, 0.35f)); // FIXME: ripristinare osg::Vec4(1.0f,1.0,0.8f,0.2f)); 
+	//colors->push_back(osg::Vec4(192.0f / 255.0f, 192.0f / 255.0f, 192.0f / 255.0f, 0.35f)); // FIXME: ripristinare osg::Vec4(1.0f,1.0,0.8f,0.2f));
+	colors->push_back(osg::Vec4(0.0f, 0.0f, 0.0f, 0.50f));
 	_geombox->setColorArray(colors.get());
 	_geombox->setColorBinding(osg::Geometry::BIND_OVERALL);
 
