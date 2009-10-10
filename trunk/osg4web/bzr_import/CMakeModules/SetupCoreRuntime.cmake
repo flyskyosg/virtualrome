@@ -29,7 +29,7 @@ MACRO(COPY_TARGET_POST_BUILD MYTARGET )
 		#SET(in_file ${${MYTARGET}_${BTYPE}_LOCATION})
 		FILE(TO_CMAKE_PATH "${OUTPUT_${BTYPE}_DIR}/${MYNAME_${BTYPE}}" out_file)
 		#SET(out_file "${OUTPUT_${BTYPE}_DIR}/${MYNAME_${BTYPE}}")
-		message("out_file-->${out_file}")
+		#message("out_file-->${out_file}")
 		STRING(CONFIGURE ${mycmakestring} mycmakestring_out @ONLY)
 		FILE(WRITE "${CMAKE_BINARY_DIR}/copy_${MYTARGET}_${BTYPE}.cmake" "${mycmakestring_out}")
 		ADD_CUSTOM_COMMAND(	TARGET ${MYTARGET}
