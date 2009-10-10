@@ -6,7 +6,7 @@
 #include <Defines.h>
 
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 #include <osgText/Text>
 

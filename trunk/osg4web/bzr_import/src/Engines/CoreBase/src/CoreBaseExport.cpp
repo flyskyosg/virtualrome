@@ -1,7 +1,7 @@
 
 #include <CoreBase/CoreBase.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 CREATECLASSINSTANCE(CoreInterface, CoreBase)
 DELETECLASSINSTANCE(CoreInterface, CoreBase)

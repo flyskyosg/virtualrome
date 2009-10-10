@@ -7,7 +7,7 @@
 #include <CommonCore/SceneHandlers/LoadThreadsHandler.h>
 #include <Defines.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 
 /***********************************************************************

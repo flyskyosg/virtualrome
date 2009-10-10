@@ -784,7 +784,7 @@ bool ShellBase::startLoadingAdvancedCore()
 
 bool ShellBase::loadDynamicCore(std::string loadcore)
 {
-	OSG4WebCC::createCoreInterfaceFunction* createClassInstance;
+	CommonCore::createCoreInterfaceFunction* createClassInstance;
 
 	std::string errmsg;
 	m_DynLoad = DynamicLoad::loadLibrary(loadcore, errmsg);
@@ -796,7 +796,7 @@ bool ShellBase::loadDynamicCore(std::string loadcore)
 		return false;
 	}
 
-	createClassInstance = (OSG4WebCC::createCoreInterfaceFunction*) m_DynLoad->getProcAddress("createClassInstance");
+	createClassInstance = (CommonCore::createCoreInterfaceFunction*) m_DynLoad->getProcAddress("createClassInstance");
 	
 	if (createClassInstance == NULL) 
 	{
@@ -826,10 +826,10 @@ bool ShellBase::deleteCurrentCore()
 		return false;
 	}
 
-	OSG4WebCC::deleteCoreInterfaceFunction* deleteClassInstance;
+	CommonCore::deleteCoreInterfaceFunction* deleteClassInstance;
 
 	//Richiamo la funzione di distruzione della Classe Instanziata
-	deleteClassInstance = (OSG4WebCC::deleteCoreInterfaceFunction*) m_DynLoad->getProcAddress("deleteClassInstance");
+	deleteClassInstance = (CommonCore::deleteCoreInterfaceFunction*) m_DynLoad->getProcAddress("deleteClassInstance");
 	if (deleteClassInstance == NULL) 
 	{
 		this->sendWarnMessage( "ShellBase::deleteCurrentCore -> error deleting class instance!" );

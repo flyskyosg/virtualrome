@@ -10,7 +10,7 @@
 
 #include <osgUtil/Optimizer>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 //CoreScribe Costruttore
 CoreScribe::CoreScribe(std::string corename) : CoreBase(corename)

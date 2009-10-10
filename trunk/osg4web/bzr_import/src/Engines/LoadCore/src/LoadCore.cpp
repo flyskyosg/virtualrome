@@ -8,7 +8,7 @@
 
 #include <osgUtil/Optimizer>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 
 //LoadCore Costruttore

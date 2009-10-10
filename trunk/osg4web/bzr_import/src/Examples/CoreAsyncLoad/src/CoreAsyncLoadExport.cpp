@@ -1,7 +1,7 @@
 
 #include <CoreAsyncLoad.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 /** Template di allocazione del CoreAsyncLoad */
 CREATECLASSINSTANCE(CoreInterface, CoreAsyncLoad)

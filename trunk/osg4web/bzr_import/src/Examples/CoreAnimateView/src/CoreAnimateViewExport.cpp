@@ -1,7 +1,7 @@
 
 #include <CoreAnimateView.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 /** Template di allocazione del CoreAnimateView */
 CREATECLASSINSTANCE(CoreInterface, CoreAnimateView)

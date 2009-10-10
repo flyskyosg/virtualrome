@@ -13,7 +13,7 @@
 
 #include <CommonCore/Manipulators/walkManipulator.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 /***********************************************************************
  *

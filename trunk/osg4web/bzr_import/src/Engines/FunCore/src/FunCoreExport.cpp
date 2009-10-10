@@ -1,7 +1,7 @@
 
 #include <FunCore/FunCore.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 /** Template di allocazione del FunCore */
 CREATECLASSINSTANCE(CoreInterface, FunCore)

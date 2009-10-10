@@ -5,7 +5,7 @@
 #include <CoreBase/CoreBase.h>
 #include <Defines.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 
 /***********************************************************************

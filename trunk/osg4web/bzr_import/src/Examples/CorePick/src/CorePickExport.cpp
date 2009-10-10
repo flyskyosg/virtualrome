@@ -1,7 +1,7 @@
 
 #include <CorePick.h>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 /** Template di allocazione del CorePick */
 CREATECLASSINSTANCE(CoreInterface, CorePick)

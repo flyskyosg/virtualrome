@@ -114,7 +114,7 @@ protected:
 	DynamicLoad* m_DynLoad;
 
 	//Core Interface
-	OSG4WebCC::CoreInterface* m_CoreInterface;
+	CommonCore::CoreInterface* m_CoreInterface;
 
 	Utilities::EnvUtils::Environment m_Environm;
 

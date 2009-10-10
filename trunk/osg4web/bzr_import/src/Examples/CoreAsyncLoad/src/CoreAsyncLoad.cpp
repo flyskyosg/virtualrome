@@ -5,7 +5,7 @@
 
 #include <osgUtil/Optimizer>
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 /** CoreAsyncLoad Costruttore */
 CoreAsyncLoad::CoreAsyncLoad(std::string corename) : CoreBase(corename),

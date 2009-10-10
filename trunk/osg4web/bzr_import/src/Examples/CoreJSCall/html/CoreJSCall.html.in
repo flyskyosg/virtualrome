@@ -51,6 +51,11 @@ function ExecCoreCommand(command)
 	compcommand = command;
 	document.OSG.execCoreCommand(compcommand);
 }
+
+function eventCatcher(argument) 
+{
+	alert(argument);
+}
 </script>
 
     </span></div></td>

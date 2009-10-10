@@ -5,7 +5,7 @@
 #include <osgDB/ReadFile>
 
 
-using namespace OSG4WebCC;
+using namespace CommonCore;
 
 
 //CoreFly Costruttore
