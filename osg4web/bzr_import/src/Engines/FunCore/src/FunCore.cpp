@@ -233,38 +233,65 @@ void FunCore::preFrameUpdate()
 
 void FunCore::handleEnvironment()
 {
-	Visitors::FindNodeVisitor fnvenvironment("Skybox_Loading_Node");
+	Visitors::FindNodeVisitor fnvenvironment("Skybox_Geode_To_Attach");
 	_ModiSceneGraph->accept(fnvenvironment);
 	
 	if( fnvenvironment.getNodeFoundSize() == 0)
 		return;
 
 	unsigned int npgeosize = fnvenvironment.getNodeByIndex(0).size();
-	osg::ref_ptr<osg::Geode> geode = dynamic_cast<osg::Geode*>(fnvenvironment.getNodeByIndex(0).at(npgeosize -1));
 
-	if( geode.valid() )
+	if(npgeosize < 2)
+		return;
+
+	osg::ref_ptr<osg::Geode> skyboxgeode = dynamic_cast<osg::Geode*>(fnvenvironment.getNodeByIndex(0).at(npgeosize - 1));
+	osg::ref_ptr<osg::Group> skyboxgroup = dynamic_cast<osg::Group*>(fnvenvironment.getNodeByIndex(0).at(npgeosize - 2));
+
+	if( !skyboxgeode.valid() || !skyboxgroup.valid())
 	{
-		geode->setName("ATTACHED_Skybox_Loading_Node");
-		Visitors::FindNodeVisitor fnvcn("Environment_Map_Clear_Node");
-		_ModiSceneGraph->accept(fnvcn);
+		fnvenvironment.getNodeByIndex(0).at(npgeosize - 1)->setName("FAKE_Skybox_Group_To_Attach");
+		return;
+	}
 
-		if(fnvcn.getNodeFoundSize() != 1)
+	fnvenvironment.getNodeByIndex(0).at(npgeosize - 1)->setName("FAKE_Skybox_Group_To_Attach"); //Viene cambiato alla fine se va tutto bene
+
+	skyboxgroup->removeChild(skyboxgeode.get());
+	
+	Visitors::FindNodeVisitor fnvcleargroup("Default_Clear_Group");
+	_ModiSceneGraph->accept(fnvcleargroup);
+
+	if(fnvcleargroup.getNodeFoundSize() > 0)
+	{
+		unsigned int npclgsize = fnvcleargroup.getNodeByIndex(0).size();
+		if(npclgsize < 2)
 			return;
+			
+		//Rimuovo il Gruppo default di clear
+		osg::ref_ptr<osg::Group> parent = (osg::Group*) fnvcleargroup.getNodeByIndex(0).at(npclgsize - 2);
+		parent->removeChild(fnvcleargroup.getNodeByIndex(0).at(npclgsize - 2));
+	}
 
-		unsigned int npcnsize = fnvcn.getNodeByIndex(0).size();
-		osg::ref_ptr<osg::ClearNode> cnode = dynamic_cast<osg::ClearNode*>(fnvcn.getNodeByIndex(0).at(npcnsize -1));
-		if( cnode.get() )
+	osg::ref_ptr<osg::ClearNode> clearNode = new osg::ClearNode;
+	clearNode->setName("Environment_Map_Clear_Node");
+	clearNode->setClearColor(osg::Vec4(54.0/255.0, 137.0/255.0, 152.0/255.0 , 1.0));
+			
+	osg::ref_ptr<osg::Transform> transform = new MoveEarthySkyWithEyePointTransform;
+	clearNode->setName("Environment_Map_Transform_Node");
+	transform->setCullingActive(false);
+	transform->addChild(clearNode.get());
+
+	_ModiSceneGraph->addChild(transform.get());
+
+	osg::ref_ptr<osg::StateSet> stateset = skyboxgeode->getStateSet();
+	if(stateset.valid())
+	{
+		osg::ref_ptr<osg::TexMat> tm = dynamic_cast<osg::TexMat*>(stateset->getTextureAttribute(0, osg::StateAttribute::TEXMAT));
+
+		if(tm.valid())
 		{
-			osg::ref_ptr<osg::StateSet> stateset = geode->getStateSet();
-			if(stateset.valid())
-			{
-				osg::ref_ptr<osg::TexMat> tm = dynamic_cast<osg::TexMat*>(stateset->getTextureAttribute(0, osg::StateAttribute::TEXMAT));
-
-				if(tm.valid())
-				{
-					cnode->setCullCallback(new TexMatCallback(*tm));
-				}
-			}
+			clearNode->setCullCallback(new TexMatCallback(*tm));
+			clearNode->addChild(skyboxgeode.get());
+			skyboxgeode->setName("ATTACHED_Skybox_Geode_To_Attach");
 		}
 	}
 }
@@ -301,58 +328,15 @@ void FunCore::handleLoadingThreads()
 			else
 				_WalkManip->searchDefaultPos();
 
-			/*
-			bool environment = false;
-
-			Visitors::FindNodeVisitor fnvenvironment("Skybox_Loading_Node");
-			_ModiSceneGraph->accept(fnvenvironment);
-
-			if( fnvenvironment.getNodeFoundSize() == 1)
-			{
-				osg::ref_ptr<osg::Node> node = fnvenvironment.getNodeByIndex(0).at(fnvenvironment.getNodeByIndex(0).size() -1);
-
-				if(node.valid())
-				{
-					if(fnvenvironment.getNodeByIndex(0).size() != 1)
-					{
-						osg::ref_ptr<osg::Group> grp = dynamic_cast<osg::Group*>(fnvenvironment.getNodeByIndex(0).at(fnvenvironment.getNodeByIndex(0).size() -2));
-						if(grp.valid())
-						{
-							grp->removeChild(node.get());
-						}
-					}
-
-					osg::ref_ptr<osg::Transform> transform = new MoveEarthySkyWithEyePointTransform;
-					transform->setName("Move_EarthSky_Node");
-					transform->setCullingActive(false);
-					transform->addChild(node.get());
-
-					_ModiSceneGraph->addChild(transform.get());
-
-					environment = true;
-				}
-			}
-
-			if(!environment)
-			{
-				osg::ref_ptr<osg::ClearNode> clearNode = new osg::ClearNode;
-				clearNode->setName("Background_Clear_Node");
-				clearNode->setClearColor(osg::Vec4(54.0/255.0, 137.0/255.0, 152.0/255.0 , 1.0));
-				
-				_ModiSceneGraph->addChild(clearNode.get());
-			}
-			*/
+			osg::ref_ptr<osg::Group> clearGroup = new osg::Group;
+			clearGroup->setName("Default_Clear_Group");
 
 			osg::ref_ptr<osg::ClearNode> clearNode = new osg::ClearNode;
 			clearNode->setName("Environment_Map_Clear_Node");
 			clearNode->setClearColor(osg::Vec4(54.0/255.0, 137.0/255.0, 152.0/255.0 , 1.0));
-			
-			osg::ref_ptr<osg::Transform> transform = new MoveEarthySkyWithEyePointTransform;
-			clearNode->setName("Environment_Map_Transform_Node");
-			transform->setCullingActive(false);
-			transform->addChild(clearNode.get());
 
-			_ModiSceneGraph->addChild(transform.get());
+			clearGroup->addChild(clearNode.get());
+			_ModiSceneGraph->addChild(clearGroup.get());
 
 			_Viewer->home();
 			_maininit = true;
