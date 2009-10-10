@@ -39,13 +39,15 @@ public:
 	virtual const char* classVersion() { return OSG4WEB_LOADCORE_VERSION; };
 
 	//Inizializza le Opzioni del core successivamente all'inizializzazione
-	virtual void AddStartOptions(std::string str, bool erase = true);
+	virtual void AddStartOptions(std::string str, bool erase = true) { }
+
 	//Ridefinizioni del Gestore dei Comandi
 	virtual std::string handleAction(std::string argument);
 
 protected:
 	//Ridefinizione del Manipolatore
 	bool initManipulators();
+	bool initSceneData();
 	bool loadModel(std::string, bool erase = true);
 	void preFrameUpdate(void);
 
@@ -70,11 +72,9 @@ protected:
 	osg::ref_ptr<osgText::Text> _TextMessage;
 	osg::ref_ptr<osg::Switch> _SwitchMessage;
 
-
 	//Null Manipolator
 	osg::ref_ptr<Manipulators::NullManipulator> _NullManipulator;
 
-	std::string _InstDir;
 };
 
 #endif //__OSG4WEB_LOADCORE__

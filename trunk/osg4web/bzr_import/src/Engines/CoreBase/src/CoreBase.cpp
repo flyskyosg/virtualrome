@@ -33,6 +33,8 @@ CoreBase::CoreBase(std::string corename) : CoreInterface(corename), CommandSched
 #endif
 
 	this->sendNotifyMessage("CoreBase -> Costructing CoreBase Instance.");
+
+	_InstDir.clear();
 }
 
 //CoreBase Distruttore
@@ -182,7 +184,7 @@ bool CoreBase::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string opt
 	_Viewer->setKeyEventSetsDone(0);
 
 	//Setto il resizer per il Viewer
-	_Viewer->addEventHandler(new osgViewer::WindowSizeHandler);
+	//_Viewer->addEventHandler(new osgViewer::WindowSizeHandler);
 
 	//OSG Realize
 	_Viewer->realize();
