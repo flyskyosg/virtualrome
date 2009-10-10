@@ -164,6 +164,7 @@ IMPLEMENT_OLECTLTYPE(ieOSG4Web_Ctrl, IDS_IEOSG4WEB, _dwieOSG4WebOleMisc)
 	}
 
 	reftempstr.append(APPEND_CORES_DIRECTORY);
+	m_ShellBase.setInitOption( INIT_OPTION_LOCALINSTDIR, reftempstr ); //FIXME: per adesso metto lo stesso... settare in core che è ie quindi non c'è
 	m_ShellBase.setInitOption( INIT_OPTION_COREINSTDIR, reftempstr );
 	reftempstr.clear();
 
