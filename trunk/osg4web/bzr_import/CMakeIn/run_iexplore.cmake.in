@@ -1,0 +1,15 @@
+
+#cmake script for batch building
+  FILE(TO_CMAKE_PATH "$ENV{PATH}" ACTUAL_PATH)
+  SET(ACTUAL_PATH ${ACTUAL_PATH} "@OSG_BIN_DIR@") 
+  FILE(TO_NATIVE_PATH "${ACTUAL_PATH}" ACTUAL_NATIVE_PATH)
+  SET(ENV{PATH} "${ACTUAL_NATIVE_PATH}")
+  IF(NOT URL)
+  	SET(URL "http://3d.cineca.it/storage/plugin/test_rc1/test.php")
+  ENDIF(NOT URL)
+
+  EXEC_PROGRAM(
+     "@IEXPLORE_EXE@" 
+     "@CMAKE_BINARY_DIR@"
+     ARGS ${URL}
+   )
