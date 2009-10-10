@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2008/04/09 16:44:32 $
-Version:   $Revision: 1.10 $
+Date:      $Date: 2008/07/30 02:17:12 $
+Version:   $Revision: 1.11 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -668,6 +668,15 @@ void walkManipulator::moveVertically(double amount)
   }
   else
     IntersectTerrain();
+
+  // Aggiunta mia (Bruno) per parametrizzare lo step
+  double hmin = this->getNode()->getBound().center().z() - this->getNode()->getBound().radius();
+  double hmax = this->getNode()->getBound().center().z() + this->getNode()->getBound().radius();
+
+  double t = (_position.z() - hmin)/(hmax-hmin);
+
+  setStepAmount((100.0 * t) , (60.0 * t));
+  //accelerateVer(t-0.5);
 }
 
 //--------------------------------------------------------------------
@@ -860,8 +869,12 @@ void walkManipulator::flytoScenePick(float mouse_x, float mouse_y)
       //if (hitr->drawable->getParent(0)->valid())
       {
         osg::Vec3 p = hitr->getWorldIntersectPoint();
+		osg::Vec3 n = hitr->getWorldIntersectNormal();
         //seg = new osg::LineSegment(p, _position);
-        osg::Vec3 new_camera_point = p - ((p - _position) * 0.1);
+		osg::Vec3 DP = (p - _position);
+		if (DP.length() < 30.0) return;		// 30.0 distanza minima temporanea 
+
+		osg::Vec3 new_camera_point = (p+(n*10.0)) - (DP * 0.1);
         // shorten the segment
         //seg->mult(*seg, matrix);
         // the new position is the shortened start
