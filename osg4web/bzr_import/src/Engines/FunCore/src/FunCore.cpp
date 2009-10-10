@@ -172,8 +172,8 @@ bool FunCore::initManipulators()
 			);
 
 	// distanza di impatto da superfici (es. muri)
-	_ViRoMan->setImpactDistance( 0.1 );
-	_ViRoMan->setAvoidanceDistance( 3.0 );
+	_ViRoMan->setImpactDistance( 0.2 );
+	_ViRoMan->setAvoidanceDistance( 2.0 );
 
 	// distanza di impatto da terra
 	_ViRoMan->setGroundDistance( 2.0 );
@@ -554,6 +554,7 @@ void FunCore::handleEnvironment()
 		_MainNode->addChild( EnvNode.get() );
 		EnvFog->setDensity( 500.0 / _MainNode.get()->getBound().radius() );			// Formula da testare con differenti modelli
 		_MainNode->getOrCreateStateSet()->setAttributeAndModes( EnvFog.get() );
+
 	}
 }
 
@@ -599,6 +600,17 @@ void FunCore::handleLoadingThreads()
 
 			clearGroup->addChild(clearNode.get());
 			_ModiSceneGraph->addChild(clearGroup.get());
+
+			if ( _ViRoMan.get() ){
+				_HUD = new ViroHud( _ViRoMan.get() );
+				_HUD->Init();
+				
+				//if ( !_HUD.get()->getHUD() ) exit(0);
+				_MainNode->addChild( _HUD.get()->getHUD() );
+
+				ViroHudUpdater* hupd = new ViroHudUpdater( _HUD.get() );
+				_HUD->getHUD()->setUpdateCallback( hupd );
+				}
 
 			_Viewer->home();
 			_maininit = true;

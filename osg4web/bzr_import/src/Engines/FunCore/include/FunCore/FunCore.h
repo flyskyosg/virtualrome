@@ -14,6 +14,7 @@
 
 #include <CommonCore/Manipulators/walkManipulator.h>
 #include <CommonCore/Manipulators/ViroManipulator.h>
+#include <CommonCore/Manipulators/ViroHud.h>
 
 using namespace CommonCore;
 
@@ -98,6 +99,9 @@ protected:
 	osg::ref_ptr<osg::Group> _ModiSceneGraph;
 	//Nodo di supporto non linkato nello SceneGraph di View
 	osg::ref_ptr<osg::Group> _SupportNode;
+
+	// HUD di navigazione
+	osg::ref_ptr<ViroHud> _HUD;
 
 	//Tick di invio eventi ciclici a JS
 	osg::Timer_t _sendCEventToJSTime;
