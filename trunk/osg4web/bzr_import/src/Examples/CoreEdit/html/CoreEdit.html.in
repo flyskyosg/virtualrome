@@ -1,0 +1,150 @@
+<HTML>
+<HEAD>
+<TITLE>OSG4Web: OpenSceneGraph Plugin 4 IE and Firefox</TITLE>
+<style type="text/css">
+<!--
+.Stile1 {font-family: Verdana, Arial, Helvetica, sans-serif}
+.Stile2 {
+	font-size: 14px;
+	font-style: italic;
+}
+.Stile4 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 36px;
+}
+.Stile5 {font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; }
+.Stile6 {font-size: 10px}
+-->
+</style>
+</HEAD>
+<BODY>
+
+<center class="Stile1">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td><div align="center"><span class="Stile4">OSG4Web Test Page </span></div></td>
+  </tr>
+  <tr>
+    <td><div align="center"><strong><span class="Stile1"><span class="Stile2"><br>
+      OpenSceneGraph Plugin 4 IE and Firefox</span></span></strong><br>
+      </div></td>
+  </tr>
+</table>
+</center>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td width="73%"><div align="center"><span class="Stile1">
+      <br>
+      <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="500" height="500" type="application/osg4web-plugin" >
+	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
+	<param name="ADVCoreSHA1" value="test_CoreExampleEditManip">
+	<param name="ADVCoreStartOptions" value="CEM_LOAD_TERRAIN http://www.vhlab.itabc.cnr.it/flaminia3d/lod2/Flaminia_LOD2.ive"> 
+      </object>
+
+<script language="JavaScript">
+function ExecCoreCommand(command) 
+{
+	if(command == 'CEM_VIEW')
+	{
+		var frm = document.forms[0];
+    frm.currentMode.value="VIEW";
+	}
+	
+	if(command == 'CEM_ADD')
+	{
+		var frm = document.forms[0];
+    frm.currentMode.value="ADD";
+	}
+	
+	if(command == 'CEM_SELECT')
+	{
+    var frm = document.forms[0];
+    
+    frm.currentMode.value="SELECT";
+    
+    frm.cem_view.disabled=true;
+    frm.cem_add.disabled=true;
+    frm.cem_select.disabled=true;
+    frm.cem_commit.disabled=false;
+    frm.draggers.disabled=true;
+    frm.models.disabled=true;
+  }
+  
+  if(command == 'CEM_COMMIT')
+  {
+    var frm = document.forms[0];
+    
+    frm.currentMode.value="VIEW";
+    
+    frm.cem_view.disabled=false;
+    frm.cem_add.disabled=false;
+    frm.cem_select.disabled=false;
+    frm.cem_commit.disabled=true;
+    frm.draggers.disabled=false;
+    frm.models.disabled=false;
+  }
+    
+  compcommand = command;
+	document.OSG.execCoreCommand(compcommand);
+}
+</script>
+
+
+
+    </span></div></td>
+    <td width="27%" valign="top" class="Stile5">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  
+  <tr>
+    <td>
+    <form>
+    <input type="button" name="cem_view" value="View" onclick="javascript:ExecCoreCommand('CEM_VIEW')"><br>
+    <input type="button" name="cem_add" value="Add" onclick="javascript:ExecCoreCommand('CEM_ADD')"><br>
+    <input type="button" name="cem_select" value="Select" onclick="javascript:ExecCoreCommand('CEM_SELECT')">
+    <input type="button" name="cem_commit" disabled value="Commit" onclick="javascript:ExecCoreCommand('CEM_COMMIT')"><br><br>
+    
+    Modalità Corrente: <input type="text" name="currentMode" readonly value="VIEW"><br><br>
+    
+    Dragger Selezionato: <select name="draggers">
+      <!-- Elenco dragger disponibili -->
+      <option value="TabBoxDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TabBoxDragger')">TabBoxDragger</option>
+      <option value="TabPlaneDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TabPlaneDragger')">TabPlaneDragger</option>
+      <option value="TabPlaneTrackballDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TabPlaneTrackballDragger')">TabPlaneTrackballDragger</option>
+      <option value="TrackballDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TrackballDragger')">TrackballDragger</option>
+      <option value="Translate1DDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER Translate1DDragger')">Translate1DDragger</option>
+      <option value="Translate2DDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER Translate2DDragger')">Translate2DDragger</option>
+      <option value="TranslateAxisDragger" onclick="javascript:ExecCoreCommand('CEM_CHANGE_DRAGGER TranslateAxisDragger')">TranslateAxisDragger</option>
+    </select><br><br>
+    Modello Selezionato: <select name="models">
+      <!-- Elenco modelli diponibili -->
+      <option value="Mucca" onclick="javascript:ExecCoreCommand('CEM_CHANGE_MODEL http://localhost/osg4webtest/cow.ive')">Mucca</option>
+      <option value="Cessna" onclick="javascript:ExecCoreCommand('CEM_CHANGE_MODEL http://localhost/osg4webtest/cessna.ive')">Cessna</option>
+    </select>
+    </form>
+	<p>&nbsp;</p></td>
+  </tr>
+  
+  <tr>
+    <td>INIT EDITOR</a>
+	<p>&nbsp;</p></td>
+  </tr>
+  <tr>
+    <td><a href="javascript:ExecCoreCommand('CEM_SET_BILLBOARD http://localhost/osg4webtest/pianta.jpg')">Carica Pianta per BillBoard</a>
+	<p>&nbsp;</p></td>
+  </tr>
+</table>
+	    
+	</td>
+  </tr>
+</table>
+ </span></p>
+<center>
+
+  <br>
+
+</center>
+
+</BODY>
+</HTML>

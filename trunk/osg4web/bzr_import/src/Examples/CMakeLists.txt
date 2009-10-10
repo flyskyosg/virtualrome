@@ -1,12 +1,13 @@
 
 SUBDIRS(
-	CorePick
-	CoreScribe
-	CoreWalk
-	CoreTooltips
-	CoreAsyncLoad
-	CoreSceneModifier
 	CoreAnimateView
+	CoreAsyncLoad
+	CoreEdit
 	CoreFly
+	CorePick
+	CoreSceneModifier
+	CoreScribe
+	CoreTooltips
+	CoreWalk	
 )
 
