@@ -20,16 +20,62 @@ using namespace Manipulators;
 //////////////////////////////////////////////////////////////////////////
 
 ViroHud::ViroHud(){
+	_currentLoad = 0;
+	_vp_height = 700; //768;
+	_vp_width  = 1400; //1024;
 }
 
 ViroHud::ViroHud( osgViewer::Viewer* v ){
+	ViroHud();
 	_viewer = v;
 }
 ViroHud::ViroHud( ViroManipulator* vm ){
+	ViroHud();
 	this->setViroManipulator( vm );
 }
 
-void ViroHud::Init(){
+void ViroHud::CreateLoadingBar(){
+	if (_LoadingBarGeom.get()) return;
+
+	_LoadingBarGeom = new osg::Geometry;
+	osg::ref_ptr<osg::Vec3Array> Lvertex = new osg::Vec3Array;
+	osg::ref_ptr<osg::Vec4Array> Lcolor  = new osg::Vec4Array;
+
+	float d = -0.1f;
+	float barsize = 8.0f;
+	//LoadingBarSize = new osg::Vec3f(_vp_width*0.4,40.0, 0.0);
+
+	Lvertex->push_back(osg::Vec3(0.0,_vp_height-barsize, d));
+	Lvertex->push_back(osg::Vec3(0.0,_vp_height, d));
+	Lvertex->push_back(osg::Vec3(_vp_width*0.4,_vp_height, d));
+	Lvertex->push_back(osg::Vec3(_vp_width*0.4,_vp_height-barsize, d));
+
+	Lcolor->push_back(Vec4(VIROHUD_SIDECOLOR));//Vec4(0,0,0, 0.1));
+	Lcolor->push_back(Vec4(VIROHUD_SIDECOLOR));//Vec4(0,0,0, 0.4));
+	Lcolor->push_back(Vec4(1,0,0, 1.0));
+	Lcolor->push_back(Vec4(1,0,0, 0.1));
+
+	_LoadingBarGeom->setVertexArray( Lvertex.get() );
+	_LoadingBarGeom->setColorArray( Lcolor.get() );
+	_LoadingBarGeom->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+	_LoadingBarGeom->addPrimitiveSet(new osg::DrawArrays(GL_QUADS,0,4));
+}
+
+void ViroHud::UpdateLoadingBar(){
+	osg::Vec3Array* verts = dynamic_cast<osg::Vec3Array*>( _LoadingBarGeom->getVertexArray() );
+	if (verts && _viewer.get()){
+		_currentLoad = _viewer->getDatabasePager()->getFileRequestListSize();
+
+		float S = _vp_width * 0.001;
+		(*verts)[2][0] = _currentLoad * S;
+		(*verts)[3][0] = _currentLoad * S;
+
+		_LoadingBarGeom->getVertexArray()->dirty();
+		_LoadingBarGeom->dirtyDisplayList();
+		}
+}
+
+void ViroHud::Realize(){
 	if ( _HUD.get() ) return;
 
 	osg::ref_ptr<Geode> geodeHUD = new osg::Geode();
@@ -38,9 +84,6 @@ void ViroHud::Init(){
 	_HUDlabel = new osgText::Text;
 
 	osg::Vec3 position(5.0f,5.0f,0.0f);
-	
-	_vp_height = 700; //768;
-	_vp_width  = 1400; //1024;
 
 	// hud ss
 	hudSS->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
@@ -144,8 +187,22 @@ void ViroHud::Init(){
 	_CompassPAT = new osg::PositionAttitudeTransform;
 	xform->addChild( _CompassPAT.get() );
 
-	CreateCompass(_vp_width-50,40, 70);
-	_CompassPAT->addChild( _Compass.get() );
+	/*
+	osg::ref_ptr<osg::Node> loadedCompass = osgDB::readNodeFile( VIROHUD_COMPASSNODE );
+	if ( loadedCompass.get() ){
+		//_CompassPAT->setPivotPoint( Vec3(_vp_width-50,40,d) );
+		_CompassPAT->setPosition( Vec3(_vp_width-50,40,d) );
+		_CompassPAT->addChild( loadedCompass.get() );
+		}
+	*/
+
+//	else {
+		CreateCompass(_vp_width-50,40, 70);
+		_CompassPAT->addChild( _Compass.get() );
+//		}
+
+	CreateLoadingBar();
+	geodeHUD->addDrawable( _LoadingBarGeom.get() );
 }
 
 void ViroHud::CreateCompass(float px,float py, float size){
@@ -224,7 +281,7 @@ void ViroHud::CreateCompass(float px,float py, float size){
 	northLabel->setAlignment(osgText::Text::CENTER_CENTER);
 	northLabel->setFont( northFont.get() );
 	northLabel->setColor( Vec4f(0.0,0.0,0.0, 1.0) );
-	northLabel->setText("N");
+	northLabel->setText("- N -");
 	northLabel->setFontResolution(20,20);
 	northLabel->setCharacterSize(20, 1.1);
 	northLabel->setBackdropType(osgText::Text::BackdropType::OUTLINE);
@@ -284,12 +341,24 @@ void ViroHud::Update(){
 			);
 */
 		//if ( _vm->isEnabled(_vm->GRAVITY) ) sprintf(_HUDstring );
+		
 
-		if ( _vm->getZlock() )					HUDstring << std::string("HEIGHT LOCK | ");
-		if ( _vm->getHoldLock() )				HUDstring << std::string("PAN | ");
+		//_currentLoad = osgDB::Registry::instance()->getOrCreateDatabasePager()->getAverageTimeToMergeTiles();
+
+		//HUDstring << _serverPrefix;
+		//HUDstring << _viewer->getDatabasePager()->getAverageTimeToMergeTiles();
+		//HUDstring << std::string(" ::: ");
+		UpdateLoadingBar();
+
+		if ( _vm->getHoldLock() ){
+			if (_vm->getTumble()) HUDstring << std::string("<TUMBLE> | ");
+			else                  HUDstring << std::string("<PAN> | ");
+			}
+		if ( _vm->isEnabled(_vm->Z_LOCK) )		HUDstring << std::string("HEIGHT LOCK | ");
 		if ( _vm->isEnabled(_vm->GRAVITY) )		HUDstring << std::string("WALK | ");
 		if ( _vm->isEnabled(_vm->COLLISIONS) )	HUDstring << std::string("COLLISIONS | ");
-		HUDstring << "Altitude: " << _vm->getPosition().z() << " Speed: " << _vm->getSpeed();
+		HUDstring << "Altitude: " << _vm->getPosition().z();
+		if ( _vm->getSpeed() != 0.0) HUDstring << " Speed: " << _vm->getSpeed();
 
 		if ( _vm->getSoftImpact() ) HUDstring << std::string(" - Impact!!");
 
@@ -302,5 +371,8 @@ void ViroHud::Update(){
 		L[2] = 0.0;
 		R.makeRotate( L, Vec3d(0,1,0) );
 		_CompassPAT->setAttitude( R );
+
+		//double s = _vm->getSpeed() * 0.01;
+		//_CompassPAT->setScale( Vec3d(1+s,1+s,1) );
 		}
 }

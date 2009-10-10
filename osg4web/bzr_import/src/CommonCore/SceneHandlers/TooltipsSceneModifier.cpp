@@ -77,8 +77,9 @@ void TooltipsSceneModifier::createTooltipSceneGraph()
 	//Disabilito il modello di illuminazione per i tooltip
 	osg::ref_ptr<osg::StateSet> globstateset = _geodend->getOrCreateStateSet();
 	globstateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
+	globstateset->setMode(GL_DEPTH,osg::StateAttribute::OFF);
 
-	//Teso e Geometria dello sfondo sotto Geode
+	//Testo e Geometria dello sfondo sotto Geode
 	_geodend->setName("Tooltip_Backgroud");
 	_geodend->addDrawable(_textnd.get());
 	//_geodend->addDrawable(_geombox.get());
