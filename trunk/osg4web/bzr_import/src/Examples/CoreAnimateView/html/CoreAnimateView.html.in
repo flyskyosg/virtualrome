@@ -52,9 +52,9 @@ function ExecCoreCommand(command)
 	document.OSG.execCoreCommand(compcommand);
 }
 
-function GetMatrix() 
+function GetCurrentMatrix() 
 {
-	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW GET_MATRIX');
+	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW GET_CURRENT_MATRIX');
 	
 	if(retcommand != 'STREAM_ERROR')
 		document.getElementById('MatrixArea').value = retcommand;
@@ -62,19 +62,87 @@ function GetMatrix()
 		alert('Possible Stream Error. BAD COMMAND');
 }
 
-function SetMatrix() 
+function GoToDirectly() 
 {
 	textmatrix = document.getElementById('MatrixArea').value;
 	
 	if(textmatrix != '')
 	{
-		retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_MATRIX' + ' ' + textmatrix);
+		retcommand = document.OSG.execCoreCommand('ANIMATEVIEW GO_TO_MATRIX_DIRECTLY' + ' ' + textmatrix);
 	
 		if(retcommand == 'STREAM_ERROR')
 			alert('Possible Stream Error. BAD COMMAND');
 	}
 	else
 		alert('Specify a position with GetMatrix');
+}
+
+
+function GetAnimationTime() 
+{
+	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW GET_ANIMATION_TIME');
+	
+	if(retcommand != 'STREAM_ERROR')
+		document.getElementById('AnimationTime').value = retcommand;
+	else
+		alert('Possible Stream Error. BAD COMMAND');
+}
+
+function SetAnimationTime() 
+{
+	textmatrix = document.getElementById('AnimationTime').value;
+	
+	if(textmatrix != '')
+	{
+		retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_ANIMATION_TIME' + ' ' + textmatrix);
+	
+		if(retcommand == 'STREAM_ERROR')
+			alert('Possible Stream Error. BAD COMMAND');
+	}
+	else
+		alert('Specify a transition Time');
+}
+
+
+function StartAnimation() 
+{
+	document.OSG.execCoreCommand('ANIMATEVIEW RESET_DEFAULT');
+
+	var uno = 'MatrixTransform { nodeMask 0xffffffff cullingActive TRUE referenceFrame RELATIVE  Matrix {    0.984948 0.171112 -0.0244704 0    0.0137034 0.0638245 0.997867 0    0.172308 -0.983182 0.060519 0    18.4943 -99.8472 5.74259 1  }}';
+	
+	var due = 'MatrixTransform {  nodeMask 0xffffffff  cullingActive TRUE  referenceFrame RELATIVE  Matrix {    0.199611 0.979826 -0.00981285 0    -0.310217 0.0726908 0.947882 0    0.929473 -0.186164 0.318469 0    95.3883 -18.9059 31.9387 1  }}	';
+
+	var tre = 'MatrixTransform {  nodeMask 0xffffffff  cullingActive TRUE  referenceFrame RELATIVE  Matrix {    0.199611 0.979826 -0.00981285 0    -0.310217 0.0726908 0.947882 0    0.929473 -0.186164 0.318469 0    16.8537 -3.17623 5.03012 1  }}';
+
+	var quattro = 'MatrixTransform {  nodeMask 0xffffffff  cullingActive TRUE  referenceFrame RELATIVE  Matrix {    0.199611 0.979826 -0.00981285 0    -0.310217 0.0726908 0.947882 0    0.929473 -0.186164 0.318469 0    154.449 -30.7351 52.1748 1  }}';
+
+	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_ANIMATION_KEY TIME 2.5 MATRIX ' + ' ' + uno);
+	
+	if(retcommand == 'STREAM_ERROR')
+		alert('Possible Stream Error. BAD COMMAND: string UNO');
+
+	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_ANIMATION_KEY TIME 5.0 MATRIX ' + ' ' + due);
+	
+	if(retcommand == 'STREAM_ERROR')
+		alert('Possible Stream Error. BAD COMMAND: string DUE');
+
+	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_ANIMATION_KEY TIME 1.5 MATRIX ' + ' ' + tre);
+	
+	if(retcommand == 'STREAM_ERROR')
+		alert('Possible Stream Error. BAD COMMAND: string TRE');
+
+	retcommand = document.OSG.execCoreCommand('ANIMATEVIEW SET_ANIMATION_KEY TIME 4.0 MATRIX ' + ' ' + quattro);
+	
+	if(retcommand == 'STREAM_ERROR')
+		alert('Possible Stream Error. BAD COMMAND: string QUATTRO');
+
+	document.OSG.execCoreCommand('ANIMATEVIEW START_ANIMATION');
+
+}
+
+function StopAnimation() 
+{
+	document.OSG.execCoreCommand('ANIMATEVIEW STOP_ANIMATION');
 }
 </script>
 
@@ -84,6 +152,11 @@ function SetMatrix()
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
       <tr>
         <td><textarea name="MatrixArea" id="MatrixArea" cols="60" rows="8" wrap="hard" readonly="yes"></textarea></td>
+	</tr>
+	<tr>
+	<td><input name="AnimationTime" id="AnimationTime" cols="60" type="text" />
+	<a href="javascript:GetAnimationTime()">Get Animation Time</a>&nbsp;<a href="javascript:SetAnimationTime()">Set Animation Time</a>
+	</td>
       </tr>
       <tr>
         <td>&nbsp;</td>
@@ -92,9 +165,12 @@ function SetMatrix()
         <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td><div align="center">
-            <a href="javascript:GetMatrix()">GetMatrix</a></div></td>
+            <a href="javascript:GetCurrentMatrix()">Get Current Matrix</a></div></td>
             <td><div align="center">
-            <a href="javascript:SetMatrix()">SetMatrix</a></div></td>
+	    <a href="javascript:GoToDirectly()">Go To Matrix</a></div></td>
+	    <td><div align="center">&nbsp;</div></td>
+	    <td><div align="center"><a href="javascript:StopAnimation()">Stop Animation</a></div></td>
+            <td><div align="center"><a href="javascript:StartAnimation()">Start Animation</a></div></td>
           </tr>
         </table></td>
       </tr>
@@ -115,4 +191,5 @@ function SetMatrix()
 
 </BODY>
 </HTML>
+
 

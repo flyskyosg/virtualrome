@@ -2,6 +2,7 @@
 #define __OSG4WEB_ANIMATEVIEWHANDLER__ 1
 
 #include <sstream>
+#include <queue>
 
 #include <osgViewer/Viewer>
 #include <osg/MatrixTransform>
@@ -10,14 +11,24 @@
 
 namespace SceneHandlers
 {
+
+#define		DEFAULT_ANIMATION_TIME			2500.0
+
 	class AnimateViewHandler : public osgGA::GUIEventHandler , public CommandSchedule
 	{
 	public:
 
 		enum AnimateViewActions{
 			UNKNOWN_ACTION = 0,
-			GET_MATRIX,
-			SET_MATRIX,
+			GET_CURRENT_MATRIX,
+			GO_TO_MATRIX_DIRECTLY,
+			GET_ANIMATION_TIME,
+			SET_ANIMATION_TIME,
+			SET_ANIMATION_KEY,
+			START_ANIMATION,
+			CONTINUE_ANIMATION,
+			STOP_ANIMATION,
+			RESET_DEFAULT
 		};
 
 		AnimateViewHandler(osgViewer::Viewer* viewer);
@@ -38,16 +49,33 @@ namespace SceneHandlers
 	protected:
 
 		std::string getViewMatrix();
+		bool setViewMatrixAndGoTo( std::string viewstring );
 
-		bool setViewMatrix( std::string viewstring );
+		bool setAnimationKey( std::string key );
+
+		std::string getViewAnimationTime();
+		bool setViewAnimationTime(std::string animtime);
+
+		bool startAnimation();
+		bool continueAnimation();
+		bool stopAnimation();
+
+		void resetSettings();
+
+		bool doTransition(osg::Matrix animMatrix, double animTime);
+
+		osg::ref_ptr<osgViewer::Viewer>  _mainViewer;
+		osg::ref_ptr<osgDB::ReaderWriter::Options> _options;
+
+		std::queue<osg::Matrix> _animationMatrixArray;
+		std::queue<double> _animationTimeArray;
 
 		osg::Timer_t _startTime;
 		osg::Matrix _transitionMatrix, _oldMatrix;
 		double _animationTime;
 
-		osg::ref_ptr<osgViewer::Viewer>  _mainViewer;
-
-		osg::ref_ptr<osgDB::ReaderWriter::Options> _options;
+		osg::Matrix _sequenceTransitionMatrix;
+		double _sequenceAnimationTime;
 
 		bool _activateTransition;
 	};
