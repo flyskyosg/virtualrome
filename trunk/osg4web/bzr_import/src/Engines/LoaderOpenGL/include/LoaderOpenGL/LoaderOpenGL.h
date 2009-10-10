@@ -43,6 +43,8 @@ public:
 
 protected:
 
+
+
 };
 
 #endif //__OSG4WEB_LOADEROPENGL__

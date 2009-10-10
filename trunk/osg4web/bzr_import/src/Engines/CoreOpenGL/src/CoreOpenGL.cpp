@@ -138,7 +138,7 @@ bool CoreOpenGL::RenderScene()
 
 		if(_needresize)
 		{
-			WindowSupport::WindowDimension dimension = this->getWindowsDimension();
+			WindowExtra::WindowDimension dimension = this->getWindowsDimension();
 			this->windowResize(dimension.getX(), dimension.getY(), dimension.getWidth(), dimension.getHeight());
 			_needresize = false;
 		}
