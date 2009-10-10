@@ -30,18 +30,32 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} CommonCore)
 ########################### copy in debug place ###############################
 		SET(DUMMY_SHA1 "test_${PROJECT_NAME}")
 		SET(OUTPUT_Debug_DIR $ENV{APPDATA}/osg4web/${DUMMY_SHA1})
+		SET(OUTPUT_Release_DIR $ENV{APPDATA}/osg4web/${DUMMY_SHA1})
 
 		GET_TARGET_PROPERTY(${PROJECT_NAME}_Debug_LOCATION ${PROJECT_NAME} DEBUG_LOCATION)
+		GET_TARGET_PROPERTY(${PROJECT_NAME}_Release_LOCATION ${PROJECT_NAME} RELEASE_LOCATION)
 		GET_FILENAME_COMPONENT( MYNAME_Debug ${${PROJECT_NAME}_Debug_LOCATION} NAME)
+		GET_FILENAME_COMPONENT( MYNAME_Release ${${PROJECT_NAME}_Release_LOCATION} NAME)
 		ADD_CUSTOM_COMMAND(
 			OUTPUT ${OUTPUT_Debug_DIR}/${MYNAME_Debug}
     			COMMAND ${CMAKE_COMMAND} -E copy ${${PROJECT_NAME}_Debug_LOCATION} ${OUTPUT_Debug_DIR}
     			DEPENDS ${PROJECT_NAME}
     		)
+		ADD_CUSTOM_COMMAND(
+			OUTPUT ${OUTPUT_Release_DIR}/${MYNAME_Release}
+    			COMMAND ${CMAKE_COMMAND} -E copy ${${PROJECT_NAME}_Release_LOCATION} ${OUTPUT_Release_DIR}
+    			DEPENDS ${PROJECT_NAME}
+    		)
 
-		ADD_CUSTOM_TARGET(Example_${PROJECT_NAME}_Prepare_Debug
+		ADD_CUSTOM_TARGET(Engine_${PROJECT_NAME}_Prepare_Debug
 			DEPENDS ${OUTPUT_Debug_DIR}/${MYNAME_Debug}
 			)
+		ADD_CUSTOM_TARGET(Engine_${PROJECT_NAME}_Prepare_Release
+			DEPENDS ${OUTPUT_Release_DIR}/${MYNAME_Release}
+			)
+
+
+
 ########################### test stuff ##################################
 	CONFIGURE_FILE(${OSG4WEB_ROOT}/run_firefox.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake @ONLY)
 

@@ -5,10 +5,10 @@
 
 #define		OSG4WEB_LOADCORE_NAME	"loadcore"
 
-#if defined(_DEBUG)
-#define		DEBUGAPPEND				"d"
-#else
+//#if defined(_DEBUG)   FIXME--luigi
+//#define		DEBUGAPPEND				"d"   
+//#else
 #define		DEBUGAPPEND				""
-#endif
+//#endif
 
 #endif //__OSG4WEB_SHELLBASE_DEFINES__
