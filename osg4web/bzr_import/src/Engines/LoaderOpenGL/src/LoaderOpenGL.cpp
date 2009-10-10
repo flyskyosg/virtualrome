@@ -1,28 +1,28 @@
+#include <sstream>
 
 #include <LoaderOpenGL/LoaderOpenGL.h>
+#include <Utilities/FileUtils.h>
+#include <Utilities/ReaderJPEG.h>
 
-using namespace CommonCore;
 
-
-//Loader Costruttore
-Loader::Loader(std::string corename) : CoreBase(corename),
-	_NullManipulator( new Manipulators::NullManipulator() ),
-	_TextMessage(new osgText::Text),
-	_MessageTimer(NULL),
-	_SwitchMessage(new osg::Switch),
-	_LoadedNode(NULL),
-	_CameraNode(new osg::Camera),
-	_CapsuleBarSD(new osg::ShapeDrawable),
-	_CapsuleBarSwitch(new osg::Switch)
+//LoaderOpenGL Costruttore
+LoaderOpenGL::LoaderOpenGL(std::string corename) : CoreOpenGL(corename),
+	_pbarrdownload(0.0), 
+	_pbarrunpack(0.0),
+	_pbarrload(0.0),
+	_message_id(0),
+	_session(0),
+	_saved_timer(clock()),
+	_image_tick(0),
+	_showmessages(false)
 {
-	this->sendNotifyMessage("Loader -> Costructing Loader Core Instance.");
+	this->sendNotifyMessage("LoaderOpenGL -> Costructing LoaderOpenGL Core Instance.");
 
 	//Ridefinisco il nome dello Schedule Command
 	this->setCommandScheduleName("LOADER");
 
 	//Default value
 	this->setCommandAction("UNKNOWN_ACTION");
-	this->setCommandAction("LOAD_MODEL");
 	this->setCommandAction("STATUSBAR_VALUE");
 	this->setCommandAction("STATUSBAR_COLOR");
 	this->setCommandAction("STATUSBAR_VISIBILITY");
@@ -32,101 +32,88 @@ Loader::Loader(std::string corename) : CoreBase(corename),
 	this->addCommandSchedule((CommandSchedule*) this);
 }
 
-//Loader Distruttore
-Loader::~Loader()
+//LoaderOpenGL Distruttore
+LoaderOpenGL::~LoaderOpenGL()
 {
-	if(_LoadedNode.valid())
-		_LoadedNode = NULL;
+	this->sendNotifyMessage("~LoaderOpenGL -> Destructing Loader Core Instance.");
+}
 
-	if(_CameraNode.valid())
-		_CameraNode = NULL;
 
-	if(_SwitchMessage.valid())
-		_SwitchMessage = NULL;
-
-	if(_TextMessage.valid())
-		_TextMessage = NULL;
-
-	if(_CapsuleBarSD.valid())
-		_CapsuleBarSD = NULL;
-
-	if(_CapsuleBarSwitch.valid())
-		_CapsuleBarSwitch = NULL;
-
-	if(_NullManipulator.valid())
-		_NullManipulator = NULL;
-
-	if(_MessageTimer)
+bool LoaderOpenGL::handleShellMessages(std::string message)
+{
+	if (message.empty())
 	{
-		delete _MessageTimer;
-		_MessageTimer = NULL;
+		_showmessages = false;
+		return  true;
 	}
-
-	this->sendNotifyMessage("~Loader -> Destructing Loader Core Instance.");
-}
-
-bool Loader::initSceneData()
-{
-	this->sendNotifyMessage("initSceneData -> Building the SceneGraph.");
-
-	bool ret = this->createOSG4WebLogo();
-
-	_Viewer->setSceneData(_LocalSceneGraph.get());
-
-	return ret;
-}
-
-bool Loader::initManipulators()
-{
-	this->sendNotifyMessage("initManipulators -> Initializing Manipulators.");
+	else if(message == "Core Found")
+	{
+		_session = 3;
+		_pbarrdownload = _pbarrunpack = _pbarrload = 1.0f;
+		_message_id = 0;
+	}
+	else if (message ==  "Configuring Shell Options Failed" )
+	{
+		_session = 3;
+		_pbarrdownload = _pbarrunpack = _pbarrload = 1.0f;
+		_message_id = 1;
+	}
+	else if(message ==  "Core Loading ..." )
+	{
+		_session = 3;
+		_pbarrdownload = _pbarrunpack = _pbarrload = 1.0f;
+		_message_id = 2;
+	}
+	else if(message ==  "Loading Advanced Core Failed!" )
+	{
+		_session = 3;
+		_pbarrdownload = _pbarrunpack = _pbarrload = 1.0f;
+		_message_id = 3;
+	}
+	else if(message ==  "Downloading Files..." )
+	{
+		_session = 1;
+		_message_id = 4;
+	}
+	else if(message ==  "Downloading Failed!" )
+	{
+		_session = 3;
+		_pbarrdownload = _pbarrunpack = _pbarrload = 1.0f;
+		_message_id = 5;
+	}
+	else if(message ==  "Checking Validity..." )
+	{
+		_session = 2;
+		_pbarrdownload = _pbarrunpack  = 1.0;
+		_message_id = 6;
+	}
+	else if(message ==  "Validity Control Failed!" )
+	{
+		_session = 3;
+		_pbarrdownload = _pbarrunpack = _pbarrload = 1.0f;
+		_message_id = 7;
+	}
+	else if(message ==  "Unpacking Files..." )
+	{
+		_session = 2;
+		_pbarrdownload = 1.0;
+		_message_id = 8;
+	}
+	else if(message ==  "Unpacking Failed!" )
+	{
+		_session = 3;
+		_pbarrdownload = _pbarrunpack = _pbarrload = 1.0f;
+		_message_id = 9;
+	}
+	else
+		return false;
 	
-	_NullManipulator->setNode( _LocalSceneGraph.get() );
+	_showmessages = true;
 
-	_KeySwitchManipulator->addMatrixManipulator( '1', "NullManipulator", _NullManipulator.get());
-	_KeySwitchManipulator->addMatrixManipulator( '2', "TrackballManipulator", _TrackballManipulator.get());
-    _KeySwitchManipulator->selectMatrixManipulator(0);
-  
 	return true;
 }
 
-bool Loader::loadModel(std::string nodename, bool erase)
-{
-	bool ret = false;
-
-	this->sendNotifyMessage("loadModel -> Loading Model: " + nodename);
-
-	_LoadedNode = osgDB::readNodeFile(nodename);
-
-	if(_LoadedNode.valid())
-	{
-		osgUtil::Optimizer optimizer;
-		optimizer.optimize(_LoadedNode.get());
-		optimizer.reset();
-
-		if(erase)
-			_LocalSceneGraph->removeChildren(0, _LocalSceneGraph->getNumChildren());
-		
-		_LocalSceneGraph->addChild(_LoadedNode.get());
-
-		//Attivo il trackball
-		_KeySwitchManipulator->selectMatrixManipulator(1);
-		
-		_Viewer->home();
-
-		this->sendNotifyMessage("loadModel -> Model Loaded Correctly");
-
-		ret = true;
-	}
-	else
-	{
-		this->sendWarnMessage("loadModel -> Loading Model Failed. Model Name: " + nodename);
-		ret = false; 
-	}
-
-	return ret;
-}
-
-bool Loader::refreshStatusBarValue(std::string value)
+bool LoaderOpenGL::refreshStatusBarValue(std::string value) //FIXE: da testare
 {
 	bool ret = false;
 	double newvalue;
@@ -136,291 +123,17 @@ bool Loader::refreshStatusBarValue(std::string value)
 
 	if(ret)
 	{
-		if(_CapsuleBarSD.valid())
-		{
-			osg::ref_ptr<osg::Capsule> capsule = dynamic_cast<osg::Capsule*>( _CapsuleBarSD->getShape() );
-	
-			if(capsule.valid())
-			{
-				capsule->setHeight( newvalue * OSG4WEB_STATUS_BAR_MULTIPLIER * 100.0 ); //riporto in %
-				_CapsuleBarSD->dirtyDisplayList();
-				_CapsuleBarSD->dirtyBound();
-			}
-			else
-				this->sendWarnMessage("refreshStatusBarValue -> _CapsuleBar getShape() failed");
-		}
+		if(_session <= 1)
+			_pbarrdownload = newvalue;
 		else
-			this->sendWarnMessage("refreshStatusBarValue -> _CapsuleBar not initialized");
-
+			_pbarrunpack = newvalue;
 	}
-	else
-		this->sendWarnMessage("refreshStatusBarValue -> Error string conversion in decimal");
-	
-	return ret;
-}
-
-bool Loader::setStatusBarColor(std::string colorname)
-{
-	bool ret = true;
-
-	this->sendNotifyMessage("setStatusBarColor -> Changing status bar color");
-
-	if(colorname == "LC_OSG_GREEN")
-		_CapsuleBarSD->setColor(OSG4WEB_COLORVEC_GREEN);
-	else if(colorname == "LC_OSG_BLUE")
-		_CapsuleBarSD->setColor(OSG4WEB_COLORVEC_BLUE);
-	else //(colorname == "LC_OSG_RED")
-		_CapsuleBarSD->setColor(OSG4WEB_COLORVEC_RED);
 
 	return ret;
 }
-
-bool Loader::setStatusBarVisibility(std::string value)
-{
-	this->sendNotifyMessage("setStatusBarVisibility -> set visibility to " + value);
-
-	if(value == "TRUE")
-		_CapsuleBarSwitch->setValue(0, !_CapsuleBarSwitch->getValue(0)); //Uso la posizione precedente
-	else //value == "FALSE"
-		_CapsuleBarSwitch->setAllChildrenOff();
-
-	return true;
-}
-
-bool Loader::createOSG4WebLogo()
-{
-	float radius = 6.5f;
-    float height = 0.0f;
-
-	double capsulerotateangle = 90.0;
-	osg::Vec3 capsulerotateaxis(0.0, 1.0, 0.0);
-	osg::Vec3 capsuleposition(50.0, 0.0, -120.0);
-
-	std::string osglogo(this->getInstallationDirectory() + "/" + OSG4WEB_LOADER_LOGO);
-
-	osg::ref_ptr<osg::Group> scene = new osg::Group;
-	osg::ref_ptr<osg::Group> delight = new osg::Group;
-	osg::ref_ptr<osg::MatrixTransform> capsulebarmt = new osg::MatrixTransform;
-	osg::ref_ptr<osg::Geode> capsulegeode = new osg::Geode;
-	osg::ref_ptr<osg::Capsule> capsulebar = new osg::Capsule;
-
-	this->sendNotifyMessage("createOSG4WebLogo -> Creating OSG4Web Main Logo");
-	
-	capsulebarmt->setMatrix(
-		osg::Matrix::rotate( 
-			osg::inDegrees(capsulerotateangle), capsulerotateaxis) *
-                 osg::Matrix::translate(capsuleposition)
-				 );
-
-	capsulebar->setName("Capsule Status Bar");
-	capsulebar->setHeight(height);
-	capsulebar->setCenter(osg::Vec3(0.0f,0.0f,0.0f));
-	capsulebar->setRadius(radius);
-
-	osg::ref_ptr<osg::TessellationHints> hints = new osg::TessellationHints;
-    hints->setDetailRatio(0.5f);
-
-	_CapsuleBarSD->setShape(capsulebar.get());
-	_CapsuleBarSD->setTessellationHints(hints.get());
-	
-	_CapsuleBarSD->setColor(osg::Vec4(1.0f,0.12f,0.06f,1.0f));
-	
-	capsulegeode->addDrawable(_CapsuleBarSD.get());
-	
-	//Attacco CapsuleStatusbar alla MT
-	capsulebarmt->addChild(capsulegeode.get());
-
-	//Attacco CapsuleMT a Switch e metto off
-	_CapsuleBarSwitch->addChild(capsulebarmt.get(), false);
-
-	osg::ref_ptr<osg::StateSet> stateset = delight->getOrCreateStateSet();
-    stateset->setMode(GL_LIGHTING,osg::StateAttribute::OVERRIDE|osg::StateAttribute::OFF);
-
-	osg::ref_ptr<osg::ClearNode> backdrop = new osg::ClearNode;
-    backdrop->setClearColor(OSG4WEB_CLEARCOLOR_BACKGROUND);
-	
-	//Creo il testo
-	delight->addChild(createOSG4WebLogoText());
-	
-	//Creo lo spazio messaggi
-	delight->addChild(createOSG4WebMessages());
-
-	//Carico il modello World
-  	_LoadedNode = osgDB::readNodeFile(osglogo);
-
-	if(_LoadedNode.valid())
-		delight->addChild(_LoadedNode.get());
-	else
-		this->sendWarnMessage("createOSG4WebLogo -> Error loading logo model: " + osglogo);
-
-	scene->addChild(delight.get());
-	scene->addChild(backdrop.get());
-	scene->addChild(_CapsuleBarSwitch.get());
-
-	_LocalSceneGraph->addChild(scene.get());
-
-	// Optimize the model
-	osgUtil::Optimizer optimizer;
-	optimizer.optimize(_LocalSceneGraph.get());
-	optimizer.reset();
-
-	return true;
-}
-
-osg::Node* Loader::createOSG4WebMessages()
-{
-	osg::ref_ptr<osg::Geode> tgeode = new osg::Geode;
-
-	this->sendNotifyMessage("createOSG4WebMessages -> Creating OSG4Web Status Messages");
-
-	_CameraNode->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
-	_CameraNode->setProjectionMatrixAsOrtho2D(0, 1280, 0, 1024); 
-	_CameraNode->setViewMatrix(osg::Matrix::identity());
-	_CameraNode->setClearMask(GL_DEPTH_BUFFER_BIT);
-	_CameraNode->addChild(_SwitchMessage.get());
-	_CameraNode->getOrCreateStateSet()->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
-
-	_TextMessage->setFont(this->getInstallationDirectory() + "/" + OSG4WEB_LOADER_FONT);
-	_TextMessage->setColor(OSG4WEB_COLORVEC_RED);
-	_TextMessage->setCharacterSize(OSG4WEB_LOADER_FONT_SIZE);
-	_TextMessage->setPosition(osg::Vec3(1280.0 / 2.0, 1024.0 / 3.3, 0.0));
-        
-	_TextMessage->setAlignment(osgText::Text::CENTER_BASE_LINE);
-	_TextMessage->setFontResolution(OSG4WEB_LOADER_FONT_RES, OSG4WEB_LOADER_FONT_RES); 
-        
-	_TextMessage->setText("Initializing OSG4Web...");
-
-	_TextMessage->setBackdropType(osgText::Text::OUTLINE);
-    _TextMessage->setBackdropImplementation(osgText::Text::POLYGON_OFFSET);
-    _TextMessage->setBackdropOffset(0.05f);
-    _TextMessage->setBackdropColor(osg::Vec4(0.1f, 0.1f, 0.1f, 1.0f));
-
-	tgeode->addDrawable(_TextMessage.get());
-
-	_SwitchMessage->addChild(tgeode.get(), false);
-
-	return _CameraNode.get();
-}
-
-osg::Node* Loader::createOSG4WebLogoText()
-{
-	this->sendNotifyMessage("createOSG4WebLogoText -> Creating OSG4Web Logo Text");
-
-	osg::Geode* geode = new osg::Geode();
-	osg::BoundingBox bb(osg::Vec3(0.0f,0.0f,0.0f),osg::Vec3(100.0f,100.0f,100.0f));
-
-	osg::ref_ptr<osg::StateSet> stateset = geode->getOrCreateStateSet();
-    stateset->setMode(GL_LIGHTING,osg::StateAttribute::OFF);
-
-    std::string font(this->getInstallationDirectory() + "/" + OSG4WEB_LOADER_FONT);
-	std::string label("OSG4Web");
-
-	osg::ref_ptr<osgText::Text> text = new  osgText::Text;
- 
-    text->setFont(font);
-	text->setFontResolution(64,64);
-    text->setAlignment(osgText::Text::CENTER_CENTER);
-    text->setAxisAlignment(osgText::Text::XZ_PLANE);
-    text->setCharacterSize((bb.zMax()-bb.zMin())*0.65f);
-    text->setPosition(bb.center()-osg::Vec3(0.0f,0.0f,(1.2f)*(bb.zMax()-bb.zMin())));
-    text->setColor(osg::Vec4(0.20f,0.45f,0.60f,1.0f));
-    text->setText(label);
-
-    text->setBackdropType(osgText::Text::OUTLINE);
-    text->setBackdropImplementation(osgText::Text::POLYGON_OFFSET);
-    text->setBackdropOffset(0.05f);
-    text->setBackdropColor(osg::Vec4(0.0f, 0.0f, 0.5f, 1.0f));
-
-	text->setColorGradientMode(osgText::Text::OVERALL);
-    osg::Vec4 lightblue(0.30f,0.6f,0.90f,1.0f);
-    osg::Vec4 blue(0.10f,0.30f,0.40f,1.0f);
-    text->setColorGradientCorners(lightblue, blue, blue, lightblue);
-
-    geode->addDrawable( text.get() );
-        
-    return geode;
-}
-
-bool Loader::setHUDMessage(std::string msg)
-{
-	if(_MessageTimer) //Forzo la chiusura del timer precedente
-	{
-		delete _MessageTimer;
-		_MessageTimer = NULL;
-	}
-
-	if(msg.empty())
-	{
-		this->sendNotifyMessage("setHUDMessage -> Switching Off Status Messages");
-		_SwitchMessage->setAllChildrenOff();
-	}
-	else
-	{
-		this->sendNotifyMessage("setHUDMessage -> Switching On new Status Messages: " + msg);
-		_TextMessage->setText(msg);
-	
-		_MessageTimer = new osg::Timer;
-		_SwitchMessage->setAllChildrenOn();
-	}
-	
-	return true;
-}
-
-bool Loader::setHUDMessageColor(std::string colorname)
-{
-	bool ret = true;
-
-	this->sendNotifyMessage("setHUDMessageColor -> Setting Status Message Color: " + colorname);
-
-	if(colorname == "LC_OSG_GREEN")
-		_TextMessage->setColor(OSG4WEB_COLORVEC_GREEN);
-	else if(colorname == "LC_OSG_BLUE")
-		_TextMessage->setColor(OSG4WEB_COLORVEC_BLUE);
-	else //(colorname == "LC_OSG_RED")
-		_TextMessage->setColor(OSG4WEB_COLORVEC_RED);
-
-	return ret;
-}
-
-void Loader::preFrameUpdate() 
-{
-	osgViewer::Viewer::Windows windows;
-	_Viewer->getWindows(windows);
-	for(osgViewer::Viewer::Windows::iterator itr = windows.begin(); itr != windows.end(); ++itr)
-	{
-		int x, y, width, height;
-		(*itr)->getWindowRectangle(x, y, width, height);
-
-		if(width != _CurrWidth || height != _CurrHeight)
-		{
-			_CurrWidth = width;
-			_CurrHeight = height;
-
-			if(_CameraNode.valid())
-				_CameraNode->setProjectionMatrixAsOrtho2D(0, _CurrWidth, 0, _CurrHeight);
-
-			if(_TextMessage.valid())
-				_TextMessage->setPosition(osg::Vec3(_CurrWidth / 2.0, _CurrHeight / 3.3, 0.0));
-		}
-	}
-	
-	//Controllo se c'è un Timer Messaggio 
-	if(_MessageTimer)
-	{
-		if(_MessageTimer->time_s() >= OSG4WEB_MESSAGE_TIMER_ADDER)
-		{
-			_SwitchMessage->setAllChildrenOff();
-			
-			 //Spengo il timer
-			delete _MessageTimer;
-			_MessageTimer = NULL;
-		}
-	}
-}
-
 
 /** Ridefinizione della funzione di Gestione Comandi per CommandSchedule "this" */
-std::string Loader::handleAction(std::string argument)
+std::string LoaderOpenGL::handleAction(std::string argument)
 {
 	this->sendNotifyMessage("handleAction -> serving command: " + argument);
 
@@ -431,34 +144,362 @@ std::string Loader::handleAction(std::string argument)
 	
 	switch(this->getCommandActionIndex( lcommand ))
 	{
-	case LOAD_MODEL: //LOAD_MODEL
-		if( !this->loadModel( rcommand, true ) )
-			retstr = "CORE_FAILED";
-		break;
 	case STATUSBAR_VALUE: //STATUSBAR_VALUE
 		if( !this->refreshStatusBarValue( rcommand ) )
 			retstr = "CORE_FAILED";
 		break;
 	case STATUSBAR_COLOR: //STATUSBAR_COLOR
-		if( !this->setStatusBarColor( rcommand ) )
-			retstr = "CORE_FAILED";
-		break;
 	case STATUSBAR_VISIBILITY: //STATUSBAR_VISIBILITY
-		if( !this->setStatusBarVisibility( rcommand ) )
-			retstr = "CORE_FAILED";
 		break;
 	case SETMESSAGE: //SETMESSAGE
-		if( !this->setHUDMessage( rcommand ) )
+		if( !this->handleShellMessages( rcommand ) )
 			retstr = "CORE_FAILED";
 		break;
 	case SETMESSAGE_COLOR: //SETMESSAGE_COLOR
-		if( !this->setHUDMessageColor( rcommand ) )
-			retstr = "CORE_FAILED";
 		break;
 	default: //UNKNOWN_ACTION
 		retstr = "UNKNOWN_ACTION";
 		break;
 	}
-	
+
 	return retstr;
+}
+
+void LoaderOpenGL::initializeOpenGL()
+{
+	glShadeModel(GL_SMOOTH);
+	glClearColor(OSG4WEB_BACKGROUND_COLOR, 1.0f);
+	glClearDepth(1.0f);
+	glEnable(GL_AUTO_NORMAL);
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	glAlphaFunc(GL_GREATER,0.1f);
+	glEnable(GL_ALPHA_TEST);
+
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+
+	//Creating Geometries
+	this->createLines();
+	this->createMessageTextureQuad();
+	this->createLogoTextureQuad();
+	this->createTitleTextureQuad();
+
+
+	_logo_texture_list = glGenLists(OSG4WEB_LOADEROPENGL_NUM_LOGO_FRAMES);
+	_title_texture_list = glGenLists(OSG4WEB_LOADEROPENGL_NUM_TITLE_FRAMES);
+	_message_texture_list = glGenLists(OSG4WEB_LOADEROPENGL_NUM_MESSAGE_FRAMES);
+
+	//Loading Logo Textures
+	for(unsigned i = 0; i < OSG4WEB_LOADEROPENGL_NUM_LOGO_FRAMES; i++)
+	{
+		std::ostringstream number; //creates an ostringstream object
+		number << i << std::flush;
+
+		std::string filename = this->getInstallationDirectory() + std::string( "/" ) + OSG4WEB_LOADEROPENGL_IMAGES_SUBDIR +  std::string( "/" ) + std::string(OSG4WEB_LOADEROPENGL_LOGO_NAME_PREFIX) + number.str() + std::string(OSG4WEB_LOADEROPENGL_IMAGES_EXTENSIONS);
+		this->loadTexture(filename, _logo_texture_list + i);
+	}
+
+	//Loading TITLE Textures
+	for(unsigned i = 0; i < OSG4WEB_LOADEROPENGL_NUM_TITLE_FRAMES; i++)
+	{
+		std::ostringstream number; //creates an ostringstream object
+		number << i << std::flush;
+
+		std::string filename = this->getInstallationDirectory() + std::string( "/" ) + OSG4WEB_LOADEROPENGL_IMAGES_SUBDIR +  std::string( "/" ) + std::string(OSG4WEB_LOADEROPENGL_TITLE_NAME_PREFIX) + number.str() + std::string(OSG4WEB_LOADEROPENGL_IMAGES_EXTENSIONS);
+		this->loadTexture(filename, _title_texture_list + i);
+	}
+
+	//Loading Messages Textures
+	for(unsigned i = 0; i < OSG4WEB_LOADEROPENGL_NUM_MESSAGE_FRAMES; i++)
+	{
+		std::ostringstream number; //creates an ostringstream object
+		number << i << std::flush;
+
+		std::string filename = this->getInstallationDirectory() + std::string( "/" ) + OSG4WEB_LOADEROPENGL_IMAGES_SUBDIR +  std::string( "/" ) + std::string(OSG4WEB_LOADEROPENGL_MESSAGE_NAME_PREFIX) + number.str() + std::string(OSG4WEB_LOADEROPENGL_IMAGES_EXTENSIONS);
+		this->loadTexture(filename, _message_texture_list + i);
+	}
+}
+
+bool LoaderOpenGL::windowResize(int windowX, int windowY, int windowWidth, int windowHeight)
+{
+	glViewport(0, 0, (GLsizei) windowWidth, (GLsizei) windowHeight);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	gluPerspective(45.0f, (GLfloat) windowWidth / (GLfloat) windowHeight, 0.1f, 100.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	return true;
+}
+
+bool LoaderOpenGL::renderImplementation()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+	
+	gluLookAt(0.0, 0.0, 10.0, 0.0, 0.0, 5.0, 0.0, 1.0, 0.0);
+
+	glColor3f(OSG4WEB_BACKGROUND_COLOR);
+
+	if(_showmessages)
+	{
+		GLuint id = (unsigned int) _message_id;
+		glPushMatrix();
+		glEnable(GL_TEXTURE_2D);
+		glCallList(_message_texture_list + id); //id di messaggio
+		glCallList(_message_list);
+		glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
+	}
+
+	glColor3f(OSG4WEB_BACKGROUND_COLOR);
+
+	clock_t currtime = clock();
+	double seconds = (1 / 30.0f); //settato a 1/30 di sec
+	if( currtime - _saved_timer > seconds  * CLOCKS_PER_SEC )
+	{
+		_saved_timer = currtime;
+		_image_tick++;
+	}
+	
+	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glCallList(_title_texture_list + (_image_tick % OSG4WEB_LOADEROPENGL_NUM_TITLE_FRAMES));
+	glCallList(_title_list);
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+
+	glColor3f(OSG4WEB_BACKGROUND_COLOR);
+
+	glPushMatrix();
+	glEnable(GL_TEXTURE_2D);
+	glCallList(_logo_texture_list + (_image_tick % OSG4WEB_LOADEROPENGL_NUM_LOGO_FRAMES) );
+	glCallList(_logo_list);
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+
+	glColor3f(OSG4WEB_BACKGROUND_COLOR);
+
+	glPushMatrix();
+	glCallList(_line_list);
+
+	this->drawStatusBar();
+	glPopMatrix();
+	
+	return true;
+}
+
+void LoaderOpenGL::drawStatusBar()
+{
+	float tx,ty,lm;
+	float x1 = 0.0f, x2 = 0.07f, x3 = 0.22f, x4 = 0.17f;
+	float y1 = 0.0f, y2 = 1.0f;
+
+	ty = -1.5;
+	lm = 1.0;
+
+	if(_pbarrdownload != 0.0)
+	{
+		tx = -1.9;
+		glBegin( GL_QUADS );
+		glColor4f( OSG4WEB_COLORVEC_GREEN, 1.0f ); glVertex2f( x1 + tx, y1 * lm + ty);
+		glColor4f( OSG4WEB_COLORVEC_GREEN, 0.3f ); glVertex2f( x2 + tx, (y2 * lm + ty ) * _pbarrdownload);
+		glColor4f( OSG4WEB_COLORVEC_GREEN, 0.3f ); glVertex2f( x3 + tx, (y2  * lm + ty ) * _pbarrdownload);
+		glColor4f( OSG4WEB_COLORVEC_GREEN, 1.0f ); glVertex2f( x4 + tx, y1 * lm + ty);
+		glEnd();
+	}
+
+	if(_pbarrunpack != 0.0)
+	{
+		tx = -1.65;
+		glBegin( GL_QUADS );
+		glColor4f( OSG4WEB_COLORVEC_RED, 1.0f ); glVertex2f( x1 + tx, y1 * lm + ty);
+		glColor4f( OSG4WEB_COLORVEC_RED, 0.3f ); glVertex2f( x2 + tx, (y2 * lm + ty ) * _pbarrunpack);
+		glColor4f( OSG4WEB_COLORVEC_RED, 0.3f ); glVertex2f( x3 + tx, (y2 * lm + ty ) * _pbarrunpack);
+		glColor4f( OSG4WEB_COLORVEC_RED, 1.0f ); glVertex2f( x4 + tx, y1 * lm + ty);
+		glEnd();
+	}
+
+	if(_pbarrload != 0.0)
+	{
+		tx = -1.4;
+		glBegin( GL_QUADS );
+		glColor4f( OSG4WEB_COLORVEC_BLUE, 1.0f ); glVertex2f( x1 + tx, y1 * lm + ty);
+		glColor4f( OSG4WEB_COLORVEC_BLUE, 0.3f ); glVertex2f( x2 + tx, (y2 * lm + ty ) * _pbarrload);
+		glColor4f( OSG4WEB_COLORVEC_BLUE, 0.3f ); glVertex2f( x3 + tx, (y2 * lm + ty ) * _pbarrload);
+		glColor4f( OSG4WEB_COLORVEC_BLUE, 1.0f ); glVertex2f( x4 + tx, y1 * lm + ty);
+		glEnd();
+	}
+}
+
+bool LoaderOpenGL::loadTexture(std::string filename, GLuint texturelist)
+{
+	std::string fname = Utilities::FileUtils::convertFileNameToNativeStyle( filename );
+	std::string ext = Utilities::FileUtils::getFileExtension(filename);
+
+	if(ext == "jpg")
+	{
+		if(this->loadTextureJPEG(fname, texturelist))
+			return true;
+		else
+			return false;
+	}
+	
+	return false;
+}
+
+bool LoaderOpenGL::loadTextureJPEG(std::string filename, GLuint texturelist)
+{
+	unsigned char *imageData = NULL;
+	int width_ret;
+	int height_ret;
+	int numComponents_ret;
+
+	imageData = Utilities::Reader::JPEG::LoadImageFromFile(filename, width_ret, height_ret, numComponents_ret);
+
+	if (imageData==NULL) 
+		return false;
+
+	int s = width_ret;
+	int t = height_ret;
+	int r = 1;
+
+	int internalFormat = numComponents_ret == 1 ? GL_LUMINANCE :
+		numComponents_ret == 2 ? GL_LUMINANCE_ALPHA :
+		numComponents_ret == 3 ? GL_RGB :
+		numComponents_ret == 4 ? GL_RGBA : (GLenum)-1;
+
+	unsigned int pixelFormat =
+		numComponents_ret == 1 ? GL_LUMINANCE :
+		numComponents_ret == 2 ? GL_LUMINANCE_ALPHA :
+		numComponents_ret == 3 ? GL_RGB :
+		numComponents_ret == 4 ? GL_RGBA : (GLenum)-1;
+
+	unsigned int dataType = GL_UNSIGNED_BYTE;
+
+	glNewList(texturelist, GL_COMPILE);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width_ret, height_ret, internalFormat, GL_UNSIGNED_BYTE, imageData);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+	glEndList();
+	
+	return true;
+}
+
+void LoaderOpenGL::createLines()
+{
+	_line_list = glGenLists(1);
+	glNewList(_line_list, GL_COMPILE);
+
+	glColor3f( OSG4WEB_COLORVEC_GRAY ); 
+	
+	//Linea 1
+	glBegin( GL_LINES );
+	glVertex2f( -40.f, -1.6f );
+	glVertex2f( -2.1f, -1.6f );
+	glEnd();
+
+	glBegin( GL_LINES );
+	glVertex2f( -2.1f, -1.6f );
+	glVertex2f( -1.9f, +1.6f );
+	glEnd();
+
+	glBegin( GL_LINES );
+	glVertex2f( -1.9f, 1.6f );
+	glVertex2f( 1.9f, 1.6f );
+	glEnd();
+
+	glBegin( GL_LINES );
+	glVertex2f( 1.9f, 1.6f );
+	glVertex2f( 1.8f, -0.05f );
+	glEnd();
+	
+	glBegin( GL_LINES );
+	glVertex2f( 1.8f, -0.05f );
+	glVertex2f( 40.0f, -0.05f );
+	glEnd();
+
+	//Linea 2
+	glBegin( GL_LINES );
+	glVertex2f( -40.f, -1.5f );
+	glVertex2f( -2.2f, -1.5f );
+	glEnd();
+
+	glBegin( GL_LINES );
+	glVertex2f( -2.2f, -1.5f );
+	glVertex2f( -2.0f, +1.7f );
+	glEnd();
+
+	glBegin( GL_LINES );
+	glVertex2f( -2.0f, 1.7f );
+	glVertex2f( 2.0f, 1.7f );
+	glEnd();
+	
+	glBegin( GL_LINES );
+	glVertex2f( 2.0f, 1.7f );
+	glVertex2f( 1.9f, 0.05f );
+	glEnd();
+
+	glBegin( GL_LINES );
+	glVertex2f( 1.9f, 0.05f );
+	glVertex2f( 40.0f, 0.05f );
+	glEnd();
+	
+	glEndList();
+}
+
+void LoaderOpenGL::createMessageTextureQuad()
+{
+	_message_list = glGenLists(1);
+	glNewList(_message_list, GL_COMPILE);
+
+	glBegin( GL_QUADS );
+	glTexCoord2f(0.0f, 0.0f); glVertex2f( -1.0, -1.5);
+	glTexCoord2f(0.0f, 1.0f); glVertex2f( -1.0, -0.5);
+	glTexCoord2f(1.0f, 1.0f); glVertex2f( 1.7, -0.5);
+	glTexCoord2f(1.0f, 0.0f); glVertex2f( 1.7, -1.5);
+	glEnd();
+
+	glEndList();
+}
+
+void LoaderOpenGL::createLogoTextureQuad()
+{
+	_logo_list = glGenLists(1);
+	glNewList(_logo_list, GL_COMPILE);
+
+	glBegin( GL_QUADS );
+	glTexCoord2f(0.0f, 0.0f); glVertex2f( -1.8, -0.2);
+	glTexCoord2f(0.0f, 1.0f); glVertex2f( -1.8, 1.2);
+	glTexCoord2f(1.0f, 1.0f); glVertex2f( -0.4, 1.2);
+	glTexCoord2f(1.0f, 0.0f); glVertex2f( -0.4, -0.2);
+	glEnd();
+
+	glEndList();
+}
+
+void LoaderOpenGL::createTitleTextureQuad()
+{
+	_title_list = glGenLists(1);
+	glNewList(_title_list, GL_COMPILE);
+
+	glColor4f( 1.0, 1.0, 1.0, 1.0 ); 
+	glBegin( GL_QUADS );
+	glTexCoord2f(0.0f, 0.0f); glVertex2f( -0.4, -0.4);
+	glTexCoord2f(0.0f, 1.0f); glVertex2f( -0.4, 1.4);
+	glTexCoord2f(1.0f, 1.0f); glVertex2f( 1.7, 1.4);
+	glTexCoord2f(1.0f, 0.0f); glVertex2f( 1.7, -0.4);
+	glEnd();
+
+	glEndList();
 }

@@ -1250,7 +1250,7 @@ void ShellBase::unpackError(int error)
 	this->execCoreCommand("LOADER STATUSBAR_VISIBILITY FALSE");
 
 	this->execCoreCommand("LOADER SETMESSAGE_COLOR LC_OSG_RED");
-	this->execCoreCommand("LOADER SETMESSAGE Unpacking " + errmsg);
+	this->execCoreCommand("LOADER SETMESSAGE Unpacking Failed!");
 }
 
 int ShellBase::doProgressDLStatus(double downtot, double downnow, double ultotal, double ulnow)
