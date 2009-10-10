@@ -7,9 +7,12 @@
   IF(NOT URL)
   	SET(URL "http://3d.cineca.it/storage/plugin/test_rc1/test.php")
   ENDIF(NOT URL)
+  IF(NOT ADD_FIREFOX_ARGS)
+        SET(ADD_FIREFOX_ARGS "-no-remote")
+  ENDIF(NOT ADD_FIREFOX_ARGS)
 
   EXEC_PROGRAM(
      "@FIREFOX_EXE@" 
      "@CMAKE_BINARY_DIR@"
-     ARGS ${URL}
+     ARGS ${URL} ${ADD_FIREFOX_ARGS}
    )
