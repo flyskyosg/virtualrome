@@ -21,6 +21,8 @@
 #include <map>
 #include <iostream>
 
+#include <CoreOpenGL/WindowSupport.h>
+
 /***********************************************************************
  *
  * OSG WindowWin32 Class
@@ -88,10 +90,8 @@ protected:
 	void logError( const std::string& msg );
 	void logError( const std::string& msg, unsigned int errorCode );
 
-	int getWindowsX() { return _windowX; }
-	int getWindowsY() { return _windowY; }
-	int getWindowsWidth() { return _windowWidth; }
-	int getWindowsHeight() { return _windowHeight; }
+	WindowSupport::WindowDimension getWindowsDimension() { return _windowDimension; }
+
 private:
 	std::string _windowNameWithCursor, _windowNameWithoutCursor;
 
@@ -101,16 +101,13 @@ private:
 	bool _realized;
 	bool _current;
 
+	WindowSupport::WindowDimension _windowDimension;
+
 	HWND _hwnd;
 	HDC _hdc;
 	HGLRC _hglrc;
 	HCURSOR _currentCursor;
 	WNDPROC _windowProcedure;
-
-	int _windowX;
-	int _windowY;
-	int _windowWidth;
-	int _windowHeight;
 };
 
 

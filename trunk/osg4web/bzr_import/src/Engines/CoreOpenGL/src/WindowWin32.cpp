@@ -65,11 +65,7 @@ WindowWin32::WindowWin32() : _windowClassesRegistered(false),
 	_hdc(NULL),
 	_hglrc(NULL),
 	_currentCursor(NULL),
-	_windowProcedure(NULL),
-	_windowX(0),
-	_windowY(0),
-	_windowWidth(1),
-	_windowHeight(1)
+	_windowProcedure(NULL)
 {
 
 }
@@ -289,10 +285,7 @@ void WindowWin32::refreshWindowDimensions()
 	int windowWidth = (clientRect.right == 0) ? 1 : clientRect.right ;
 	int windowHeight = (clientRect.bottom == 0) ? 1 : clientRect.bottom;
 
-	_windowX = windowX;
-	_windowY = windowY;
-	_windowWidth = windowWidth;
-	_windowHeight = windowHeight;
+	_windowDimension.set(windowX, windowY, windowWidth, windowHeight);
 }
 
 void WindowWin32::destroyWindow()
