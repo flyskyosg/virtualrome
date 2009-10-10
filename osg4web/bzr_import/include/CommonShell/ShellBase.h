@@ -53,6 +53,7 @@ public:
 	//Settaggio opzioni da plugin
 	void setInitOption(std::string name, std::string value) { m_initOption.setShellOption(name, value); }
 	void setObjectOption(std::string name, std::string value) { m_objectOption.setShellOption(name, value); }
+	void setGeneralOption(std::string name, std::string value) { m_generalOption.setShellOption(name, value); }
 
 	//Funzione di configurazione dei parametri iniziali
 	bool configuringInitialOptions();
