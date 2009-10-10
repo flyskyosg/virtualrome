@@ -77,7 +77,6 @@ bool CoreTooltips::initSceneData()
 	return true;
 }
 
-
 /** Crea i modelli geometrici e aggiunge i comandi per i tooltip*/
 
 osg::Node* CoreTooltips::createScene()
@@ -156,7 +155,7 @@ osg::Node* CoreTooltips::createScene()
 	desclist.push_back("I'm a big Cylinder");
 	grp->addChild( _TooltipsHandler->setTooltipsProperties(geodecapsule.get(), desclist) );
 	desclist.clear();
-  
+ 
 	return grp.release();
 }
  

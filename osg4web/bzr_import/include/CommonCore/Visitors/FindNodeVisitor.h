@@ -49,7 +49,7 @@ namespace Visitors
 
 			if (node.getName() == _NodeName)
 				_NodeVect.push_back(this->getNodePath());
-
+			
 			traverse(node);
 		}
 

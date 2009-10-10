@@ -30,7 +30,7 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 {
 	this->sendNotifyMessage("FunCore -> Costructing FunCore Instance.");
 	
-	_LoaderThreadHandler->setOptimization(true);
+	//_LoaderThreadHandler->setOptimization(true);
 
 	this->clearCommandActions();
 	this->clearCommandRegistry();

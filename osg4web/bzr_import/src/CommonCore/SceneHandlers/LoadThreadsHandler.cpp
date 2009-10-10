@@ -2,6 +2,7 @@
 #include <CommonCore/Scenehandlers/LoadThreadsHandler.h>
 #include <CommonCore/Visitors/FindNodeVisitor.h>
 
+#include <sstream>
 
 #include <osg/Geode>
 #include <osg/MatrixTransform>
@@ -27,9 +28,20 @@ LoadThreadsHandler::AttachNodeToSceneByName::AttachNodeToSceneByName(std::string
 	_nodeName(nodename),
 	_attachNode(node),
 	_attached(false),
+	_ranged(false),
+	_min(0.0),
+	_max(0.0),
 	_multipleattach(multipleattach)
 {
 
+}
+
+/** Abilita la costruzione di un Nodo LOD come padre del nodo caricato */
+void LoadThreadsHandler::AttachNodeToSceneByName::setRangedNode(double min, double max) 
+{ 
+	_ranged = true; 
+	_min = min; 
+	_max = max; 
 }
 
 /** Attacca al/ai nodi che corrispondono a nodeName */
@@ -39,13 +51,28 @@ void LoadThreadsHandler::AttachNodeToSceneByName::apply(osg::Group& grp)
 	{
 		if(!_attached || _multipleattach)
 		{
-			grp.addChild(_attachNode.get());
+			if(_ranged)
+			{
+				osg::ref_ptr<osg::LOD> newlod = new osg::LOD;
+				newlod->setName("RangedLOD_" + _attachNode->getName());
+
+				newlod->addChild(_attachNode.get(), _min, _max);
+
+				grp.addChild(newlod.get());
+			}
+			else
+			{
+				grp.addChild(_attachNode.get());
+			}
+			
 			_attached = true;
 		}
 	}
 
 	traverse(grp);
 }
+
+
 
 /***********************************************************************
  *
@@ -573,15 +600,17 @@ void LoadThreadsHandler::splitCommand(std::string command, std::string& largs, s
 void LoadThreadsHandler::findSelfLoadingGroups()
 {
 	Visitors::FindNodeVisitor fnvslg("Self_Loading_Group");
+	fnvslg.setTraversalMode(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN);
 	_mainNode->accept(fnvslg);
 
-	if(fnvslg.getNodeFoundSize() == 0)
+	unsigned int no = fnvslg.getNodeFoundSize();
+	if(no == 0)
 		return;
 
-	for(unsigned int i = 0; i < fnvslg.getNodeFoundSize(); i++)
+	for(unsigned int i = 0; i < no; i++)
 	{
-		unsigned int npsize = fnvslg.getNodeByIndex(0).size();
-		osg::ref_ptr<osg::Group> grp = dynamic_cast<osg::Group*>(fnvslg.getNodeByIndex(0).at(npsize - 1));
+		unsigned int npsize = fnvslg.getNodeByIndex(i).size();
+		osg::ref_ptr<osg::Group> grp = (osg::Group*) fnvslg.getNodeByIndex(i).at(npsize - 1);
 
 		if(grp.valid())
 		{
@@ -589,7 +618,8 @@ void LoadThreadsHandler::findSelfLoadingGroups()
 
 			if(desclist.size() > 0 )
 			{
-				std::string newname = "Self_Loading_Group_" + desclist.at(0);
+				osg::Node::DescriptionList cleardesclist;
+				std::string newname = "LOADING_Self_Loading_Group_" + desclist.at(0);
 				std::string laddress = this->getServerPrefix() + desclist.at(0);
 				grp->setName(newname);
 
@@ -597,12 +627,29 @@ void LoadThreadsHandler::findSelfLoadingGroups()
 					this->requestLoading(laddress, newname); //Carico sotto il mio nodo col nome modificato 
 				else if(desclist.size() == 2)
 					this->requestLoading(laddress, newname + " " + desclist.at(1)); //Carico sotto il mio nodo col nome modificato + argomento "MULTIPLE o INSTANCE"
-				else
+				else if(desclist.size() == 3)
 					this->requestLoading(laddress, newname + " " + desclist.at(1), new osgDB::ReaderWriter::Options( desclist.at(3) )); //Opzioni di caching
+				else if(desclist.size() == 5)
+				{
+					std::string passedargs = newname + " " + desclist.at(1) + " " + desclist.at(2) + " " + desclist.at(3) + " " + desclist.at(4);
+					this->requestLoading(laddress, passedargs, new osgDB::ReaderWriter::Options( desclist.at(3) )); //Opzioni di caching
+				}
+				else if(desclist.size() == 6)
+				{
+					std::string passedargs = newname + " " + desclist.at(1) + " " + desclist.at(2) + " " + desclist.at(3) + " " + desclist.at(4);
+					this->requestLoading(laddress, passedargs, new osgDB::ReaderWriter::Options( desclist.at(6) )); //Opzioni di caching
+				}
+				else
+				{
+					int i = 0;
+					//TODO: richiesta skazzata... RIFARE LA PARTE SOPRA... fa cacare
+				}
+				
+				grp->setDescriptions(cleardesclist);
 			}
 		}
 		else
-			fnvslg.getNodeByIndex(0).at(npsize - 1)->setName("FAKE_Self_Loading_Group");
+			fnvslg.getNodeByIndex(i).at(npsize - 1)->setName("FAKE_Self_Loading_Group");
 	}
 }
 
@@ -637,16 +684,36 @@ osg::Node* LoadThreadsHandler::handleLoading()
 			if( !args.empty() && _mainNode.valid() )
 			{
 				bool multipleadd = false;
+				bool ranged = false;
 
 				//Splitto args tramite " "
-				std::string largs, rargs;
+				std::string parentname, instancetype, rangedstr, other;
 
-				this->splitCommand(args, largs, rargs);
+				this->splitCommand(args, parentname, other);
+				this->splitCommand(other, instancetype, other);
 			
-				if(rargs == "MULTIPLE") //Attacca in tutti i nodi che fanno match con il nome
+				if(instancetype == "MULTIPLE") //Attacca in tutti i nodi che fanno match con il nome
 					multipleadd = true;
 
-				LoadThreadsHandler::AttachNodeToSceneByName nodecisit(largs, loadednode.get(), multipleadd);
+				double min, max;
+				if(!other.empty())
+				{
+					std::string minstr, maxstr;
+					this->splitCommand(other, rangedstr, other);
+					this->splitCommand(other, minstr, maxstr);
+					
+					std::istringstream ministr(minstr);
+					std::istringstream maxistr(maxstr);
+					
+					if(!(ministr >> min >> std::dec).fail() && !(maxistr >> max >> std::dec).fail())
+						ranged = true;
+				}
+
+				LoadThreadsHandler::AttachNodeToSceneByName nodecisit(parentname, loadednode.get(), multipleadd);
+
+				if(ranged)
+					nodecisit.setRangedNode(min, max);
+
                 _mainNode->accept(nodecisit);
 
                 if( nodecisit.isNodeFound() )
