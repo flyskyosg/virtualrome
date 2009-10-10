@@ -40,6 +40,8 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	this->setCommandAction("SETMAINSCENEGRAPH");
 	this->setCommandAction("ADDFILETONODE");
 	this->setCommandAction("SETOPTIMIZATION");
+
+	this->setCommandAction("SWITCH_MANIPULATORS");
 /*
 	this->setCommandAction("STATUSBAR_VALUE");
 	this->setCommandAction("STATUSBAR_COLOR");
@@ -111,7 +113,7 @@ bool FunCore::initManipulators()
 	this->addCommandSchedule((CommandSchedule*) _WalkManip.get());
 
 	_KeySwitchManipulator->addMatrixManipulator( '1', "WalkManipulator", _WalkManip.get());
-	//_KeySwitchManipulator->addMatrixManipulator( '1', "TrackBall", new osgGA::TrackballManipulator);
+	_KeySwitchManipulator->addMatrixManipulator( '2', "TrackBall", new osgGA::TrackballManipulator);
     _KeySwitchManipulator->selectMatrixManipulator(0);
   
 	return true;
@@ -175,6 +177,15 @@ std::string FunCore::handleAction(std::string argument)
 				retstr = "BAD_COMMAND";
 		}
 		break;
+	case SWITCH_MANIPULATORS:
+		{
+			if(_KeySwitchManipulator->getCurrentMatrixManipulator() == _WalkManip.get())
+				_KeySwitchManipulator->selectMatrixManipulator(1);
+			else
+				_KeySwitchManipulator->selectMatrixManipulator(0);
+
+		}
+		break;	
 	default: //UNKNOWN_COMMAND
 		retstr = "UNKNOWN_COMMAND";
 		break;

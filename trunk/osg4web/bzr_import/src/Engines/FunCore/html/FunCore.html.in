@@ -62,6 +62,18 @@ function SwitchAttuale()
 		alert(retcommand);
 }
 
+
+function SwitchManipulator() 
+{
+	retcommand = document.OSG.execCoreCommand('FUNCORE SWITCH_MANIPULATORS');
+	
+	if(retcommand != 'COMMAND_OK')
+		alert(retcommand);
+}
+
+
+
+
 </script>
 </head>
 <body>
@@ -182,7 +194,7 @@ function SwitchAttuale()
             <td height="10"></td>
           </tr>
           <tr>
-            <td><div align="left"></div></td>
+            <td><div align="center" class="style3"><a href="javascript:SwitchManipulator()">Switch Manipulator Type</a></div></td>
           </tr>
           <tr>
             <td height="10"></td>
