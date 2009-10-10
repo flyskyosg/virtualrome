@@ -103,7 +103,7 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES PROJECT_LABEL "Engine_${PROJECT
 #
 ############################################################
 
-SETUP_LOADCORE_RUNTIME(Engine ${PROJECT_NAME})
+SETUP_LOADCORE_RUNTIME(${PROJECT_NAME})
 
 
 ############################################################
