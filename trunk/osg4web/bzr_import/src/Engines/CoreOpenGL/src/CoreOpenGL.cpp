@@ -10,7 +10,7 @@
 using namespace CommonCore;
 
 //CoreOpenGL Costruttore
-CoreOpenGL::CoreOpenGL(std::string corename) : CoreInterface(corename),
+CoreOpenGL::CoreOpenGL(std::string corename) : CoreInterface(corename), CommandSchedule("COREOPENGL"),
 #if defined(WIN32)
 		WindowWin32(), //Costruttore di WindowWin32
 #else
@@ -46,6 +46,37 @@ CoreOpenGL::~CoreOpenGL()
 	if(this->isLogMessagesInitialized())
 		if(! this->restoreLogMessages() )
 			this->sendWarnMessage("~CoreOpenGL -> Error closing messages redirection.");
+}
+
+//Setta le opzioni del core successivamente alla inizializzazione
+void CoreOpenGL::AddStartOptions(std::string str, bool erase)
+{
+	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
+
+	//Default value
+	this->setCommandAction("UNKNOWN_ACTION");
+
+	//Registro CommandSchedule corrente
+	this->addCommandSchedule((CommandSchedule*) this);
+	
+	this->DoCommand(str); //Passo la stringa a DoCommand che la gestisce
+}
+
+//Gestisce i comandi provenineti dalla Shell e da JavaScript 
+std::string CoreOpenGL::DoCommand(std::string command)
+{
+	std::string lcommand, rcommand;
+
+	this->sendNotifyMessage("DoCommand -> CoreOpenGL Command: " + command);
+	this->splitActionCommand(command, lcommand, rcommand);
+
+	CommandSchedule* cs = _CommandRegistry[lcommand];
+	
+	if(cs)
+		return cs->handleAction(rcommand);
+	
+	this->sendWarnMessage("DoCommand -> Command not Handled: " + lcommand + " Argument: " + rcommand);
+	return "CORE_BADCOMMAND";
 }
 
 #if defined(WIN32)
@@ -198,7 +229,7 @@ void CoreOpenGL::drawDemoGridAndCube()
 
 bool CoreOpenGL::windowResize(int windowX, int windowY, int windowWidth, int windowHeight)
 {
-	glViewport(windowX, windowY, (GLsizei) windowWidth, (GLsizei) windowHeight);
+	glViewport(0, 0, (GLsizei) windowWidth, (GLsizei) windowHeight);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -218,4 +249,23 @@ void CoreOpenGL::initializeOpenGL()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+}
+
+std::string CoreOpenGL::handleAction(std::string argument)
+{
+	std::string retstr = "CORE_DONE";
+	std::string lcommand, rcommand;
+
+	this->splitActionCommand(argument, lcommand, rcommand);
+	this->sendNotifyMessage("handleAction -> Command Found");
+
+	switch(this->getCommandActionIndex(lcommand))
+	{
+	case UNKNOWN_ACTION:
+	default: //UNKNOWN_ACTION
+		retstr = "UNKNOWN_ACTION";
+		break;
+	}
+	
+	return retstr;
 }
