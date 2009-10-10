@@ -27,6 +27,8 @@ LoadCore::LoadCore(std::string corename) : CoreBase(corename),
 	//Ridefinisco il nome dello Schedule Command
 	this->setCommandScheduleName("LOADCORE");
 
+	//Default value
+	this->setCommandAction("UNKNOWN_ACTION");
 	this->setCommandAction("LOAD_MODEL");
 	this->setCommandAction("STATUSBAR_VALUE");
 	this->setCommandAction("STATUSBAR_COLOR");
@@ -147,7 +149,7 @@ bool LoadCore::refreshStatusBarValue(std::string value)
 	
 			if(capsule.valid())
 			{
-				capsule->setHeight( newvalue );
+				capsule->setHeight( newvalue * OSG4WEB_STATUS_BAR_MULTIPLIER * 100.0 ); //riporto in %
 				_CapsuleBarSD->dirtyDisplayList();
 				_CapsuleBarSD->dirtyBound();
 			}
@@ -170,11 +172,11 @@ bool LoadCore::setStatusBarColor(std::string colorname)
 
 	this->sendNotifyMessage("setStatusBarColor -> Changing status bar color");
 
-	if(colorname == "OSG_GREEN")
+	if(colorname == "LC_OSG_GREEN")
 		_CapsuleBarSD->setColor(OSG4WEB_COLORVEC_GREEN);
-	else if(colorname == "OSG_BLUE")
+	else if(colorname == "LC_OSG_BLUE")
 		_CapsuleBarSD->setColor(OSG4WEB_COLORVEC_BLUE);
-	else //(colorname == "OSG_RED")
+	else //(colorname == "LC_OSG_RED")
 		_CapsuleBarSD->setColor(OSG4WEB_COLORVEC_RED);
 
 	return ret;
@@ -287,11 +289,11 @@ osg::Node* LoadCore::createOSG4WebMessages()
 
 	_TextMessage->setFont(this->getInstallationDirectory() + "/" + OSG4WEB_LOADCORE_FONT);
 	_TextMessage->setColor(OSG4WEB_COLORVEC_RED);
-	_TextMessage->setCharacterSize(18.0f);
+	_TextMessage->setCharacterSize(OSG4WEB_LOADCORE_FONT_SIZE);
 	_TextMessage->setPosition(osg::Vec3(1280.0 / 2.0, 1024.0 / 3.3, 0.0));
         
 	_TextMessage->setAlignment(osgText::Text::CENTER_BASE_LINE);
-	_TextMessage->setFontResolution(32,32); 
+	_TextMessage->setFontResolution(OSG4WEB_LOADCORE_FONT_RES, OSG4WEB_LOADCORE_FONT_RES); 
         
 	_TextMessage->setText("Initializing OSG4Web...");
 
@@ -427,12 +429,13 @@ void LoadCore::preFrameUpdate()
 /** Ridefinizione della funzione di Gestione Comandi per CommandSchedule "this" */
 std::string LoadCore::handleAction(std::string argument)
 {
+	this->sendNotifyMessage("handleAction -> serving command: " + argument);
+
 	std::string retstr = "CORE_DONE";
 	std::string lcommand, rcommand;
 
 	this->splitActionCommand(argument, lcommand, rcommand);
-	this->sendNotifyMessage("handleAction -> Command Found");
-
+	
 	switch(this->getCommandActionIndex( lcommand ))
 	{
 	case LOAD_MODEL: //LOAD_MODEL
@@ -459,8 +462,8 @@ std::string LoadCore::handleAction(std::string argument)
 		if( !this->setHUDMessageColor( rcommand ) )
 			retstr = "CORE_FAILED";
 		break;
-	default: //UNKNOWN_CORE_COMMAND
-		retstr = "UNKNOWN_CORE_COMMAND";
+	default: //UNKNOWN_ACTION
+		retstr = "UNKNOWN_ACTION";
 		break;
 	}
 	

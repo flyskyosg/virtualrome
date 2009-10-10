@@ -1,16 +1,22 @@
 #ifndef __OSG4WEB_IEOSG4WEB_DEFINES__
 #define __OSG4WEB_IEOSG4WEB_DEFINES__ 1
 
-#define		OSG4WEB_SHELL_NAME		"ieOSG4Web"
 
-#define		APPEND_TEMP_DIRECTORY	"\\osg4web"
-#define		APPEND_CORES_DIRECTORY	"\\osg4web"
+#define		OSG4WEB_SHELL_NAME						"ieOSG4Web"
 
-//#define		RENDER_WITH_TIMER_EVENT	1
-#define		RENDER_DELAY				10
-#define		EXIT_DELAY					100
+#define		APPEND_TEMP_DIRECTORY					"\\osg4web"
+#define		APPEND_CORES_DIRECTORY					"\\osg4web"
 
-#define		DLCORE_DELAY				10
-#define		EXITDLCORE_DELAY			100
+
+//Object Options Defines
+#define		OBJECT_OPTION_ADVCORE			"ADVCore"
+#define		OBJECT_OPTION_ADVCSTARTOPT		"ADVCoreStartOptions"
+#define		OBJECT_OPTION_ADVCINITOPT		"ADVCoreInitOptions"
+#define		OBJECT_OPTION_ADVCORESHA1		"ADVCoreSHA1"
+#define		OBJECT_OPTION_ADVCOREDEP		"ADVCoreDep"
+#define		OBJECT_OPTION_ADVCOREDEPSHA1	"ADVCoreDepSHA1"
+#define		OBJECT_OPTION_LOADCOREOPT		"LoadCoreOptions"
+#define		OBJECT_OPTION_ENABLELOGS		"EnableDiskLogs"
+
 
 #endif //__OSG4WEB_IEOSG4WEB_DEFINES__

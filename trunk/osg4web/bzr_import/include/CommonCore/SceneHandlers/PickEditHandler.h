@@ -31,15 +31,27 @@ namespace SceneHandlers
 
 			enum Modes
 			{
-				VIEW = 0,		//sposto la camera
-				ADD,			//modifico il modello attraverso il gizmo
-				SELECT,			//seleziono il modello su cui applicare il gizmo
-				PICK
+				MODE_VIEW = 0,				//sposto la camera
+				MODE_ADD,					//modifico il modello attraverso il gizmo
+				MODE_SELECT,				//seleziono il modello su cui applicare il gizmo
+				MODE_PICK
 			};
-	        
-	        
+
+			enum PickHandlerActions
+			{
+				UNKNOWN_ACTION = 0,
+				VIEW,
+				ADD,
+				SELECT,
+				CHANGE_MODEL,
+				CHANGE_DRAGGER,
+				CHANGE_BILLBOARD,
+				COMMIT,
+				GET_MATRIX
+			};
+	        	        
 			PickEditHandler(osg::Group* nd): CommandSchedule("PICKEDIT"),
-				_mode(VIEW),
+				_mode(MODE_VIEW),
 				_model("http://localhost/osg4webtest/cow.ive"),
 				_bbimagename("http://localhost/osg4webtest/bb/olmo2.png"),
 				_add_node(false),
@@ -55,6 +67,8 @@ namespace SceneHandlers
 				_added_models(nd),
 				_poseMatrixString("EMPTY")
 				{
+					//Default value
+					this->setCommandAction("UNKNOWN_ACTION");
 					//aggiungo i comandi per cambio modalità
 					this->setCommandAction("VIEW");						//0
 					this->setCommandAction("ADD");						//1
@@ -121,7 +135,7 @@ namespace SceneHandlers
 			void defaultText();
 
 			//permettono di cambiare modalità,modello e dragger 
-			bool setMode(unsigned int mode);
+			bool setMode(Modes mode);
 			bool setModel(std::string model);
 			bool setDragger(std::string dragger);
 			bool setBillBoardImageName(std::string bimage);

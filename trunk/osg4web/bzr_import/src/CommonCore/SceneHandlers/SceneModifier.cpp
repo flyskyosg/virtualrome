@@ -105,6 +105,8 @@ SceneModifier::~SceneModifier()
 
 void SceneModifier::initCommandActions()
 {
+	//Default value
+	this->setCommandAction("UNKNOWN_ACTION");
 	this->setCommandAction("CREATE_GROUP");
 	this->setCommandAction("CREATE_SWITCH");
 	this->setCommandAction("CREATE_MATRIXTRANSFORM");
@@ -184,8 +186,8 @@ std::string SceneModifier::handleAction(std::string argument)
 	case CLEAR_DESCRIPTION:
 		retstr = this->clearDescription(rcommand);
 		break;
-	default: //UNKNOWN_CORE_COMMAND
-		retstr = "UNKNOWN_CORE_COMMAND"; //FIXME: qua non ci può finire. Da togliere
+	default:
+		retstr = "UNKNOWN_ACTION";
 		break;
 	}
 

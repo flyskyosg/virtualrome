@@ -1,11 +1,8 @@
-
-
 #ifndef __NPOSG4WEB_PLUGIN_H__
 #define __NPOSG4WEB_PLUGIN_H__ 1
 
+
 #include "nspr.h"
-#include "prlock.h"
-#include "prthread.h"
 #include <npOSG4Web/npOSG4Web_pluginbase.h>
 #include <npOSG4Web/npOSG4Web_nsScriptablePeer.h>
 #include <npOSG4Web/npOSG4Web_Defines.h>
@@ -34,6 +31,11 @@ public:
 	//distruttore dell'istanza Plug-In
 	virtual ~nsPluginInstance();
 
+	//check se l'istanza è inizializzata
+	NPBool isInitialized() { return mInitialized; }
+	//send error messages at the ShellBase
+	void sendWarnMessage(std::string message) {	mShellBase.sendWarnMessage(message); }
+
 	//permette il passaggio dall'involucro all'istanza dei parametri di inizializzazione
 	NPError SetInitialData(PRUint16 argc, char* argn[], char* argv[]);
 	//inizializza l'istanza del Plug-In
@@ -42,16 +44,8 @@ public:
 	NPBool initLoadCore();
 	//chiude l'istanza del Plug-In
 	void shut();
-	//check se l'istanza è inizializzata
-	NPBool isInitialized();
-
+	
 	//uint16 HandleEvent(void* aEvent);
-
-	//Get Main Rendering Thread
-	const PRThread* getThread() { return mThread; };
-
-	//Get Downloading Core Thread
-	const PRThread* getDlCoreThread() { return mDlCoreThread; };
 
 	// we need to provide implementation of this method as it will be
 	// used by Mozilla to retrive the scriptable peer
@@ -71,33 +65,11 @@ public:
 	bool resetWindowHandler();
 
 	//Funzioni di Render
-	static void callRender(void*);
-
-	void doRender();
-	void doRenderFrame();
-	//Controlla se il core è in stato di rendering
+	void requestExplicitRendering();
+	//Controlla se il core è in rendering
 	bool checkRunning();
 	//Controlla che la shell non sia in stato di errore
 	bool showFatalCoreErrors();
-
-	static bool callPrepareRendering(void*);
-	bool prepareRendering();
-	
-	static bool callCloseRendering(void*);
-	bool closeRendering();
-
-	//Download Core
-	static bool callRequestCoreDownloading(void*);
-	bool requestCoreDownloading();
-
-	static void callDownloadCore(void*);
-	void doDownloadCore();
-
-	static int callProgressDLStatus(void*, double , double, double, double);
-	int doProgressDLStatus(double , double, double, double);
-
-	static size_t writeDLStream(void*, size_t, size_t, FILE*);
-	static size_t readDLStream(void*, size_t, size_t, FILE*);
 
 	// Metodi Richiamabili dallo ScriptablePeer
 
@@ -108,7 +80,6 @@ public:
 
 	//NPError SetWindow(NPWindow* aWindow);
 
-	void sendWarnMessage(std::string message);
 	
 //TODO: controllare che se è possibile metterlo private
 #if defined(XP_UNIX)
@@ -136,46 +107,27 @@ private:
 	//restituisce i settaggi del proxy 
 	nsresult getProxySettings(std::string &proxyhostname, std::string &port);
 
-	//segnale di terminazione del main thread di rendering
-	NPBool getThreadShutDown() { return mShutdownThread; }
-	//segnale di terminazione del thread di download dei core avanzati
-	NPBool getDlCoreThreadShutDown() { return mDlCoreShutdownThread; }
-	//Rilascia il Thread di Download
-	bool releaseDownloadCore();
-	//Direttive interne al LoadCore
-	std::string loadingCoreCommand(std::string line);
-	//Download / Unpack Adv Core Package
-	bool downloadUnpackPackage(std::string packagename);
+	//ShellBase
+	ShellBase mShellBase;
 
 	//istanza del plugin
 	NPP mInstance;
 	//controllo di inizializzazione
 	NPBool mInitialized;
 
-	//Check di setting opzioni iniziali critiche
-	bool mInitOptionsSet;
-	
 	//Puntatore allo Scriptable Peer
 	nsScriptablePeer * mScriptablePeer;
-
-	PRThread* mThread;
-	NPBool mShutdownThread;
-
-	PRThread* mDlCoreThread;
-	NPBool mDlCoreShutdownThread;
-
-	ShellBase mShellBase;
-
 	NPWindow* mWindow;
-
 	NPBool mLoading;
+
+	//Check di setting opzioni iniziali critiche
+	bool mInitOptionsSet;
 
 #if defined(WIN32)
 	//Vecchio Window Procedure
 	WNDPROC lpOldProc;
 	//ID di finestra di Windows
 	HWND mhWnd;
-
 #else
 	//ID di finestra di X11
 	Window mhWnd;

@@ -5,7 +5,9 @@
 
 #include <assert.h>
 
+#include "prerror.h"
 #include "prlock.h"
+#include "prcvar.h"
 #include "prthread.h"
 
 
@@ -13,26 +15,42 @@ class ShellThread
 {
 public:
 	ShellThread();
-	ShellThread(void (PR_CALLBACK *callfunction)(void *arg));
-
 	~ShellThread();
 
-	bool createThread(void (PR_CALLBACK *callfunction)(void *arg));
+	static void threadCallBack(void* instance);
+
+protected:
+	const PRThread* getThread() { return _Thread; }
 	bool joinThread();
 
-	bool isShuttingDown() { return mShutdown; }
-	bool isRunning() { return (mThread != NULL); }
+	void Lock();
+	void unLock();
 
-	void Lock() { PR_Lock(mLock); }
-	void unLock() { PR_Unlock(mLock); }
+	void waitCondition();
+	void notifyCondition();
 
-	const PRThread* getThread() { return mThread; }
+	bool isRunning() { return (_Thread != NULL); }
+	bool isShuttingDown() { return _Shutdown; }
+
+	bool isBusy() { return _NeedWait; }
+
+	void makeSleep(unsigned int sleeptime) { PR_Sleep(sleeptime); }
+	
+	virtual bool doCallBack() { return false; }
 
 private:
-	PRLock* mLock;
-	PRThread* mThread;
+	void destroyLock();
+	void destroyCondition();
 
-	bool mShutdown;
+	PRLock* _Lock;
+	PRCondVar* _CondVar;
+	PRThread* _Thread;
+
+	bool _NeedWait;
+
+	bool _Shutdown;
 };
+
+
 
 #endif //__OSG4WEB_SHELLTHREAD__

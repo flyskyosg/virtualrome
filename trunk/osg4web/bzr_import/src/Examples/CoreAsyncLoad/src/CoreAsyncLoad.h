@@ -20,7 +20,8 @@ class CoreAsyncLoad : public CoreBase
 public:
 	enum AsyncLoadActions
 	{
-		ADD_MODEL = 0,
+		UNKNOWN_ACTION = 0,
+		ADD_MODEL,
 		ADD_MODEL_AND_CLEAN,
 		ADD_MODEL_TO_NODE
 	};

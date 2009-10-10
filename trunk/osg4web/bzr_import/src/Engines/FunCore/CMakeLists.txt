@@ -42,6 +42,7 @@ SETUP_CORE_RUNTIME(Engine)
 
 	ADD_TEST(${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=file:\"//${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.html\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
 	ADD_TEST(Demo_VirtualRome_${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=http://localhost/vrome/\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
+	ADD_TEST(Demo2_VirtualRome_${PROJECT_NAME}_run_firefox ${CMAKE_COMMAND} -DURL=http://localhost:8080/vrome/htdocs/\" -P ${CMAKE_CURRENT_BINARY_DIR}/run_firefox.cmake )
 
 
 INCLUDE(ModuleInstall OPTIONAL)

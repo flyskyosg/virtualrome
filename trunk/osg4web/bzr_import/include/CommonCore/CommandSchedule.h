@@ -14,7 +14,7 @@ class CommandSchedule
 {
 public:
 	//Costruttore
-	CommandSchedule(std::string name) : _cschedulename(name) { }
+	CommandSchedule(std::string name) : _cschedulename(name) {  }
 
 	//Set Get CommandSchedule Name
 	std::string getCommandScheduleName() { return _cschedulename; }
@@ -40,7 +40,7 @@ public:
 			if( _commandactions.at(i) == caction )
 				return i;
 
-		return 0; //Corretto perchè questa funzione va usata solo dentro la handleAction... qua non ci viene MAI
+		return 0; //0 deve esser sempre UNKONOWN_COMMAND per ogni handler
 	}
 
 	//Controlla se il comando passato fa parte di questo Schedule
@@ -68,7 +68,6 @@ public:
 	}
 
 	//Funzione virtuale di gestione dei comandi accettati
-	//virtual std::string handleAction(std::string action, std::string argument) = 0;
 	virtual std::string handleAction(std::string argument) = 0;
 
 private:

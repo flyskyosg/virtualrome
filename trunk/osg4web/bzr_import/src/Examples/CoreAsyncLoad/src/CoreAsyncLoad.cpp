@@ -50,6 +50,8 @@ void CoreAsyncLoad::AddStartOptions(std::string str, bool erase)
 
 	this->setCommandScheduleName("ASYNCLOADER");
 
+	//Default value
+	this->setCommandAction("UNKNOWN_ACTION");
 	//Using: CAL_ADD_MODEL fileaddress (MULTIPLE)
 	this->setCommandAction("ADD_MODEL");
 	//Using: CAL_ADD_MODEL_AND_CLEAN fileaddress (MULTIPLE)
@@ -85,8 +87,8 @@ std::string CoreAsyncLoad::handleAction(std::string argument)
 		if( !this->loadModelToNode(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
-	default: //UNKNOWN_CORE_COMMAND
-		retstr = "UNKNOWN_CORE_COMMAND";
+	default: //UNKNOWN_ACTION
+		retstr = "UNKNOWN_ACTION";
 		break;
 	}
 	

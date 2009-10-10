@@ -174,6 +174,8 @@ void CoreBase::AddStartOptions(std::string str, bool erase)
 {
 	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
 
+	//Default value
+	this->setCommandAction("UNKNOWN_ACTION");
 	//Using: ADD_MODEL fileaddress
 	this->setCommandAction("ADD_MODEL");
 	//Using: ADDCLEAN_MODEL fileaddress
@@ -431,23 +433,23 @@ std::string CoreBase::handleAction(std::string argument)
 
 	switch(this->getCommandActionIndex(lcommand))
 	{
-	case 0: //ADD_MODEL fileaddress
+	case ADD_MODEL: //ADD_MODEL fileaddress
 		if( !this->loadModel(rcommand, false) )
 			retstr = "CORE_FAILED";
 		break;
-	case 1: //ADDCLEAN_MODEL fileaddress
+	case ADDCLEAN_MODEL: //ADDCLEAN_MODEL fileaddress
 		if( !this->loadModel(rcommand, true) )
 			retstr = "CORE_FAILED";
 		break;
-	case 2: //ADDSINGLE_MODEL fileaddress
+	case ADDSINGLE_MODEL: //ADDSINGLE_MODEL fileaddress
 		if( !this->loadModel(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
-	case 3: //VIEW_HOME
+	case VIEW_HOME: //VIEW_HOME
 			_Viewer->home();
 		break;
-	default: //UNKNOWN_CORE_COMMAND
-		retstr = "UNKNOWN_CORE_COMMAND";
+	default: //UNKNOWN_ACTION
+		retstr = "UNKNOWN_ACTION";
 		break;
 	}
 	

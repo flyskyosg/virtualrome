@@ -7,12 +7,11 @@
 #include <Utilities/EnvUtils.h>
 
 #include <CommonShell/Defines.h>
-#include <CommonShell/ShellThread.h>
-
-#include <unrarlib.h>
+#include <CommonShell/ShellOption.h>
+#include <CommonShell/ShellRenderer.h>
+#include <CommonShell/ShellDownloader.h>
 
 #include <iostream>
-#include <map>
 
 class ShellBase
 {
@@ -20,49 +19,28 @@ public:
 	ShellBase();
 	~ShellBase();
 
+	//Return Shell Version
+	std::string ShellBase::getShellVersion() { return std::string(SHELL_VERSION_STRING); }
+
+	//Core / Shell Command handlers
 	std::string execShellCommand(std::string);
 	std::string execCoreCommand(std::string);
-
+	
+	//Set IE / PLugin Instance
 	void setInstanceHandler(void* classptr) { m_instanceclassptr = classptr; };
-	void setResetWindowHandler(void* resetwhptr) { m_resetwclassptr = resetwhptr; };
+	//Transport Event: allow the shellbase to call plugins functions
 	void setTransportEventHandler(void* eventfptr) { m_eventfuncptr = eventfptr; };
-	void setRenderingHandler(void* prender, void* crender) { m_prenderptr = prender; m_crenderptr = crender; };
-	void setDownloadingCoreHandler(void* dcore) { m_dcoreptr = dcore; };
-
-	void setWindowHandler(HWND hwnd);
-
+	//Funzione di reset della window id
+	void setResetWindowHandler(void* resetwhptr) { m_resetwclassptr = resetwhptr; }; //FIXME
+	
+	//Handle main loading and advanced cores
 	bool startLoadingBaseCore();
-	bool startLoadingAdvancedCore();
 	bool initializeAdvancedCore();
-
 	bool closeAllLibraries();
 
-	std::string getErrorString();
-	std::string getErrorString(unsigned int no);
-
-	bool isThereErrors(){ return m_errorcode != 0; }
-	void setErrorCode(unsigned int no) { m_errorcode = no; }
-
-	std::string getEnvironmentTempDirectory();
-	std::string getEnvironmentAppDirectory();
- 
-	std::string	getAdvancedCore() { return m_advancedcore; };
-	std::string getAdvancedCoreAddress();
-	std::string getAdvancedCoreFileName();
-	std::string getAdvancedCoreSHA1();
-	std::string	getAdvancedCoreDirectory(); //FIXME: cambiare in modo tale da usare anche la dir plugin
-	
-	bool checkFileExistance(std::string fname);
-	bool removingFile(std::string fname);
-	bool checkOrCreateDirectory(std::string dir);
-	bool checkFileValidity(std::string fname, std::string hexhash);
-	bool checkAdvCorePresence();	
-
-
-	//UnPacking Functions
-	std::string unpackDownloadedCore(std::string ofname, int& fno);
-	
-	
+	//Carica il core Downloadato
+	bool checkAdvCorePresence();
+	bool startDownloadedCore(bool timing = true);
 
 	//Debugging redirection
 	void initializeLog(std::string logname);
@@ -71,88 +49,125 @@ public:
 
 	//Settaggio dei parametri di configurazione
 	typedef std::pair<std::string, std::string> OptionPair;
-	
-	//Settaggio parametri iniziali
-	void setInitOption(OptionPair opair) { m_initOptionsMap.insert(opair); }
-	void setInitOption(std::string name, std::string value) { this->setInitOption(OptionPair(name, value)); }
-	bool getInitOption(std::string name, std::string& value);
+
+	//Settaggio opzioni da plugin
+	void setInitOption(std::string name, std::string value) { m_initOption.setShellOption(name, value); }
+	void setObjectOption(std::string name, std::string value) { m_objectOption.setShellOption(name, value); }
 
 	//Funzione di configurazione dei parametri iniziali
 	bool configuringInitialOptions();
-
-	//Settaggio parametri iniziali
-	void setObjectShellOption(OptionPair opair) { m_objectShellOptionsMap.insert(opair); }
-	void setObjectShellOption(std::string name, std::string value) { this->setObjectShellOption(OptionPair(name, value)); }
-	bool getObjectShellOption(std::string name, std::string& value);
-
 	//Funzione di configurazione dei parametri provenienti da Object
 	bool configuringObjectOptions();
-	
-	//TODO: spostare in protected
-	//UnPacking Functions
-	int openCompressedCore(std::string filename);
-	int unpackCompressedCoreFile();
-	void freeCompressedCore();
 
+	//Handle error functions
+	std::string getErrorString();
+	std::string getErrorString(unsigned int no);
+
+	bool isThereErrors(){ return m_errorcode != 0; }
+	void setErrorCode(unsigned int no) { m_errorcode = no; }
+
+	//Rendering Functions
 	bool isRunning(){ return m_coreInit; }
 	bool prepareRendering();
 	bool closeRendering();
-	bool doRendering();
-	static void callDoRendering(void* maininst);
+	bool doRenderingBridge();
+	bool setDoneBridge();
+
+	//IE
+	std::string getEnvironmentTempDirectory();
+	std::string getEnvironmentAppDirectory();
+
+	//TODO: nuove funzioni
+	int doProgressDLStatus(double downtot, double downnow, double ultotal, double ulnow);
+	int doProgressUnpackStatus(unsigned int cicleno, int filenumber);
+
+	void startDownloading(bool timing);
+	void checkSecurityString(bool timing);
+	void startUnPackSession(bool timing);
+	void downloadFinished(bool timing);
+	void downloadError(int error);
+	void securityStringError();
+	void unpackError(int error);
+
+	void requestExplicitRendering();  //FIXME: finire questa parte ... si inkioda se attivo 
+
+//Sets Windows Handler
+#if defined (WIN32)
+	void setWindowHandler( HWND hwnd ) { m_hWnd = hwnd; }
+#else
+	 //TODO Linux
+#endif
 
 protected:
+	//Log messages functions
 	bool initializeLogMessages(std::string logname);
 	void initializeErrorMessages();
 	bool restoreLogMessages();
 	bool isLogMessagesInitialized()	{ return (m_coutbuf || m_cerrbuf); }
 
+
+	//Files functions
+	bool checkFileExistance(std::string fname);
+	bool removingFile(std::string fname);
+	bool getOrCreateDirectory(std::string dir);
+	
+	//Starts loading the advanced core	
+	bool startLoadingAdvancedCore();
+
+	//Handles Dynamic Libraries
 	bool loadDynamicCore(std::string);
 	bool deleteCurrentCore();
 
+	//Rendering functions
 	bool startRendering();
 	bool stopRendering();
 
 	bool checkLoadCorePresence();
+	bool checkAdvCoreDependaciesPresence();
 
 	std::string getInitLoadCoreOptions();
-	
 	std::string getInitAdvancedCoreOptions();
-	std::string generateAdvancedCoreDirectory();
 
-	void setAdvancedCoreDirectory(std::string dir);
 
-	//Return Shell Version
-	std::string getShellVersion();
 
-	//Caricamento RunTime
+private:
+	//Controllo di inizializzazione del Core caricato 
+	bool m_coreInit;
+	//Controllo sul ciclo di rendering del core
+	bool m_doRender;
+
+	//RunTime Loaded Library
 	DynamicLoad* m_DynLoad;
-
-	//Core Interface
+	//Core Interface (Handle loaded Core)
 	CommonCore::CoreInterface* m_CoreInterface;
 
+	//System Environment
 	Utilities::EnvUtils::Environment m_Environm;
 
-	//Parametri del LoadCore
-	std::string	m_loadcorename;
-	std::string	m_loadcoredir;
+	//ShellBase Options
+	ShellOption m_initOption, m_objectOption, m_generalOption;
 
-	//Parametri di Advanced Core
-	std::string	m_advancedcore;
-	std::string	m_advancedcoredir;
-
-	//Mappa delle opzioni iniziali
-	std::map<std::string,std::string> m_initOptionsMap;
-
-	//Mappa delle opzioni passate tramite gli argomenti di HTML Object o Embedded
-	std::map<std::string,std::string> m_objectShellOptionsMap;
-
-	//Controllo di inizializzazione
-	bool m_coreInit;
-
-	//Stato di errore
+	//Error Messages Status
 	unsigned int m_errorcode;
 	std::vector<std::string> m_errormessage;
-	
+
+	//Redirect dei log
+	std::streambuf* m_coutbuf;
+	std::streambuf* m_cerrbuf;
+	std::ofstream* m_fout;
+
+	//Plugin / IE instance
+	void* m_instanceclassptr;
+	//Event callback pointer for Core -> JS messages
+	void* m_eventfuncptr;
+	//Reset window handler callback pointer
+	void* m_resetwclassptr; //FIXME: da rifare 
+
+	//Rendering Thread
+	ShellRenderer* m_Renderer;
+	//Downloader Thread
+	ShellDownloader* m_Downloader;
+
 #if defined(WIN32)
 	//ID di finestra di Windows
 	HWND m_hWnd;
@@ -160,35 +175,7 @@ protected:
 #else
 
 #endif
-
-	//Write Core File to Disk
-	bool writeCoreFileToDisk(char* filename, char* data, unsigned long datasize);
-
-	//UnRAR library Structure
-	ArchiveList_struct* m_UnRARList;
-	std::string m_TempArchive;
-
-	void* m_instanceclassptr;
-	void* m_eventfuncptr;
-
-	void* m_prenderptr;
-	void* m_crenderptr;
-
-	void* m_dcoreptr;
-
-	void* m_resetwclassptr;
-
-	bool m_doRender;
-
-	std::streambuf* m_coutbuf;
-	std::streambuf* m_cerrbuf;
-	std::ofstream* m_fout;
-
-	ShellThread* renderingThread;
-
-
-	//TODO
-
 };
+
 
 #endif //__OSG4WEB_SHELLBASE__

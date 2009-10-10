@@ -31,6 +31,8 @@
 
 #include <Utilities/Export.h>
 
+#include <iostream>
+
 #ifndef ___SHA1_HDR___
 #define ___SHA1_HDR___
 
