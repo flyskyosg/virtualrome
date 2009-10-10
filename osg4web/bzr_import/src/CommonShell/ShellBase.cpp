@@ -29,13 +29,21 @@ ShellBase::ShellBase() : m_DynLoad(NULL),
 	m_cerrbuf(NULL),
 	m_coreInit(false),
 	m_fout(NULL),
-	m_advancedcore("dummy_core_run")
+	m_advancedcore("dummy_core_run"),
+	renderingThread(NULL)
 {
 	initializeErrorMessages();
 }
 
 ShellBase::~ShellBase()
 {
+	if(renderingThread)
+	{
+		renderingThread->joinThread();
+		delete renderingThread;
+		renderingThread = NULL;
+	}
+
 	freeCompressedCore();
 
 	if(this->isLogMessagesInitialized())
@@ -307,32 +315,6 @@ std::string ShellBase::execCoreCommand(std::string str)
 	}
 
 	return std::string("CORENOTINITIALIZED");
-}
-
-bool ShellBase::doRendering()
-{
-	if(m_CoreInterface == NULL)
-	{
-		this->setErrorCode( 20 );
-		this->sendWarnMessage( "ShellBase::doRendering -> " + this->getErrorString() );
-		return false;
-	}
-
-	if(m_coreInit)
-	{
-		if(!m_CoreInterface->isDone())
-			if(m_CoreInterface->RenderScene())
-				return true;
-
-	}
-	else
-	{
-		this->setErrorCode( 10 );
-		this->sendWarnMessage( "ShellBase::doRendering -> " + this->getErrorString() );
-	}
-	
-	this->sendWarnMessage( "ShellBase::doRendering -> doRendering Failed!" );
-	return false;
 }
 
 bool ShellBase::startRendering()
@@ -1199,4 +1181,75 @@ std::string ShellBase::getErrorString()
 	this->sendNotifyMessage("ShellBase::getErrorString -> getting error by errorcode: " ); //TODO: aggiungere il codice d'errore
 
 	return getErrorString(m_errorcode);
+}
+
+
+/************************************************************************
+ *
+ * Rendering Functions
+ *
+ ************************************************************************/
+
+
+//TODO: finire
+bool ShellBase::prepareRendering()
+{
+	this->sendNotifyMessage("ShellBase::prepareRendering -> starting the rendering thread");
+	renderingThread = new ShellThread(ShellBase::callDoRendering);
+	return true;
+}
+
+bool ShellBase::closeRendering()
+{
+	this->sendNotifyMessage("ShellBase::closeRendering -> closing the rendering thread");
+
+	if(renderingThread)
+	{
+		if(!renderingThread->joinThread())
+			this->sendWarnMessage("ShellBase::closeRendering -> join Thread Failed" );
+
+		this->sendNotifyMessage("ShellBase::closeRendering -> deleting Thread");
+		delete renderingThread;
+
+		renderingThread = NULL;
+	}
+	
+	return false;
+}
+
+void ShellBase::callDoRendering(void* maininst)
+{
+	ShellBase *instance = (ShellBase *) maininst;
+
+	if(instance)
+		if( !instance->doRendering() )
+			instance->sendWarnMessage(std::string("ShellBase::callDoRendering -> doRendering failed"));
+	else
+		instance->sendWarnMessage(std::string("ShellBase::callDoRendering -> Instance seems to be not present."));
+}
+
+bool ShellBase::doRendering()
+{
+	if(m_CoreInterface == NULL)
+	{
+		this->setErrorCode( 20 );
+		this->sendWarnMessage( "ShellBase::doRendering -> " + this->getErrorString() );
+		return false;
+	}
+
+	if(m_coreInit)
+	{
+		if(!m_CoreInterface->isDone())
+			if(m_CoreInterface->RenderScene())
+				return true;
+
+	}
+	else
+	{
+		this->setErrorCode( 10 );
+		this->sendWarnMessage( "ShellBase::doRendering -> " + this->getErrorString() );
+	}
+	
+	this->sendWarnMessage( "ShellBase::doRendering -> doRendering Failed!" );
+	return false;
 }

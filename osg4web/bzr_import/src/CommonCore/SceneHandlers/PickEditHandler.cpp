@@ -584,24 +584,24 @@ std::string PickEditHandler::handleAction(std::string argument)
 
 void PickEditHandler::storeMatrixStream(osg::MatrixTransform* m)
 {
-	std::stringstream s;
-	std::string retstring = "STREAM_ERROR";
-	
-	osg::ref_ptr<osgDB::ReaderWriter> writer = osgDB::Registry::instance()->getReaderWriterForExtension(std::string("osg"));
-	
-	if( !writer.valid() ) 
-		this->_poseMatrixString = retstring;
-	
-	else
+	if(m)
 	{
-
-		osgDB::ReaderWriter::WriteResult res = writer->writeObject(*m, s, _options.get());
-    
-		if( res.success() )
-			this->_poseMatrixString = s.str();
+		osg::ref_ptr<osgDB::ReaderWriter> writer = osgDB::Registry::instance()->getReaderWriterForExtension(std::string("osg"));
 	
+		if( writer.valid() ) 
+		{
+			std::stringstream s;
+			osg::ref_ptr<osg::MatrixTransform> mt = new osg::MatrixTransform(m->getMatrix());
+			osgDB::ReaderWriter::WriteResult res = writer->writeObject(*mt, s, _options.get());
+    
+			if( res.success() )
+				this->_poseMatrixString = s.str();
+		}
+		else
+			this->_poseMatrixString = "STREAM_ERROR";
 	}
-
+	else
+		this->_poseMatrixString = "MATRIXTRANSFORM NOT VALID";
 }
 
 
@@ -609,7 +609,6 @@ std::string PickEditHandler::getPoseMatrix()
 {
 	return this->_poseMatrixString;
 }
-
 
 
 void PickEditHandler::handleSceneGraph()
