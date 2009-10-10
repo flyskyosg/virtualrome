@@ -73,7 +73,7 @@ ViroManipulator::ViroManipulator() : CommandSchedule("WALK") {
 	_tLastLMB                = -1.0;
 	_tLastImpact             = -1.0;
 	_tFallTimer              = 0.0;
-	
+
 	_CurrentGravityAcceleration = GravityAcceleration;
 	_bSurfaceImpact = false;
 
@@ -181,6 +181,8 @@ bool ViroManipulator::handlePick(double dx,double dy, float A){
 			#define MAX_PICK_DISTANCE_MULT	4.0
 			double D = max(BumpDistance,GroundDistance);
 			if ( Vec3d(_vEye - pickedPoint).length() < (D*MAX_PICK_DISTANCE_MULT)) return false;	// too near
+			if ( isEnabled(GLASS_PRISON) && !_GlassPrison.contains( pickedPoint ) ) return false;	// OUT
+
 			/*
 			if ( isEnabled(HOTSPOT_REACTION) ){
 				if ( isEnabled(GLASS_PRISON) && !_GlassPrison.contains(pickedPoint) ) return false;
@@ -263,7 +265,19 @@ void ViroManipulator::computeHomePosition(){
 }
 
 osg::Matrixd ViroManipulator::getMatrix() const {
-	return osg::Matrixd::rotate(_qRotation) * osg::Matrixd::translate(_vEye);
+	//return osg::Matrixd::rotate(_qRotation) * osg::Matrixd::translate(_vEye);
+
+	double c1 = cos(_yaw * 0.5);
+	double s1 = sin(_yaw * 0.5);
+	double c2 = cos(_pitch * 0.5);
+	double s2 = sin(_pitch * 0.5);
+	double c3 = cos(_roll * 0.5);
+	double s3 = sin(_roll * 0.5);
+    double c1c2 = c1*c2;    
+	double s1s2 = s1*s2;    
+	
+	osg::Quat rot( c1c2*s3 + s1s2*c3, s1*c2*c3 + c1*s2*s3, c1*s2*c3 - s1*c2*s3, c1c2*c3 - s1s2*s3);
+	return ( osg::Matrixd::rotate(rot) * osg::Matrix::translate(_vEye) );
 }
 
 osg::Matrixd ViroManipulator::getInverseMatrix() const {
@@ -271,35 +285,24 @@ osg::Matrixd ViroManipulator::getInverseMatrix() const {
 }
 
 void ViroManipulator::setByMatrix(const osg::Matrixd& matrix){
-	// FIXME: Devo aggiustare il bug dei Quaternioni
-	// ancora non funziona
-
-	//osg::Quat Q,q;
-	//bAutoControlLock = true;
-	osg::Vec3d vScale;
-
 	_vEye = matrix.getTrans();
-
 	osg::Quat q = matrix.getRotate();
-    
-	double qx,qy,qz,qw,_yaw,_pitch,_roll;
+
+	double qx,qy,qz,qw;
 
 	qx = q.x();
 	qy = q.y();
 	qz = q.z();
 	qw = q.w();
-   
-	_yaw = osg::RadiansToDegrees( atan2( 2*qy*qw-2*qx*qz , 1 - 2*qy*qy - 2*qz*qz) );
-	_pitch = osg::RadiansToDegrees( asin(2*qx*qy + 2*qz*qw) );
-	_roll = osg::RadiansToDegrees( atan2(2*qx*qw-2*qy*qz , 1 - 2*qx*qz - 2*qz*qz) );
 
-	double ToRad = osg::PI / 180.0;
-	osg::Quat rot = osg::Quat( (_pitch +90)*ToRad, osg::X_AXIS) * osg::Quat(0.0/*(_roll)*ToRad */, osg::Y_AXIS) * osg::Quat( (_yaw)*ToRad, osg::Z_AXIS);
-	//osg::Quat rot = osg::Quat( (_pitch +90)*ToRad, osg::X_AXIS) * osg::Quat( (_yaw)*ToRad, osg::Z_AXIS) * osg::Quat(0.0/*(_roll)*ToRad */, osg::Y_AXIS);
+	_yaw   = atan2( 2*qy*qw-2*qx*qz , 1 - 2*qy*qy - 2*qz*qz);
+	_pitch = asin(2*qx*qy + 2*qz*qw);
+	_roll  = atan2(2*qx*qw-2*qy*qz , 1 - 2*qx*qz - 2*qz*qz);
+
+	osg::Quat rot = osg::Quat( (_pitch+osg::PI_2), osg::X_AXIS) * osg::Quat(0.0/*(_roll) */, osg::Y_AXIS) * osg::Quat( (_yaw), osg::Z_AXIS);
+	_qRotation = rot;
 
 	//matrix.decompose(_vEye, Q, vScale, q);
-
-	_qRotation = rot;
 
 	//osg::Matrixd M,Ms;
 	//M = matrix;
@@ -449,15 +452,23 @@ void ViroManipulator::turn(double dx, double dy){
 		long double Fx = (dt * 200 * dx);
 		if (isEnabled(AUTO_SCALE_STEP)){ Fy *= autoStepFactor; Fx *= autoStepFactor; }
 
+		//osg::Quat dRotation;
+		//dRotation.makeRotate(-(Fx * (_vEye-_vLastPickedPoint).length() * 0.1 ), osg::Z_AXIS);
+
 		Vec3d M,Slide;
 		Slide = _vStrafe;
 		Slide.normalize();
 		Slide *= -Fx;
 
+		//dRotation.makeRotate( (_vEye-_vLastPickedPoint),(_vEye-_vLastPickedPoint)+Slide+Vec3d(0,0,-Fy));
+
 		M = Vec3d(Slide.x(),Slide.y(),-Fy);
+		//M = Vec3d(0,0,-Fy);
 
 		_vEye    += M;
 		_vTarget += M;
+
+		//_qRotation = _qRotation * dRotation;
 		}
 }
 
@@ -1372,7 +1383,7 @@ bool ViroManipulator::Trace(){
 		X = _vStrafe * TracerFrustum.x() * lookAhead;
 		Y = _vStrafe * TracerFrustum.y() * lookAhead;
 		double avatarW = 0.5;
-		
+
 		Slide = _vStrafe;
 		H = Vec3d(0,0,lookAhead);
 		Slide.normalize();
