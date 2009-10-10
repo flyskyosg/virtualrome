@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.h,v $
 Language:  C++
-Date:      $Date: 2007/12/16 15:35:01 $
-Version:   $Revision: 1.3 $
+Date:      $Date: 2007/12/18 19:09:58 $
+Version:   $Revision: 1.4 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -80,6 +80,7 @@ namespace Manipulators
 		void rotateHead(double yaw, double pitch);
 		void setStepAmount(double step_h, double step_v);
 		void setGroundDistance(double gd);
+    void setNearFar(double Near, double Far);
 		void setGroundCollisionOnOff(bool on);
 		void setViewer(osgViewer::Viewer *viewer, std::string db_prefix, std::string exp_prefix);
 		void flytoScenePick(float mouse_x, float mouse_y);
@@ -140,7 +141,7 @@ namespace Manipulators
 		double       _ground_distance;   // altezza dal terreno
 
 		double       _step_h;  // lunghezza di un passo orizzontale
-		  double       _step_v;  // lunghezza di un passo verticale
+		double       _step_v;  // lunghezza di un passo verticale
 		double       _rstep;   // passo di rotazione
 
 		double       _x0,_y0;  // previous mouse position
