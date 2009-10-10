@@ -10,16 +10,16 @@ library ieOSG4WebLib
 {
 	importlib(STDOLE_TLB);
 
-	const int DISPID_ADVCore						= 100
-	const int DISPID_ADVCoreStartOptions			= 101
-	const int DISPID_ADVCoreInitOptions				= 102
-	const int DISPID_ADVCoreSHA1					= 103
-	const int DISPID_ADVCoreDep						= 104
-	const int DISPID_ADVCoreDepSHA1					= 105
-	const int DISPID_LoadCoreOptions				= 106 
-	const int DISPID_EnableDiskLogs					= 107
-	const int DISPID_ExecCoreCommand				= 108
-	const int DISPID_ExecShellCommand				= 109
+	const int DISPID_ADVCore					= 100;
+	const int DISPID_ADVCoreStartOptions				= 101;
+	const int DISPID_ADVCoreInitOptions				= 102;
+	const int DISPID_ADVCoreSHA1					= 103;
+	const int DISPID_ADVCoreDep					= 104;
+	const int DISPID_ADVCoreDepSHA1					= 105;
+	const int DISPID_LoadCoreOptions				= 106;
+	const int DISPID_EnableDiskLogs					= 107;
+	const int DISPID_ExecCoreCommand				= 108;
+	const int DISPID_ExecShellCommand				= 109;
 
 
 	//  Primary dispatch interface for Ctrl

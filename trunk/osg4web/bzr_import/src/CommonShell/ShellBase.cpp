@@ -670,7 +670,7 @@ bool ShellBase::startLoadingBaseCore()
 	if(m_objectOption.getShellOption(OBJECT_OPTION_ENABLELOGS, logname)) //Se è presente l'indirizzo del core da caricare
 		m_CoreInterface->forcingLogMessages();
 
-	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr);
+	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr, &ShellBase::requestFileDownload);
 
 	m_coreInit = m_CoreInterface->InitCore(m_hWnd, m_generalOption.getShellOption(LOAD_CORE_COREDIR), this->getInitLoadCoreOptions());
 
@@ -754,7 +754,7 @@ bool ShellBase::startLoadingAdvancedCore()
 	if(m_objectOption.getShellOption(OBJECT_OPTION_ENABLELOGS, logname)) //Se è presente l'indirizzo del core da caricare
 		m_CoreInterface->forcingLogMessages();
 
-	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr);
+	m_CoreInterface->setEventBridge(m_instanceclassptr, m_eventfuncptr, &ShellBase::requestFileDownload);
 	
 	m_coreInit = m_CoreInterface->InitCore(m_hWnd, advcoredir, this->getInitAdvancedCoreOptions());
 
@@ -1191,6 +1191,21 @@ void ShellBase::downloadFinished(bool timing)
 		PR_Sleep(LOADING_CORE_MESSAGES_MIN);
 }
 
+void ShellBase::downloadCoreFileFinished(std::string tempfile, bool timing)
+{
+	this->sendNotifyMessage(std::string("ShellBase::downloadFinished -> Loading Unpacked Core."));
+
+	//Loading Session
+	this->execCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
+	this->execCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
+
+	//Send Load information at the Core
+	this->execCoreCommand("LOADCORE LOADREQFILE " + tempfile);
+
+	if(timing)
+		PR_Sleep(LOADING_CORE_MESSAGES_MIN);
+}
+
 void ShellBase::downloadError(int error)
 {
 	std::string errmsg;
@@ -1267,6 +1282,43 @@ int ShellBase::doProgressUnpackStatus(unsigned int cicleno, int filenumber)
 	return 0;
 }
 
+
+/****************************************************************************
+ *
+ *		RequestDownload from Core
+ *
+ ****************************************************************************/
+
+bool ShellBase::requestFileDownload(void* classptr, std::string url)
+{
+	ShellBase* classinst = (ShellBase*) classptr;
+
+	if(classinst)
+		return classinst->setDownloadRequest(url);
+
+	return false;
+}
+
+
+bool ShellBase::setDownloadRequest(std::string url)
+{
+	this->sendNotifyMessage("ShellBase::setDownloadRequest -> requesting file: " + url);
+
+	ShellDownloader::RequestDownload request;
+	std::string tempdir, dlname;
+
+	tempdir = m_initOption.getShellOption( INIT_OPTION_TEMPDIR );
+
+	dlname = Utilities::FileUtils::getSimpleFileName( m_objectOption.getShellOption(OBJECT_OPTION_ADVCORE) );
+
+	request.setDownloadURL(url);
+	request.setDownloadTempDir( tempdir );
+
+	m_Downloader->addDownloadRequest(request);
+
+	return true;
+}
+
 /****************************************************************************
  *
  *		Usato da IE
@@ -1281,168 +1333,3 @@ std::string ShellBase::getEnvironmentAppDirectory()
 {
 	return m_Environm.getAppDirectory();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-//TODO: finire lo spostamento di tutto in ShellBase
-std::string ShellBase::unpackDownloadedCore(std::string ofname, int& fno)
-{
-	int coreunpack = 0; //Condizione di loading
-	//Opening Archive List
-	fno = this->openCompressedCore(ofname);
-
-	if(fno < 0)
-		return "Unpacking Failed! Error opening archive";
-	else if(fno == 0)
-		return "Unpacking Failed! Empty archive";
-	else
-		return std::string(); 
-}
-
-int ShellBase::openCompressedCore(std::string filename)
-{
-	int filecounter = 0;
-	
-	if(!filename.empty())
-		m_TempArchive = Utilities::FileUtils::convertFileNameToNativeStyle(filename);
-	else
-	{
-		this->sendWarnMessage( "ShellBase::openCompressedCore -> Filename Empty!" );
-		return -1;
-	}
-	
-	freeCompressedCore(); //Per sicurezza
-
-	filecounter = urarlib_list((void*) m_TempArchive.c_str(), (ArchiveList_struct*)&m_UnRARList);
-
-	return filecounter;
-}
-
-*/
-
-/*
- * 
- *
- *	Return: 0  -> OK and continue 
- *			>0 -> OK and finish
- *			<0 -> Error while UnPacking
- */
-
-/*
-int ShellBase::unpackCompressedCoreFile()
-{
-	int ret = 1; //Return End
-	char *data_ptr = NULL;
-	unsigned long data_size = 0;  
-	
-	if(m_UnRARList != NULL)
-	{
-		if(urarlib_get(&data_ptr, &data_size, m_UnRARList->item.Name, (void*) m_TempArchive.c_str(), NULL)) //FIXME: Cosa fare con password?
-		{
-			if(m_UnRARList->item.FileAttr == 16)
-			{
-				Utilities::FileUtils::makeDirectory(Utilities::FileUtils::convertFileNameToNativeStyle(getAdvancedCoreDirectory() + "/" + std::string(m_UnRARList->item.Name)));
-			}
-			else if(!this->writeCoreFileToDisk(m_UnRARList->item.Name, data_ptr, data_size))
-			{
-				if(data_ptr != NULL) 
-					free(data_ptr);
-
-				this->sendWarnMessage( "ShellBase::unpackCompressedCoreFile -> Rar writing failed!" );
-
-				return -2; //Return Writing Error
-			}
-	
-			ret = 0; //Return Continue
-		} 
-		else 
-		{ 
-			if(data_ptr != NULL) 
-				free(data_ptr);
-
-			this->setErrorCode( 35 );
-			this->sendWarnMessage( "ShellBase::unpackCompressedCoreFile -> " + this->getErrorString() );
-
-			return -1; //Return UnPacking Error
-		}
-
-		if(data_ptr != NULL) 
-				free(data_ptr);
-	
-		m_UnRARList = (ArchiveList_struct*)m_UnRARList->next;
-	}
-
-	return ret;
-}
-
-bool ShellBase::writeCoreFileToDisk(char* filename, char* data, unsigned long datasize)
-{
-	bool ret = false;
-
-	FILE* datafp;
-
-	std::string completepath(Utilities::FileUtils::convertFileNameToNativeStyle(getAdvancedCoreDirectory() + "/" + std::string(filename)));
-
-	if(!(((datafp = fopen(completepath.c_str(), "wb")) == NULL) || (data == NULL)))
-	{ 
-		unsigned long count = fwrite(data, 1, datasize, datafp);
-
-		if(count != datasize)
-		{
-			this->setErrorCode( 34 );
-			this->sendWarnMessage( "ShellBase::writeCoreFileToDisk -> " + this->getErrorString() );
-		}
-
-		fclose(datafp);
-
-		ret = true;
-	}
-	else
-	{
-		this->setErrorCode( 32 );
-		this->sendWarnMessage( "ShellBase::writeCoreFileToDisk -> " + this->getErrorString() );
-	}
-	
-	return ret;
-}
-
-void ShellBase::freeCompressedCore()
-{
-	if(m_UnRARList)
-	{
-		urarlib_freelist(m_UnRARList);
-		m_UnRARList = NULL;
-	}
-}
-
-*/
-
-
-
-/*
-
-
-//FIXME: correggere
-
-
-
-*/

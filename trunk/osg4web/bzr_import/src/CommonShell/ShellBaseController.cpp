@@ -66,6 +66,11 @@ void ShellBaseController::downloadFinished(bool timing)
 	_rbase->downloadFinished(timing);
 }
 
+void ShellBaseController::downloadCoreFileFinished(std::string url, bool timing)
+{
+	_rbase->downloadCoreFileFinished(url, timing);
+}
+
 void ShellBaseController::downloadError(int error)
 {
 	_rbase->downloadError(error);
