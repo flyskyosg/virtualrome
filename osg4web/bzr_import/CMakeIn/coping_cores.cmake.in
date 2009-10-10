@@ -12,8 +12,6 @@ IF(EXISTS ${MY_FULL_PATH})
 		RETURN_VALUE myret
 	)
 	MESSAGE(" Coping Done: Returning ${myout}")
-ELSE(EXISTS ${MY_FULL_PATH})
-	MESSAGE("${MY_FULL_PATH} doesn't exists")
 ENDIF(EXISTS ${MY_FULL_PATH})
 
 
