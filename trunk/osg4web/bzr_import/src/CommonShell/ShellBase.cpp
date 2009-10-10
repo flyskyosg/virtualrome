@@ -941,8 +941,6 @@ std::string ShellBase::getErrorString()
 
 void ShellBase::initializeErrorMessages()
 {
-	this->sendNotifyMessage("ShellBase::initializeErrorMessages -> initializing error messages" );
-
 	m_errormessage.push_back("Unknown error - Default Message"); //0
 	m_errormessage.push_back("Making directory failed"); //1
 	m_errormessage.push_back("Loader Core name not present"); //2

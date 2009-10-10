@@ -43,8 +43,8 @@
 
 //Loading Core Messages Delay
 #define LOADING_CORE_MESSAGES_MIN			500
-#define LOADING_CORE_MESSAGES_MID			2000
-#define LOADING_CORE_MESSAGES_MAX			10000
+#define LOADING_CORE_MESSAGES_MID			1000
+#define LOADING_CORE_MESSAGES_MAX			5000
 
 //Rendering Sleep Time
 #define		RENDER_DELAY					10
