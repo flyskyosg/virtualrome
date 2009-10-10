@@ -14,31 +14,15 @@ OPTION(PLACE_IN_PLUGIN "If on place output files into Firefox/plugin" OFF)
 ############################################################
 
 MACRO(COPY_TARGET_POST_BUILD CORE_TYPE_PREFIX )
-	# cmake string to copy only if exists
-	SET( mycmakestring 
-	"GET_FILENAME_COMPONENT(MY_FULL_PATH \"@in_file@\" ABSOLUTE)
-	 GET_FILENAME_COMPONENT(MY_FULL_OUT_PATH \"@out_file@\" ABSOLUTE)
-	IF(EXISTS \${MY_FULL_PATH})
-		EXEC_PROGRAM(\${CMAKE_COMMAND} 
-			ARGS -E copy \${MY_FULL_PATH} \\\"\${MY_FULL_OUT_PATH}\\\"
-			OUTPUT_VARIABLE myout
-			RETURN_VALUE myret
-		)
-		MESSAGE(\"OUTPUT_VARIABLE -->\${myout}\")
-		MESSAGE(\"RETURN_VALUE -->\${myret}\")
-	ENDIF(EXISTS \${MY_FULL_PATH})
-	"
-	)
-	
 	FOREACH(BTYPE Debug Release)
 		GET_TARGET_PROPERTY(${CORE_TYPE_PREFIX}_${BTYPE}_LOCATION ${CORE_TYPE_PREFIX} ${BTYPE}_LOCATION)
-
 		GET_FILENAME_COMPONENT( MYNAME_${BTYPE} ${${CORE_TYPE_PREFIX}_${BTYPE}_LOCATION} NAME)
 
 		FILE(TO_CMAKE_PATH ${${CORE_TYPE_PREFIX}_${BTYPE}_LOCATION} in_file)
 		FILE(TO_CMAKE_PATH "${OUTPUT_${BTYPE}_DIR}/${MYNAME_${BTYPE}}" out_file)
-		STRING(CONFIGURE ${mycmakestring} mycmakestring_out @ONLY)
-		FILE(WRITE "${CMAKE_BINARY_DIR}/script/copy_${CORE_TYPE_PREFIX}_${BTYPE}.cmake" "${mycmakestring_out}")
+
+		CONFIGURE_FILE("${OSG4WEB_ROOT}/CMakeIn/coping_cores.cmake.in" "${CMAKE_BINARY_DIR}/script/copy_${CORE_TYPE_PREFIX}_${BTYPE}.cmake" @ONLY)
+		
 		ADD_CUSTOM_COMMAND(
 			TARGET ${CORE_TYPE_PREFIX}
 			POST_BUILD
