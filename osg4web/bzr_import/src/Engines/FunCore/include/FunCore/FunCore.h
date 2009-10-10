@@ -27,7 +27,8 @@ public:
 	enum FunCoreActions	{
 		SETMAINSCENEGRAPH = 0,
 		ADDFILETONODE,
-		SETOPTIMIZATION
+		SETOPTIMIZATION,
+		SWITCH_MANIPULATORS
 	};
 
 	//Costruttore/Distruttore
