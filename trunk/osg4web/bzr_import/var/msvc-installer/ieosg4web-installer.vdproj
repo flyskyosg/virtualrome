@@ -87,12 +87,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_48A08CB47AA2498E8FA347A5E61E59CD"
-        "OwnerKey" = "8:_D80E0026406B477F9A9C364C9D32AD1E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_513223CE6EDA271EA219B77B348937AB"
         "OwnerKey" = "8:_58D77CEFD3824DD8BA543F0AA15F84CD"
         "MsmSig" = "8:_UNDEFINED"
@@ -129,6 +123,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_68322432D649408B8BAD6FC6FD4CF1EE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_686850D52ED21307975C7542F36276D4"
         "OwnerKey" = "8:_58D77CEFD3824DD8BA543F0AA15F84CD"
         "MsmSig" = "8:_UNDEFINED"
@@ -141,8 +141,26 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_74ABB04F977F47BBB477C068AB2BE25F"
+        "OwnerKey" = "8:_FCEA8A5FF94847E9BD67CEE3D1381F18"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7988496039CE487EA8C481CC448B4827"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8BC3A4C3DE434D70976BFDF299EA7E23"
+        "OwnerKey" = "8:_58D77CEFD3824DD8BA543F0AA15F84CD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8BC3A4C3DE434D70976BFDF299EA7E23"
+        "OwnerKey" = "8:_FCEA8A5FF94847E9BD67CEE3D1381F18"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -165,12 +183,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_966ECD111F164EF08F00D5B76488716B"
-        "OwnerKey" = "8:_FCEA8A5FF94847E9BD67CEE3D1381F18"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9C9724DB35440EE0DE5C6F49A8027846"
         "OwnerKey" = "8:_58D77CEFD3824DD8BA543F0AA15F84CD"
         "MsmSig" = "8:_UNDEFINED"
@@ -183,8 +195,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A2787832AB8E4854BB8E91E94A180DB6"
-        "OwnerKey" = "8:_966ECD111F164EF08F00D5B76488716B"
+        "MsmKey" = "8:_ADAC23177ECA49C3A3F9A9C4219E2A23"
+        "OwnerKey" = "8:_74ABB04F977F47BBB477C068AB2BE25F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -197,18 +209,6 @@
         {
         "MsmKey" = "8:_D5ABB207BD6144D187E515BF7211D2BF"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D80E0026406B477F9A9C364C9D32AD1E"
-        "OwnerKey" = "8:_58D77CEFD3824DD8BA543F0AA15F84CD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D80E0026406B477F9A9C364C9D32AD1E"
-        "OwnerKey" = "8:_FCEA8A5FF94847E9BD67CEE3D1381F18"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -243,6 +243,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_FAC4D5CC61024298A711A0965AE59A75"
+        "OwnerKey" = "8:_8BC3A4C3DE434D70976BFDF299EA7E23"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FCEA8A5FF94847E9BD67CEE3D1381F18"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -255,7 +261,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:@IEOSG4WEB_LOC_DEBUG@/ieosg4web-installer.msi"
+        "OutputFilename" = "8:Debug\\ieosg4web-installer.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -282,7 +288,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:@IEOSG4WEB_LOC_DEBUG@/ieosg4web-installer.msi"
+        "OutputFilename" = "8:Release\\ieosg4web-installer.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -331,8 +337,8 @@
         {
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_02AE3208EE0145BCB47ECA84DA41F69D"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_TERRAIN_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_TERRAIN_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_osgterrain.dll"
+            "TargetName" = "8:osgdb_osgterrain.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -351,8 +357,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1157DFE1984247FA8D8F934DC8E19C5F"
             {
-            "SourcePath" = "8:@OPENTHREADS_LOC@"
-            "TargetName" = "8:@OPENTHREADS_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\ot10-OpenThreads.dll"
+            "TargetName" = "8:ot10-OpenThreads.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -371,8 +377,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_135EF94C866C9363218381C5EFEEE590"
             {
-            "SourcePath" = "8:@OSG_TEXT_LOC@"
-            "TargetName" = "8:@OSG_TEXT_NAME@"
+            "SourcePath" = "8:osg35-osgText.dll"
+            "TargetName" = "8:osg35-osgText.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -391,8 +397,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_15E6637AE0624EE9A5A526BD1368CF2C"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_IVE_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_IVE_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_ive.dll"
+            "TargetName" = "8:osgdb_ive.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -411,8 +417,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17DA19C9D69648ED90796E9CCAF0C923"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_PNG_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_PNG_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_png.dll"
+            "TargetName" = "8:osgdb_png.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -431,8 +437,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1B15FFD1B0324E5ABF6EB4E2D552D433"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_SIM_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_SIM_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_osgsim.dll"
+            "TargetName" = "8:osgdb_osgsim.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -451,8 +457,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_297135DA19C1416CBE54114CDA39207E"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_FX_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_FX_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osg35-osgFX.dll"
+            "TargetName" = "8:osg35-osgFX.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -471,8 +477,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_316CE75C5AA94EC8BFAD1F6E3EE1E130"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_SHADOW_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_SHADOW_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osg35-osgShadow.dll"
+            "TargetName" = "8:osg35-osgShadow.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -491,8 +497,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_351AAA393E8F4FFE8AF56619ECC8EA38"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_VIEWER_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_VIEWER_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_osgviewer.dll"
+            "TargetName" = "8:osgdb_osgviewer.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -511,8 +517,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3750E18F11D94705A07CA96263C07AC1"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_OSG_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_OSG_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_osg.dll"
+            "TargetName" = "8:osgdb_osg.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -531,8 +537,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4312F89306E3455199CD457515ECBD49"
             {
-            "SourcePath" = "8:@OSG_TERRAIN_LOC@"
-            "TargetName" = "8:@OSG_TERRAIN_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osg35-osgTerrain.dll"
+            "TargetName" = "8:osg35-osgTerrain.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -551,8 +557,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4591818BD0E94945B8FF5EDF2FDDE435"
             {
-            "SourcePath" = "8:@OSG4WEB_LOGO_LOC@"
-            "TargetName" = "8:@OSG4WEB_LOGO_NAME@"
+            "SourcePath" = "8:..\\Debug\\web\\Firefox\\plugins\\osg4web_world.ive"
+            "TargetName" = "8:osg4web_world.ive"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -571,8 +577,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_513223CE6EDA271EA219B77B348937AB"
             {
-            "SourcePath" = "8:@OSG_OSG_LOC@"
-            "TargetName" = "8:@OSG_OSG_NAME@"
+            "SourcePath" = "8:osg35-osg.dll"
+            "TargetName" = "8:osg35-osg.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -591,8 +597,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5138A6FF0DF04D0582D9FFBE9E621579"
             {
-            "SourcePath" = "8:@OSG4WEB_NSPR4_LOC@"
-            "TargetName" = "8:@OSG4WEB_NSPR4_NAME@"
+            "SourcePath" = "8:..\\Debug\\web\\Firefox\\nspr4.dll"
+            "TargetName" = "8:nspr4.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -611,8 +617,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5D9787B07AD7501D402015E5E35D550C"
             {
-            "SourcePath" = "8:@OSG_UTIL_LOC@"
-            "TargetName" = "8:@OSG_UTIL_NAME@"
+            "SourcePath" = "8:osg35-osgUtil.dll"
+            "TargetName" = "8:osg35-osgUtil.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -631,8 +637,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_629B5B6231819C5DA24C11F8376EDDD5"
             {
-            "SourcePath" = "8:@OSG_VIEWER_LOC@"
-            "TargetName" = "8:@OSG_VIEWER_NAME@"
+            "SourcePath" = "8:osg35-osgViewer.dll"
+            "TargetName" = "8:osg35-osgViewer.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -651,8 +657,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6455AE75D3324A2DAC283214521E6982"
             {
-            "SourcePath" = "8:@OSG_SIM_LOC@"
-            "TargetName" = "8:@OSG_SIM_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osg35-osgSim.dll"
+            "TargetName" = "8:osg35-osgSim.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -669,10 +675,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_68322432D649408B8BAD6FC6FD4CF1EE"
+            {
+            "SourcePath" = "8:..\\..\\Cineca CVS\\osgweb\\osg4web_r2\\var\\stuffs\\images\\osg256.bmp"
+            "TargetName" = "8:osg256.bmp"
+            "Tag" = "8:"
+            "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_686850D52ED21307975C7542F36276D4"
             {
-            "SourcePath" = "8:@OSG_DB_LOC@"
-            "TargetName" = "8:@OSG_DB_NAME@"
+            "SourcePath" = "8:osg35-osgDB.dll"
+            "TargetName" = "8:osg35-osgDB.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -691,8 +717,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7278849AABEB4630BCA9C6CDE0C45633"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_DDS_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_DDS_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_dds.dll"
+            "TargetName" = "8:osgdb_dds.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -711,8 +737,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7988496039CE487EA8C481CC448B4827"
             {
-            "SourcePath" = "8:@OSG_MANIPULATOR_LOC@"
-            "TargetName" = "8:@OSG_MANIPULATOR_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osg35-osgManipulator.dll"
+            "TargetName" = "8:osg35-osgManipulator.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -731,8 +757,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8EAB84FCA26744A8A9EEB11285B050A0"
             {
-            "SourcePath" = "8:@OSG_PARTICLE_LOC@"
-            "TargetName" = "8:@OSG_PARTICLE_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osg35-osgParticle.dll"
+            "TargetName" = "8:osg35-osgParticle.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -751,8 +777,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8F6F00A0A9F14CA88A8BBCD22A635F98"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_SHADOW_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_SHADOW_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_osgshadow.dll"
+            "TargetName" = "8:osgdb_osgshadow.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -771,8 +797,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_94D44884DCF44A58B77B1450127812E6"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_FX_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_FX_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_osgfx.dll"
+            "TargetName" = "8:osgdb_osgfx.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -791,8 +817,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9C9724DB35440EE0DE5C6F49A8027846"
             {
-            "SourcePath" = "8:@OSG_GA_LOC@"
-            "TargetName" = "8:@OSG_GA_NAME@"
+            "SourcePath" = "8:osg35-osgGA.dll"
+            "TargetName" = "8:osg35-osgGA.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -811,8 +837,28 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A020DC48A9404BED95BFE2609A931AEB"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_NET_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_NET_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_net.dll"
+            "TargetName" = "8:osgdb_net.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C79A384EEE6B41DFA3F3AC18FF1D218B"
+            {
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_osgtgz.dll"
+            "TargetName" = "8:osgdb_osgtgz.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -831,8 +877,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D5ABB207BD6144D187E515BF7211D2BF"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_PARTICLE_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_PARTICLE_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_osgparticle.dll"
+            "TargetName" = "8:osgdb_osgparticle.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -851,8 +897,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D8FBDA1EBB614BF696B87BF550252077"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_FREETYPE_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_FREETYPE_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_freetype.dll"
+            "TargetName" = "8:osgdb_freetype.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -871,8 +917,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D9495484927A47968BCCFBF1BE073749"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_TIFF_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_TIFF_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_tiff.dll"
+            "TargetName" = "8:osgdb_tiff.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -891,8 +937,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D9B966B1EE3547CDA62B40A71B295A60"
             {
-            "SourcePath" = "8:@OSG4WEB_FONT_ARIAL_LOC@"
-            "TargetName" = "8:@OSG4WEB_FONT_ARIAL_NAME@"
+            "SourcePath" = "8:..\\Debug\\web\\Firefox\\plugins\\arial.ttf"
+            "TargetName" = "8:arial.ttf"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -911,8 +957,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DF4EF74F5ED746E5861F36AD69C70FF5"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_BMP_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_BMP_NAME@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_bmp.dll"
+            "TargetName" = "8:osgdb_bmp.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -931,8 +977,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E42DCAFEA6834B1C87C079A44C21DEC0"
             {
-            "SourcePath" = "8:@OSG_PLUGIN_TEXT_LOC@"
-            "TargetName" = "8:@OSG_PLUGIN_TEXT_LOC@"
+            "SourcePath" = "8:..\\..\\OSG\\CMake\\install\\OSG-Double\\bin\\osgPlugins-2.4.0\\osgdb_osgtext.dll"
+            "TargetName" = "8:osgdb_osgtext.dll"
             "Tag" = "8:"
             "Folder" = "8:_9239AB9FC65D4D44BA8B20C349331B0B"
             "Condition" = "8:"
@@ -1003,7 +1049,7 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Setup1"
+        "ProductName" = "8:OSG4Web - ActiveX"
         "ProductCode" = "8:{DA3DF261-5B88-48C1-8A20-B0B54A9D31D3}"
         "PackageCode" = "8:{884BF837-ACF4-47AD-8DE7-A030C45DDEA7}"
         "UpgradeCode" = "8:{F5EB708D-E504-4E26-8A55-E5B1DAAF70C9}"
@@ -1012,15 +1058,15 @@
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
-        "Manufacturer" = "8:CNR ITABC VhLab - CINECA"
-        "ARPHELPTELEPHONE" = "8:"
-        "ARPHELPLINK" = "8:"
-        "Title" = "8:ieOSG4Web"
+        "Manufacturer" = "8:CNR VHLab - Cineca"
+        "ARPHELPTELEPHONE" = "8:++390690672721"
+        "ARPHELPLINK" = "8:www.vhlab.itabc.cnr.it"
+        "Title" = "8:OSG4Web - ActiveX Installer"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:CNR ITABC VhLab - CINECA"
+        "ARPCONTACT" = "8:C. Camporesi - L. Calori"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:"
-        "ARPURLINFOABOUT" = "8:"
+        "ARPCOMMENTS" = "8:OSG4Web - ActiveX Installer"
+        "ARPURLINFOABOUT" = "8:www.vhlab.itabc.cnr.it"
         "ARPPRODUCTICON" = "8:"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
@@ -1273,7 +1319,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_68322432D649408B8BAD6FC6FD4CF1EE"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -1499,7 +1546,8 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:1"
+                            "Setting" = "3:2"
+                            "Value" = "8:_68322432D649408B8BAD6FC6FD4CF1EE"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -1592,21 +1640,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_48A08CB47AA2498E8FA347A5E61E59CD"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_966ECD111F164EF08F00D5B76488716B"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_74ABB04F977F47BBB477C068AB2BE25F"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1620,7 +1654,21 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A2787832AB8E4854BB8E91E94A180DB6"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_8BC3A4C3DE434D70976BFDF299EA7E23"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_ADAC23177ECA49C3A3F9A9C4219E2A23"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
@@ -1634,11 +1682,11 @@
             "Feature" = "8:"
             "IsolateTo" = "8:"
             }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_D80E0026406B477F9A9C364C9D32AD1E"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_FAC4D5CC61024298A711A0965AE59A75"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC80_CRT_x86.msm"
+            "SourcePath" = "8:policy_8_0_microsoft_vc80_crt_x86.msm"
                 "Properties"
                 {
                 }
