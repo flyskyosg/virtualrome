@@ -140,6 +140,11 @@ IMPLEMENT_OLECTLTYPE(ieOSG4Web_Ctrl, IDS_IEOSG4WEB, _dwieOSG4WebOleMisc)
 
 	//reftempstr.append(APPEND_IEOSG4WEB_DIRECTORY); //FIXME: controllare
 	m_ShellBase.setInitOption(INIT_OPTION_INSTALLDIR, reftempstr);
+	//luigi: reftempstring should be the installation (folder where is the plugin dll, set it as the 
+	//core dependency dir seems reasonable
+	m_ShellBase.setGeneralOption(ADV_CORE_DEPCOREDIR, reftempstr);
+	m_ShellBase.sendWarnMessage("luigi: ieOSG4Web_Ctrl::ieOSG4Web_Ctrl setInitOption(INIT_OPTION_INSTALLDIR -> " + reftempstr);
+
 	reftempstr.clear();
 	
 
@@ -160,7 +165,6 @@ IMPLEMENT_OLECTLTYPE(ieOSG4Web_Ctrl, IDS_IEOSG4WEB, _dwieOSG4WebOleMisc)
 #else
 	reftempstr = (LPCTSTR) GetInstallCoreDir();
 #endif
-
 	if(reftempstr.empty())
 	{
 		m_ShellBase.setErrorCode( 42 );
@@ -174,6 +178,8 @@ IMPLEMENT_OLECTLTYPE(ieOSG4Web_Ctrl, IDS_IEOSG4WEB, _dwieOSG4WebOleMisc)
 	
 	m_ShellBase.setInitOption( INIT_OPTION_LOCALINSTDIR, reftempstr ); //FIXME: per adesso metto lo stesso... settare in core che è ie quindi non c'è
 	m_ShellBase.setInitOption( INIT_OPTION_COREINSTDIR, reftempstr );
+	m_ShellBase.sendWarnMessage("luigi: ieOSG4Web_Ctrl::ieOSG4Web_Ctrl setInitOption( INIT_OPTION_COREINSTDIR -> " + reftempstr);
+
 	reftempstr.clear();
 
 	this->GetProxyConfiguration();
@@ -302,6 +308,13 @@ int ieOSG4Web_Ctrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 		m_ShellBase.sendWarnMessage(std::string("ieOSG4Web_Ctrl::OnCreate -> Initializing Advanced Core Failed!"));
 	}
+	//luigi: reftempstring should be the installation (folder where is the plugin dll, set it as the 
+	//core dependency dir seems reasonable
+		std::string reftempstr;
+	reftempstr = (LPCTSTR) GetInstallDir();
+
+
+	m_ShellBase.setGeneralOption(ADV_CORE_DEPCOREDIR, reftempstr);
 
 	return 0;
 }
