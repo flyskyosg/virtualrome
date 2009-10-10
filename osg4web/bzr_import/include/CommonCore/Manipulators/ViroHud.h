@@ -31,8 +31,8 @@
 #include <osg/NodeCallback>
 
 #define VIROHUD_FONT				"arial.ttf"
-#define VIROHUD_SIDECOLOR			0.94,0.91,0.78,0.7
-#define VIROHUD_HUDCOLOR			0.94,0.91,0.78,0.4	//1.0,1.0,0.0,0.4
+#define VIROHUD_SIDECOLOR			0.94,0.91,0.78,0.6
+#define VIROHUD_HUDCOLOR			0.94,0.91,0.78,0.2	//1.0,1.0,0.0,0.4
 #define VIROHUD_COMPASSNORTHCOLOR	0.94,0.91,0.78,1.0
 #define VIROHUD_COMPASSNODE			"axes.osg"	//"compass.ive"
 
