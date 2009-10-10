@@ -85,6 +85,7 @@ ViroManipulator::ViroManipulator() : CommandSchedule("WALK") {
 	//_HeadLight = new osg::LightSource;
 
 	_padEvent = NAVPAD_NONE;
+	_bLockDir = false;
 }
 
 ViroManipulator::~ViroManipulator(){
@@ -291,6 +292,10 @@ osg::Matrixd ViroManipulator::getInverseMatrix() const {
 }
 
 void ViroManipulator::setByMatrix(const osg::Matrixd& matrix){
+	this->Disable(GRAVITY);
+	_speed    = 0.0;
+	_padEvent = NAVPAD_NONE;
+
 	_vEye = matrix.getTrans();
 	osg::Quat q = matrix.getRotate();
 
@@ -400,7 +405,8 @@ void ViroManipulator::boost(int mode){
 	
 		case(BOOST):{
 			if (_speed != 0.0){
-				vD = _vLook * F;
+				if (!_bLockDir) vD = _vLook * F;
+				else vD = _vLockDir * F;
 
 				_vEye    += vD;
 				_vTarget += vD;		// FIXME?
@@ -741,8 +747,9 @@ void ViroManipulator::AutoControl(double callTime){
 			//_Viewer->getCamera()->setNearFarRatio( autoStepFactor * 0.001 );
 			double Zfar;
 			Zfar = _Mix.interpolate(autoStepFactor/0.1, 800,9000);
-			_Viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
+			//_Viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 			//_Viewer->getCamera()->setProjectionMatrixAsPerspective(30.0,R, 0.01,Zfar);
+			_Viewer->getCamera()->setNearFarRatio( 0.00001 );
 			RollWithYaw = _Mix.interpolate(autoStepFactor/0.1, 0.01,1.5); // 0.01;
 			}
 		else {
@@ -1107,9 +1114,7 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				us.requestContinuousUpdate(false);
 				return true;
 				*/
-				_speed += Acceleration * getDtime();
-				boost();
-				SyncData();
+				_padEvent = NAVPAD_FORWARD;
 				us.requestContinuousUpdate(false);
 				}
 			if (ea.getKey()== GUIEventAdapter::KEY_Down){
@@ -1120,38 +1125,26 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				us.requestContinuousUpdate(false);
 				return true;
 				*/
-				_speed -= Acceleration * getDtime();
-				boost();
-				SyncData();
+				_padEvent = NAVPAD_BACKWARD;
 				us.requestContinuousUpdate(false);
 				}
 			if (ea.getKey()== GUIEventAdapter::KEY_Page_Up){
-				flushMouseEventStack();
-				Acceleration *= 1.5;
-				osg::notify(ALWAYS) << "Increase mouse-wheel Acceleration : "<<Acceleration<<"\n";
+				_padEvent = NAVPAD_UP;
 				us.requestContinuousUpdate(false);
 				return true;
 				}
 			if (ea.getKey()== GUIEventAdapter::KEY_Left){
-				flushMouseEventStack();
-				BumpDistance      *= 0.8;
-				AvoidanceDistance *= 0.8;
-				osg::notify(ALWAYS) << "Decrease Bump-Avoidance Distance : "<<BumpDistance<<","<<AvoidanceDistance<<"\n";
+				_padEvent = NAVPAD_STRAFELEFT;
 				us.requestContinuousUpdate(false);
 				return true;
 				}
 			if (ea.getKey()== GUIEventAdapter::KEY_Right){
-				flushMouseEventStack();
-				BumpDistance      *= 1.5;
-				AvoidanceDistance *= 1.5;
-				osg::notify(ALWAYS) << "Increase Bump-Avoidance Distance : "<<BumpDistance<<","<<AvoidanceDistance<<"\n";
+				_padEvent = NAVPAD_STRAFERIGHT;
 				us.requestContinuousUpdate(false);
 				return true;
 			}
 			if (ea.getKey()== GUIEventAdapter::KEY_Page_Down){
-				flushMouseEventStack();
-				Acceleration *= 0.8;
-				osg::notify(ALWAYS) << "Decrease mouse-wheel Acceleration : "<<Acceleration<<"\n";
+				_padEvent = NAVPAD_DOWN;
 				us.requestContinuousUpdate(false);
 				return true;
 			}
@@ -1168,6 +1161,15 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				_HeadLight->getLight()->setDirection( _vLook );
 				_HeadLight->getLight()->setPosition( Vec4(_vEye.x(),_vEye.y(),_vEye.z(), 0) );
 				*/
+				_bLockDir = !_bLockDir;
+				
+				if (_bLockDir){
+					SyncData();
+					osg::Vec3d D = _vLook;
+					D.normalize();
+					_vLockDir = D;
+					}
+
 				us.requestContinuousUpdate(false);
 				return true;
 				}
@@ -1243,6 +1245,8 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 			return true;
 			}
 		case(GUIEventAdapter::KEYUP):{
+			_padEvent = NAVPAD_NONE;
+
 			if (ea.getKey()==GUIEventAdapter::KEY_Control_L){
 				_bHoldCTRL = false;
 
