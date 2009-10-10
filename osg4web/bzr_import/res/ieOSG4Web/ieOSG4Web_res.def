@@ -1,6 +1,6 @@
 ; ieOSG4Web.def : Declares the module parameters.
 
-LIBRARY      "ieOSG4Web.ocx"
+LIBRARY      "ieOSG4Web.dll"
 
 EXPORTS
 	DllCanUnloadNow     PRIVATE
