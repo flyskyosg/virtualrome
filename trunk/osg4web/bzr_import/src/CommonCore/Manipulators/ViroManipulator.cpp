@@ -84,8 +84,9 @@ ViroManipulator::ViroManipulator() : CommandSchedule("WALK") {
 	Enable(PERIPHERAL_LOCK);
 	//_HeadLight = new osg::LightSource;
 
-	_padEvent = NAVPAD_NONE;
-	_bLockDir = false;
+	_padEvent   = NAVPAD_NONE;
+	_bLockZ   = false;
+	_bMidButton = false;
 }
 
 ViroManipulator::~ViroManipulator(){
@@ -405,8 +406,8 @@ void ViroManipulator::boost(int mode){
 	
 		case(BOOST):{
 			if (_speed != 0.0){
-				if (!_bLockDir) vD = _vLook * F;
-				else vD = _vLockDir * F;
+				vD = _vLook * F;
+				if (_bLockZ) vD[2] = 0.0;
 
 				_vEye    += vD;
 				_vTarget += vD;		// FIXME?
@@ -415,7 +416,7 @@ void ViroManipulator::boost(int mode){
 				return;
 				}
 			}
-
+/*
 		case (UP):{
 			vD = osg::Z_AXIS * F;
 
@@ -425,6 +426,7 @@ void ViroManipulator::boost(int mode){
 			if (_speed < 0.0) _UserControlPercentage = 1.0;
 			return;
 			}
+*/
 	}
 }
 
@@ -464,23 +466,56 @@ void ViroManipulator::turn(double dx, double dy){
 		long double Fx = (dt * 200 * dx);
 		if (isEnabled(AUTO_SCALE_STEP)){ Fy *= autoStepFactor; Fx *= autoStepFactor; }
 
-		//osg::Quat dRotation;
+		osg::Quat qTumble;
 		//dRotation.makeRotate(-(Fx * (_vEye-_vLastPickedPoint).length() * 0.1 ), osg::Z_AXIS);
+		qTumble = computeQuat(_vEye,_vLastPickedPoint, osg::Z_AXIS);
 
 		Vec3d M,Slide;
 		Slide = _vStrafe;
 		Slide.normalize();
 		Slide *= -Fx;
 
+		//double rx,ry,X,Y,a;
+		//a = VecAngle(osg::X_AXIS, _vLook);
+		//X = _vLastPickedPoint.x() - _vEye.x();
+		//Y = _vLastPickedPoint.y() - _vEye.y();
+		//rx = X*cos(a) - Y*sin(a);
+		//ry = X*sin(a) + Y*cos(a);
+
 		//dRotation.makeRotate( (_vEye-_vLastPickedPoint),(_vEye-_vLastPickedPoint)+Slide+Vec3d(0,0,-Fy));
 
-		M = Vec3d(Slide.x(),Slide.y(),-Fy);
+		//M = Vec3d(Slide.x(),Slide.y(),-Fy);
 		//M = Vec3d(0,0,-Fy);
 
-		_vEye    += M;
-		_vTarget += M;
+		//_vEye    += M;
+		//_vTarget += M;
 
 		//_qRotation = _qRotation * dRotation;
+		Vec3d V1 = _vLastPickedPoint - _vEye;
+		Vec3d V2 = _vLook;
+		V1.normalize();
+		V2.normalize();
+		Vec3d T = (Vec3d(_vEye+V1) - Vec3d(_vEye+V2));
+		double rad = V1.length();
+		
+		if (T.length() < 0.2){
+			osg::Vec3d tmp;
+			_qRotation = qTumble;
+			//M = Vec3d(X,Y,-Fy);
+			M = Vec3d(Slide.x()*2,Slide.y()*2,-Fy);
+			//tmp = _vEye + M;
+			//tmp = _vLastPickedPoint-tmp;
+			//tmp.normalize();
+			//tmp *= rad;
+			//_vEye = _vLastPickedPoint - tmp;
+
+			_vEye += M;
+			}
+		else {
+			M = Vec3d(Slide.x(),Slide.y(),-Fy);
+			_vTarget += M;
+			_vEye += M;
+			}
 		}
 }
 
@@ -741,15 +776,16 @@ void ViroManipulator::AutoControl(double callTime){
 		else autoStepFactor = (_vEye.z()-10.0) / 2500; //(max-min);
 		//autoStepFactor -= 0.3;
 
-		double R = 3;
+		double R = 2;
 
 		if (autoStepFactor < 0.1){
 			//_Viewer->getCamera()->setNearFarRatio( autoStepFactor * 0.001 );
 			double Zfar;
-			Zfar = _Mix.interpolate(autoStepFactor/0.1, 800,9000);
+			Zfar = _Mix.interpolate(autoStepFactor/0.1, 1000,20000);
 			//_Viewer->getCamera()->setComputeNearFarMode(osg::CullSettings::DO_NOT_COMPUTE_NEAR_FAR);
 			//_Viewer->getCamera()->setProjectionMatrixAsPerspective(30.0,R, 0.01,Zfar);
 			_Viewer->getCamera()->setNearFarRatio( 0.00001 );
+			//_Viewer->getCamera()->setProjectionMatrixAsFrustum(-0.0,10.0, 0.0,10.0, 0.01,Zfar);
 			RollWithYaw = _Mix.interpolate(autoStepFactor/0.1, 0.01,1.5); // 0.01;
 			}
 		else {
@@ -883,13 +919,6 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				_vEye = _Mix.interpolate(t,_vStoredEye[ViroManipulator::FROM],
 					                        _vStoredEye[ViroManipulator::TO],
 											_Mix.BOOST_TO);
-				// Apply Inertia
-				/*
-				if (_speed != 0.0){
-					//_vEye += _Mix.interpolate(t, _vLook,Vec3d(0.0,0.0,0.0)) * t;
-					//if (_vEye[2] < BumpDistance)
-					}
-				*/
 
 				// New interpolated Rotation
 				_qRotation = _Mix.interpolate(t,_qStoredRotation[ViroManipulator::FROM],
@@ -980,9 +1009,10 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 			
 			// Mid Button
 			if (ea.getButtonMask() == GUIEventAdapter::MIDDLE_MOUSE_BUTTON){	
-				osg::notify(DEBUG_INFO)<<"Mid-Mouse pressed.\n";
+				//osg::notify(DEBUG_INFO)<<"Mid-Mouse pressed.\n";
 				//_bSatMode = false;
-				
+				_bMidButton = true;
+
 				// During a Fly-To, stop flying...
 				if (_bFlying){
 					_speed     = 0.0;
@@ -1031,6 +1061,11 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 			// Right Button
 			else if (ea.getButtonMask() == GUIEventAdapter::RIGHT_MOUSE_BUTTON){
 				Disable(PERIPHERAL_LOCK);
+				/*
+				if (_bHoldCTRL){
+					if (!_bFlying && handlePick(_ev0->getXnormalized(),_ev0->getYnormalized())) _vLastPickedPoint = _vStoredEye[TO]; 
+					}
+				*/
 				}
 
 			if ( MouseListener() ) us.requestRedraw();
@@ -1041,16 +1076,12 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 		case(GUIEventAdapter::RELEASE):{
 			Enable(PERIPHERAL_LOCK);
 
-			/*
-			if (ea.getButtonMask() == GUIEventAdapter::RIGHT_MOUSE_BUTTON){
-				Enable(PERIPHERAL_LOCK);
+			
+			if (ea.getButtonMask() == GUIEventAdapter::MIDDLE_MOUSE_BUTTON){
+				_bMidButton = false;
 				}
-			*/
-			//addMouseEvent(ea);
 
 			//handleRelease( ea );
-
-			if ( MouseListener() ) us.requestRedraw();
 			us.requestContinuousUpdate(false);
 			return true;
 			}
@@ -1107,24 +1138,10 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				return true;
 				}
 			if (ea.getKey()== GUIEventAdapter::KEY_Up){
-				/*
-				flushMouseEventStack();
-				NumTracerSamplers++;
-				osg::notify(ALWAYS) << "Increase Tracer-Samplers : "<<NumTracerSamplers<<"\n";
-				us.requestContinuousUpdate(false);
-				return true;
-				*/
 				_padEvent = NAVPAD_FORWARD;
 				us.requestContinuousUpdate(false);
 				}
 			if (ea.getKey()== GUIEventAdapter::KEY_Down){
-				/*
-				flushMouseEventStack();
-				if (NumTracerSamplers>1) NumTracerSamplers--;
-				osg::notify(ALWAYS) << "Decrease Tracer-Samplers : "<<NumTracerSamplers<<"\n";
-				us.requestContinuousUpdate(false);
-				return true;
-				*/
 				_padEvent = NAVPAD_BACKWARD;
 				us.requestContinuousUpdate(false);
 				}
@@ -1161,13 +1178,16 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				_HeadLight->getLight()->setDirection( _vLook );
 				_HeadLight->getLight()->setPosition( Vec4(_vEye.x(),_vEye.y(),_vEye.z(), 0) );
 				*/
-				_bLockDir = !_bLockDir;
+				_bLockZ = !_bLockZ;
 				
-				if (_bLockDir){
+				if (_bLockZ){
+					_zLock = _vEye.z();
+					/*
 					SyncData();
 					osg::Vec3d D = _vLook;
 					D.normalize();
 					_vLockDir = D;
+					*/
 					}
 
 				us.requestContinuousUpdate(false);
@@ -1199,45 +1219,55 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				
 			// Keyboard navigation
 			if (ea.getKey()== 'a'){
+				/*
 				//flushMouseEventStack();
 				Enable(PERIPHERAL_LOCK);
 				double d = 50.;
 				turn( d*getDtime(), 0.0);
 				SyncData();
+				*/
 				us.requestContinuousUpdate(false);
 				return true;
 				}
 			if (ea.getKey()== 'd'){
+				/*
 				//flushMouseEventStack();
 				Enable(PERIPHERAL_LOCK);
 				double d = 50.;
 				turn(-d* getDtime(), 0.0);
 				SyncData();
+				*/
 				us.requestContinuousUpdate(false);
 				return true;
 			}
 			if (ea.getKey()== 'w'){
+				/*
 				//flushMouseEventStack();
 				Enable(PERIPHERAL_LOCK);
 				_speed += Acceleration * getDtime();
 				boost();
 				SyncData();
+				*/
 				us.requestContinuousUpdate(false);
 				return true;
 			}
 			if (ea.getKey()== 's'){
+				/*
 				//flushMouseEventStack();
 				Enable(PERIPHERAL_LOCK);
 				_speed = 0.0;
+				*/
 				us.requestContinuousUpdate(false);
 				return true;
 			}
 			if (ea.getKey()== 'x'){
+				/*
 				//flushMouseEventStack();
 				Enable(PERIPHERAL_LOCK);
 				_speed -= Acceleration * getDtime();
 				boost();
 				SyncData();
+				*/
 				us.requestContinuousUpdate(false);
 				return true;
 				}
