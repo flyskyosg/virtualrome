@@ -2,10 +2,6 @@
 #include <ieOSG4Web/ieOSG4Web.h>
 #include <ieOSG4Web/ieOSG4Web_PropPage.h>
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-
 
 // IMPLEMENT_DYNCREATE
 IMPLEMENT_DYNCREATE(PropPage, COlePropertyPage)

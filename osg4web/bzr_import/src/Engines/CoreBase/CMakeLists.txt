@@ -17,6 +17,10 @@ PROJECT(CoreBase)
 
 ADD_DEFINITIONS(-DOSG4WEBCORE_LIBRARY)
 
+IF(DEBUG_INFO_IN_FILE)
+	ADD_DEFINITIONS(-DOSG4WEB_DEBUG_INFO_IN_FILE)
+ENDIF(DEBUG_INFO_IN_FILE)
+
 
 ############################################################
 #

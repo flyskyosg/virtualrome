@@ -1,11 +1,3 @@
-############################################################
-#
-# Additional Options
-#
-############################################################
-
-OPTION(PLACE_IN_PLUGIN "If on place output files into Firefox/plugin" OFF)
-
 
 ############################################################
 #
@@ -124,6 +116,11 @@ MACRO(SETUP_CORE_EXAMPLE)
 	# Adding Definition
 	ADD_DEFINITIONS(-DOSG4WEBCORE_LIBRARY)
 
+	# Adding Debug on File Definition
+	IF(DEBUG_INFO_IN_FILE)
+		ADD_DEFINITIONS(-DOSG4WEB_DEBUG_INFO_IN_FILE)
+	ENDIF(DEBUG_INFO_IN_FILE)
+
 	# Setting variables
 	SET(CMAKE_DEBUG_POSTFIX  "d")
 	SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -176,6 +173,11 @@ MACRO(SETUP_COREOGL_EXAMPLE)
 	# Adding Definition
 	ADD_DEFINITIONS(-DOSG4WEBCORE_LIBRARY)
 
+	# Adding Debug on File Definition
+	IF(DEBUG_INFO_IN_FILE)
+		ADD_DEFINITIONS(-DOSG4WEB_DEBUG_INFO_IN_FILE)
+	ENDIF(DEBUG_INFO_IN_FILE)
+	
 	# Setting variables
 	SET(CMAKE_DEBUG_POSTFIX  "d")
 	SET("${PROJECT_NAME}_src" ${CMAKE_CURRENT_SOURCE_DIR}/src)

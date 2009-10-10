@@ -155,7 +155,12 @@ IMPLEMENT_OLECTLTYPE(ieOSG4Web_Ctrl, IDS_IEOSG4WEB, _dwieOSG4WebOleMisc)
 	m_ShellBase.setInitOption( INIT_OPTION_TEMPDIR, reftempstr);
 	reftempstr.clear();
 	
+#if defined(IEOSG4WEB_COREDIR_PLUGIN)
+	reftempstr = (LPCTSTR) GetInstallDir();
+#else
 	reftempstr = (LPCTSTR) GetInstallCoreDir();
+#endif
+
 	if(reftempstr.empty())
 	{
 		m_ShellBase.setErrorCode( 42 );

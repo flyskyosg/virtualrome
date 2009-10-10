@@ -46,6 +46,16 @@ ENDIF(USER_DEFINED_MODULE_PATH)
 
 ############################################################
 #
+# Additional Options
+#
+############################################################
+
+OPTION(PLACE_IN_PLUGIN "If on place output files into Firefox/plugin" OFF)
+OPTION(DEBUG_INFO_IN_FILE "If on redirect debug output in file" OFF)
+
+
+############################################################
+#
 # Specific Compiler Properties
 #
 ############################################################
@@ -79,6 +89,7 @@ IF(WIN32)
 	CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/CMakeIn/run_msvc_debug.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/run_msvc_debug.cmake @ONLY)
 	ADD_TEST(open_project_in_debug ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/run_msvc_debug.cmake )
 ENDIF(WIN32)
+
 
 
 ############################################################
