@@ -300,6 +300,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 
 		osg::Vec3d _holdTarget;
 		osg::Vec3d _vLastPickedPoint;
+		osg::Vec3d _vLockDir;
 
 		// Bool
 		bool _bNeedUpdateTrace;				// Tracer needs to be called
@@ -311,6 +312,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		bool _bImpact;
 		bool _bAvoidanceZone;
 		bool _bReqHome;
+		bool _bLockDir;
 
 		// Web NavPad
 		unsigned short _padEvent;
