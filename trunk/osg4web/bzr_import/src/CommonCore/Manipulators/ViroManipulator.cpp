@@ -300,7 +300,7 @@ void ViroManipulator::setByMatrix(const osg::Matrixd& matrix){
 	_roll  = atan2(2*qx*qw-2*qy*qz , 1 - 2*qx*qz - 2*qz*qz);
 
 	osg::Quat rot = osg::Quat( (_pitch+osg::PI_2), osg::X_AXIS) * osg::Quat(0.0/*(_roll) */, osg::Y_AXIS) * osg::Quat( (_yaw), osg::Z_AXIS);
-	_qRotation = rot;
+	_qRotation    = rot;
 
 	//matrix.decompose(_vEye, Q, vScale, q);
 
@@ -494,8 +494,9 @@ void ViroManipulator::FlyTo(double callTime){
 void ViroManipulator::AutoControl(double callTime){
 	if (bAutoControlLock) return;
 
-	_bImpact        = false;
-	_bAvoidanceZone = false;
+	_bImpact               = false;
+	_bAvoidanceZone        = false;
+	_currentGroundDistance = -1.0;
 	
 	// Collision Detection & Avoidance
 	if (isEnabled(COLLISIONS) && _bIntersect){
@@ -503,8 +504,8 @@ void ViroManipulator::AutoControl(double callTime){
 
 		if ((_speed != 0.0) && (impactDistance < AvoidanceDistance)){
 			_tLastAvoidanceWarn = callTime;
-			_speed *= 0.3;
-			//_speed = 0.0;
+			//_speed *= 0.1;
+			_speed = 0.0;
 			_bAvoidanceZone = true;
 /*			
 			osg::Vec3d vBump = VecBump(_vInormal, _vLook);
@@ -545,7 +546,7 @@ void ViroManipulator::AutoControl(double callTime){
 
 					double dd = (AvoidanceDistance - BumpDistance);
 					_UserControlPercentage = (impactDistance - BumpDistance) / dd;
-					osg::notify(DEBUG_INFO)<<"You are about to Crash. Please correct. Control Percentage = "<<(_UserControlPercentage*100.0)<<"\n";
+					//osg::notify(DEBUG_INFO)<<"You are about to Crash. Please correct. Control Percentage = "<<(_UserControlPercentage*100.0)<<"\n";
 				
 					// If we are approaching surface, enable interpolated speed limiter
 					double revLimiter = _Mix.interpolate(_UserControlPercentage,SurfaceSpeedLimiter,_speed);
@@ -586,6 +587,7 @@ void ViroManipulator::AutoControl(double callTime){
 
 		// Check for surface attraction
 		if ( Intersect(_vEye+Vec3d(0.0,0.0,(_tFallTimer*R*0.5)),_vEye-Vec3d(0.0,0.0,R), P,N) ){
+			_currentGroundDistance = _vEye.z()-P.z();
 			if ( _vEye.z() > P.z() + GroundDistance ){
 				_bSurfaceImpact = false;
 				//_CurrentGravityAcceleration *= GravityAcceleration;
@@ -681,9 +683,11 @@ void ViroManipulator::AutoControl(double callTime){
 
 	if ( isEnabled(Z_COLLIDE) && !isEnabled(GRAVITY) ){
 		osg::Vec3d P,N;
+		double Rad = _NODE->getBound().radius();
 
 		// Check for surface Z collisions
-		if ( Intersect(_vEye /*+Vec3d(0.0,0.0,GroundDistance)*/,_vEye-Vec3d(0.0,0.0,GroundDistance), P,N) ){
+		if ( Intersect(_vEye/*+Vec3d(0.0,0.0,Rad)*/,_vEye-Vec3d(0.0,0.0,Rad), P,N) ){
+			_currentGroundDistance = _vEye.z()-P.z();
 			if ( (_vEye.z() - P.z()) <= GroundDistance ){
 				_vEye[2] = P.z() + GroundDistance;
 				}
@@ -721,7 +725,8 @@ void ViroManipulator::AutoControl(double callTime){
 		max = C.z() + r;
 		min = C.z() - r;
 
-		autoStepFactor = (_vEye.z()-10.0) / 2500; //(max-min);
+		if (_currentGroundDistance > 0.0) autoStepFactor = _currentGroundDistance/2000;
+		else autoStepFactor = (_vEye.z()-10.0) / 2500; //(max-min);
 		//autoStepFactor -= 0.3;
 
 		double R = 3;
@@ -1379,6 +1384,8 @@ bool ViroManipulator::Trace(){
 
 	// Else use standard method
 	else {
+		if (_speed == 0.0) return false;
+
 		Vec3d p[8],n[8],X,Y,Slide,W,H,L;
 		X = _vStrafe * TracerFrustum.x() * lookAhead;
 		Y = _vStrafe * TracerFrustum.y() * lookAhead;
@@ -1471,10 +1478,12 @@ std::string ViroManipulator::ExecCommand(std::string lcommand, std::string rcomm
 		_bHoldCTRL = false;
 		}
 	else if ((lcommand.compare("FORWARD") == 0) && (rcommand.compare("UP") == 0)){
-		_speed += 200.0*getDtime();
+		_speed += 2000.0*getDtime();
+		boost();
 		}
 	else if ((lcommand.compare("FORWARD") == 0)&& (rcommand.compare("DOWN") == 0)){
-		_speed -= 200.0*getDtime();
+		_speed -= 2000.0*getDtime();
+		boost();
 		}
 
 	else if ((lcommand.compare("PITCH") == 0)&& (rcommand.compare("UP") == 0))
@@ -1507,43 +1516,51 @@ std::string ViroManipulator::ExecCommand(std::string lcommand, std::string rcomm
 		else return retstr_fail;
 		}
 
-	else
-		return retstr_fail;
+	else if ((lcommand.compare("SET_GROUND_DISTANCE") == 0)){
+		double gd;
+		if (sscanf(rcommand.c_str(), "%lf", &gd) == 1){
+			if (gd > 0.0) setGroundDistance(gd);;
+			}
+		else return retstr_fail;
+		}
+	else if ((lcommand.compare("SET_COLLISION_DISTANCE") == 0)){
+		double a,b;
+		if (sscanf(rcommand.c_str(), "%lf %lf", &a,&b) == 2){
+			if ((b > a) && (a > 0.0)){ setImpactDistance( a ); setAvoidanceDistance( b ); }
+			}
+		else return retstr_fail;
+		}
+	else if ((lcommand.compare("SET_GLASS_PRISON") == 0)){
+		double xmin,ymin,zmin, xmax,ymax,zmax;
+		if (sscanf(rcommand.c_str(), "%lf %lf %lf %lf %lf %lf", &xmin,&ymin,&zmin,&xmax,&ymax,&zmax) == 6){
+			osg::BoundingBox bb;
+			bb.set(xmin,ymin,zmin, xmax,ymax,zmax);
+			this->setGlassPrison( bb );
+			}
+		else return retstr_fail;
+		}
+
+	// Options
+	else if (lcommand.compare("GRAVITY") == 0){
+		Invert( GRAVITY );
+		}
+	else if (lcommand.compare("COLLISIONS") == 0){
+		Invert( COLLISIONS );
+		}
+	else if (lcommand.compare("GET_GRAVITY") == 0){
+		std::string G;
+		if ( this->isEnabled(GRAVITY) )		G = std::string("ON");
+		else								G = std::string("OFF");
+		return G;
+		}
+	else if (lcommand.compare("GET_COLLISIONS") == 0){
+		std::string C;
+		if ( this->isEnabled(COLLISIONS) )	C = std::string("ON");
+		else								C = std::string("OFF");
+		return C;
+		}
+
+	else return retstr_fail;
 	
 	return retstr_done;
-
-/*
-  else if (lcommand.compare("GOTO") == 0)
-  {
-    CameraData CP;
-    if (sscanf(rcommand.c_str(), "%lf %lf %lf %lf %lf %lf", &CP.Camera_X, &CP.Camera_Y, &CP.Camera_Z, &CP.Camera_Yaw, &CP.Camera_Pitch, &CP.Camera_Roll) == 6)
-    {
-      this->setPosition(CP, true);
-      this->adjustGroundDistance();
-    }
-    else
-      return retstr_fail;
-  }
-  else if (lcommand.compare("SETSTEPS") == 0)
-  {
-    double step_h, step_v;
-    if (sscanf(rcommand.c_str(), "%lf %lf", &step_h, &step_v) == 2)
-      this->setStepAmount(step_h, step_v);
-    else
-      return retstr_fail;
-  }
-  else if (lcommand.compare("SETNEARFAR") == 0)
-  {
-    double near, far;
-    if (sscanf(rcommand.c_str(), "%lf %lf", &near, &far) == 2)
-      this->setNearFar(near, far);
-    else
-      return retstr_fail;
-  }
-	else if (lcommand.compare("STOP") == 0)
-	{
-		this->stop_walking();
-		this->stop_rotating();
-	}
-	*/
 }

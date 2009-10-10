@@ -277,8 +277,8 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 
 		osg::Quat	_qRotation;				// Camera rotation
 
-		double		_yaw;					// not used
-		double		_pitch;					// not used
+		double		_yaw;					//
+		double		_pitch;					//
 		double		_roll;					//
 
 		double		_FrameDT;
@@ -292,6 +292,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		double		_AvoidanceReaction;				// Collision-Avoidance reaction factor
 		double		_UserControlPercentage;			// User Control (0 = None, 1 = Full)
 		double		_CurrentGravityAcceleration;	// UNUSED
+		double		_currentGroundDistance;
 
 		double		_modelScale;
 		osg::Vec3d	_vIpoint;				// Current Intersection Point (or avg)
