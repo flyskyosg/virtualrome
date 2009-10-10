@@ -401,7 +401,7 @@ void FunCore::handleEnvironment()
 	EnvSS = EnvNode->getOrCreateStateSet();
 	
 	EnvFog->setColor( osg::Vec4f(0.9,1.0,1.0, 1.0) );
-	EnvFog->setDensity( 0.0005 );
+	//EnvFog->setDensity( 0.0005 );
 	EnvFog->setMode(osg::Fog::EXP);
 
 	EnvSS->setAttributeAndModes( EnvFog.get() );
