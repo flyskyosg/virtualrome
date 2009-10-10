@@ -39,10 +39,6 @@ static PRLock* s_ThreadLocking = NULL;
 //Downloading Core Thread locking state
 static PRLock* s_DlCoreThreadLocking = NULL;
 
-
-//Main Error Message
-std::string s_PluginMessageError;
-
 /////////////////////////////////////
 //
 // general initialization and shutdown
@@ -177,8 +173,8 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	nsresult rv = getProxySettings(tempstr, tempstr2);
 	if(rv != NS_OK)
 	{
-		s_PluginMessageError = "retrieve proxy info failed!";
-		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve proxy info failed!");
+		mShellBase.setErrorCode( 40 );
+		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> " + mShellBase.getErrorString());
 		delete reftempstr;
 		return;
 	}
@@ -192,8 +188,8 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	rv = getCurrPlugDir(reftempstr, NPOSG4WEB_DIRECTORY);
 	if(rv != NS_OK)
 	{
-		s_PluginMessageError = "retrieve plugin directory failed!";
-		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve plugin directory failed!");
+		mShellBase.setErrorCode( 41 );
+		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> " + mShellBase.getErrorString());
 		delete reftempstr;
 		return;
 	}
@@ -205,8 +201,8 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	rv = getCurrPlugDir(reftempstr, NPOSG4WEB_DIRECTORY_LOCAL);
 	if(rv != NS_OK)
 	{
-		s_PluginMessageError = "retrieve plugin directory failed!";
-		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve local plugin directory failed!");
+		mShellBase.setErrorCode( 42 );
+		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> " + mShellBase.getErrorString());
 		delete reftempstr;
 		return;
 	}
@@ -218,8 +214,8 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	rv = getCurrPlugDir(reftempstr, NS_OS_TEMP_DIR);
 	if(rv != NS_OK)
 	{
-		s_PluginMessageError = "retrieve temp directory failed!";
-		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve temp directory failed!");
+		mShellBase.setErrorCode( 43 );
+		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> " + mShellBase.getErrorString());
 		delete reftempstr;
 		return;
 	}
@@ -236,8 +232,8 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 
 	if(rv != NS_OK)
 	{
-		s_PluginMessageError = "retrieve core directory failed!";
-		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> retrieve core directory failed!");
+		mShellBase.setErrorCode( 44 );
+		mShellBase.sendWarnMessage("nsPluginInstance::nsPluginInstance -> " + mShellBase.getErrorString());
 		delete reftempstr;
 		return;
 	}
@@ -471,7 +467,8 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 
 	if(aWindow == NULL)
 	{
-		mShellBase.sendWarnMessage("nsPluginInstance::init -> window pointer is not present.");
+		mShellBase.setErrorCode( 46 ); 
+		mShellBase.sendWarnMessage("nsPluginInstance::init -> " + mShellBase.getErrorString());
 		return mInitialized;
 	}
 
@@ -479,8 +476,8 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 	mhWnd = (HWND)aWindow->window;
 	if(mhWnd == NULL)
 	{
-		s_PluginMessageError = "invalid window pointer!";
-		mShellBase.sendWarnMessage("nsPluginInstance::init -> window pointer is not valid.");
+		mShellBase.setErrorCode( 45 ); 
+		mShellBase.sendWarnMessage("nsPluginInstance::init -> " + mShellBase.getErrorString() );
 		return mInitialized;
 	}
 
@@ -527,8 +524,7 @@ NPBool nsPluginInstance::initLoadCore()
 	mShellBase.sendNotifyMessage("nsPluginInstance::initLoadCore -> starting the Loading Core.");
 	if(!mShellBase.startLoadingBaseCore())
 	{
-		s_PluginMessageError = mShellBase.getErrorString();
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + s_PluginMessageError);
+		mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + mShellBase.getErrorString());
 		return false;
 	}
 
@@ -562,8 +558,7 @@ NPBool nsPluginInstance::initLoadCore()
 		//Reload LoadCore
 		if(!mShellBase.startLoadingBaseCore())
 		{
-			s_PluginMessageError = mShellBase.getErrorString();
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + s_PluginMessageError);
+			mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + mShellBase.getErrorString());
 			return false;
 		}
 
@@ -649,10 +644,7 @@ void nsPluginInstance::shut()
 	this->releaseDownloadCore();
 	
 	if(!mShellBase.closeAllLibraries())
-	{
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::shut -> Error closing all libraries."));
-		s_PluginMessageError = mShellBase.getErrorString(); //TODO: correggere il messaggio
-	}
 	
 #if defined(WIN32)
 	// subclass it back
@@ -1082,7 +1074,6 @@ void nsPluginInstance::doDownloadCore()
 			//Reload LoadCore
 			if(!mShellBase.startLoadingBaseCore())
 			{
-				s_PluginMessageError = mShellBase.getErrorString();
 				mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Starting Loading Core failed... BYE BYE..."));
 				return;
 			}
@@ -1416,7 +1407,6 @@ void nsPluginInstance::doDownloadCore()
 		//Reload LoadCore
 		if(!mShellBase.startLoadingBaseCore())
 		{
-			s_PluginMessageError = mShellBase.getErrorString();
 			mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Starting Loading Core failed... BYE BYE..."));
 			return;
 		}
@@ -1517,16 +1507,30 @@ LRESULT nsPluginInstance::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wP
 {
 	switch (eventmsg) 
 	{
+#if (_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)
+		case WM_MOUSEWHEEL:
+#endif
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONUP:
+		case WM_LBUTTONDBLCLK:
+		case WM_RBUTTONDOWN:
+		case WM_RBUTTONUP:
+		case WM_RBUTTONDBLCLK:
+		case WM_MBUTTONDOWN:
+		case WM_MBUTTONUP:
+		case WM_MBUTTONDBLCLK:
+			SetFocus(hWnd);
+			break;
 	case WM_PAINT:
 		{
-			if( this->checkErrorPresence() )
+			if( this->showFatalCoreErrors() )
 			{
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(hWnd, &ps);
 				RECT rc;
 				GetClientRect(hWnd, &rc);
 				FrameRect(hdc, &rc, GetStockBrush(BLACK_BRUSH));
-				std::string errormsg("OSG4Web Instance Error: " + s_PluginMessageError);//TODO: this->getErrorMessage());
+				std::string errormsg("OSG4Web Instance Error: " + mShellBase.getErrorString() );
 				DrawText(hdc, errormsg.c_str(), errormsg.length(), &rc, DT_SINGLELINE | DT_CENTER | DT_VCENTER);	
 				EndPaint(hWnd, &ps);
 
@@ -1534,40 +1538,13 @@ LRESULT nsPluginInstance::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wP
 			}
 		}
 		break;
-	case WM_ERASEBKGND: //Corregge il problema di flickering durante il ridimensionamento e la selezione
-		if(this->checkRunning())
+	case WM_ERASEBKGND:
+		if(this->checkRunning()) //Corregge il problema di flickering durante il ridimensionamento e la selezione
 			return (0L); //Non passo l'erase signal
 		break;
-
-	/*case WM_MOVE:
-	case WM_SIZE:
-		if(this->checkRunning())
-		{
-			//mShellBase.doRendering();
-			return (0L); //Non passo l'erase signal
-		}
-		break; */
-	
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_LBUTTONDBLCLK:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_RBUTTONDBLCLK:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
-	case WM_MBUTTONDBLCLK:
-#if (_WIN32_WINNT >= 0x0400) || (_WIN32_WINDOWS > 0x0400)
-	case WM_MOUSEWHEEL:
-#endif
-		SetFocus(hWnd);
-		break;
-	
 	default:
 		break;
 	}
-
-//	std::cout << eventmsg << std::endl;
 
 	return (::DefWindowProc(hWnd, eventmsg, wParam, lParam));
 }
@@ -1718,18 +1695,10 @@ bool nsPluginInstance::checkRunning()
 		return true;
 }
 
-bool nsPluginInstance::checkErrorPresence()
+bool nsPluginInstance::showFatalCoreErrors()
 {
-	return mShellBase.isThereErrors();
+	return ( mShellBase.isThereErrors() && !checkRunning());
 }
-
-/* TODO: finire di sistemare i messaggi in un unico posto 
-std::string nsPluginInstance::getErrorMessage()
-{
-	
-}
-*/
-
 
 // ==============================
 // ! Scriptability related code !

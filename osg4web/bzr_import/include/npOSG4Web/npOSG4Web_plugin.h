@@ -78,7 +78,7 @@ public:
 	//Controlla se il core è in stato di rendering
 	bool checkRunning();
 	//Controlla che la shell non sia in stato di errore
-	bool checkErrorPresence();
+	bool showFatalCoreErrors();
 
 	static bool callPrepareRendering(void*);
 	bool prepareRendering();
