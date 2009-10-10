@@ -34,6 +34,16 @@ using namespace CommonCore;
 class CoreBase : public CoreInterface, public CommandSchedule
 {
 public:
+
+	enum CoreBaseActions
+	{
+		UNKNOWN_ACTION = 0,
+		ADD_MODEL,
+		ADDCLEAN_MODEL,
+		ADDSINGLE_MODEL,
+		VIEW_HOME
+	};
+
 	//Costruttore/Distruttore
 	CoreBase(std::string corename = OSG4WEB_COREBASE_NAME);
 	~CoreBase();

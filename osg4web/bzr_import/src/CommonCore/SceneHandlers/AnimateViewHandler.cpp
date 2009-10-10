@@ -16,6 +16,8 @@ AnimateViewHandler::AnimateViewHandler(osgViewer::Viewer* viewer) : CommandSched
 	_activateTransition(false),
 	_animationTime(2500.0) //TODO: spostare da qualche parte o farlo dinamico
 {
+	//Default value
+	this->setCommandAction( "UNKNOWN_ACTION" );
 	this->setCommandAction( "GET_MATRIX" );
 	this->setCommandAction( "SET_MATRIX" );
 
@@ -90,15 +92,21 @@ std::string AnimateViewHandler::handleAction(std::string argument)
 	std::string lcommand, rcommand;
 
 	this->splitActionCommand(argument, lcommand, rcommand);
+
+	//FIXME: Finire la gestione delle command con errori!!!
+	// spostare il controllo del downloader dopo rendering thread
 	
 	switch(this->getCommandActionIndex(lcommand))
 	{
 	case GET_MATRIX:
 		retstr = this->getViewMatrix();
 		break;
-	default:	
+	case SET_MATRIX:	
 		if(!this->setViewMatrix(rcommand))
 			retstr = "STREAM_ERROR";
+		break;
+	default:
+		retstr = "UNKNOWN_ACTION";
 		break;
 	}
 		

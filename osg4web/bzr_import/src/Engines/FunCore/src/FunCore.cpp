@@ -41,22 +41,14 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 
 	this->setCommandScheduleName("FUNCORE");
 	
+	this->setCommandAction("UNKNOWN_ACTION");
 	this->setCommandAction("SETMAINSCENEGRAPH");
 	this->setCommandAction("ADDFILETONODE");
 	this->setCommandAction("CHECKNODEPRESENCE");
 	this->setCommandAction("SETOPTIMIZATION");
-
 	this->setCommandAction("SWITCH_MANIPULATORS");
-
 	this->setCommandAction("RESET_SCENE");
-	
-/*
-	this->setCommandAction("STATUSBAR_VALUE");
-	this->setCommandAction("STATUSBAR_COLOR");
-	this->setCommandAction("STATUSBAR_VISIBILITY");
-	this->setCommandAction("SETMESSAGE");
-	this->setCommandAction("SETMESSAGE_COLOR");
-*/
+
 	this->addCommandSchedule((CommandSchedule*) this);
 }
 
@@ -238,8 +230,8 @@ std::string FunCore::handleAction(std::string argument)
 				retstr = "REQUEST_IN_QUEUE";
 		}
 		break;
-	default: //UNKNOWN_COMMAND
-		retstr = "UNKNOWN_COMMAND";
+	default: //UNKNOWN_ACTION
+		retstr = "UNKNOWN_ACTION";
 		break;
 	}
 	

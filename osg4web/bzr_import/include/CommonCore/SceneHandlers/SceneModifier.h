@@ -20,8 +20,9 @@ namespace SceneHandlers
 	class SceneModifier : public osg::Referenced, public CommandSchedule
 	{
 	public:
-		enum SceneActions {
-			CREATE_GROUP = 0,
+		enum SceneModifierActions {
+			UNKNOWN_ACTION = 0,
+			CREATE_GROUP,
 			CREATE_SWITCH,
 			CREATE_MATRIXTRANSFORM,
 			DELETE_NODE,

@@ -42,6 +42,8 @@ void CoreEdit::AddStartOptions(std::string str, bool erase)
 
 	this->setCommandScheduleName( "COREEDIT" );
 
+	//Default value
+	this->setCommandAction("UNKNOWN_ACTION");
 	//Using: CEM_LOAD_TERRAIN fileaddress
 	this->setCommandAction("LOAD_TERRAIN");
 	
@@ -125,11 +127,10 @@ std::string CoreEdit::handleAction(std::string argument)
 	std::string lcommand, rcommand;
 
 	this->splitActionCommand(argument, lcommand, rcommand);
-	//this->sendNotifyMessage("handleAction -> Command Found");
 
 	switch(this->getCommandActionIndex(lcommand))
 	{
-	case 0: //LOAD_TERRAIN
+	case LOAD_TERRAIN:
 		{
 			osg::ref_ptr<osg::Node> terreno = osgDB::readNodeFile( rcommand ); 
 	
@@ -147,6 +148,7 @@ std::string CoreEdit::handleAction(std::string argument)
 		}
 		break;
 	default:
+		retstr = "UNKNOWN_ACTION";
 		break;
 	}
 

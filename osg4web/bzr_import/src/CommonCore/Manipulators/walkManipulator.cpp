@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2008/03/12 02:23:27 $
-Version:   $Revision: 1.9 $
+Date:      $Date: 2008/04/09 16:44:32 $
+Version:   $Revision: 1.10 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -71,9 +71,11 @@ walkManipulator::walkManipulator() : CommandSchedule("WALK"),
 {
    _keep_on_rotating_left = _keep_on_rotating_right = _keep_on_rotating_up = _keep_on_rotating_down = false;
 
+	//Default value
+	this->setCommandAction("UNKNOWN_ACTION");
 	//Using: WALK_MANIP nomecomando
 	this->setCommandAction("WALK_MANIP");
-  _autoComputeHomePosition = false;
+	_autoComputeHomePosition = false;
 }
 
 #if _USE_VISMAN_

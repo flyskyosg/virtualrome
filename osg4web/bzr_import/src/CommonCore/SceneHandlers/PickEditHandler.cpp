@@ -50,12 +50,12 @@ bool PickEditHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 			}
 
 			///////////////////////////////
-			if(_mode == VIEW) return false;
+			if(_mode == MODE_VIEW) return false;
 			///////////////////////////////
 			
 
 			////////////////
-			if(_mode == ADD)
+			if(_mode == MODE_ADD)
 			////////////////
 			{
 				switch (ea.getEventType())
@@ -112,7 +112,7 @@ bool PickEditHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 			}
 			
 			////////////////////
-			if (_mode == SELECT)
+			if (_mode == MODE_SELECT)
 			////////////////////
 			{
 				switch (ea.getEventType())
@@ -149,7 +149,7 @@ bool PickEditHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 												_ready_to_remove = true;
 												_waitingCommit = true;
 												// _mode = PICK;
-												this->setMode(3); //PICK
+												this->setMode(MODE_PICK); //PICK
 												break;
 													
 											}
@@ -166,7 +166,7 @@ bool PickEditHandler::handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionA
 			}
 						
 			//////////////////
-			if (_mode == PICK)
+			if (_mode == MODE_PICK)
 			//////////////////
 			{
 			
@@ -315,7 +315,7 @@ osg::Node* PickEditHandler::getSelectionNode()
 		
 void PickEditHandler::setActionView()
 {
-	this->setMode(0); //VIEW
+	this->setMode(MODE_VIEW); //VIEW
 }
 
 		
@@ -500,7 +500,7 @@ void PickEditHandler::defaultText()
 
 
 //mappatura comandi per JS
-bool PickEditHandler::setMode(unsigned int mode)
+bool PickEditHandler::setMode(Modes mode)
 {
 	_mode = mode;
 
@@ -542,40 +542,40 @@ std::string PickEditHandler::handleAction(std::string argument)
 
 	switch(this->getCommandActionIndex(lcommand))
 	{
-	case 0: //VIEW
-		if( !this->setMode(0) )
+	case VIEW:
+		if( !this->setMode(MODE_VIEW) )
 			retstr = "CORE_FAILED";
 		break;
-	case 1: //ADD
-		if( !this->setMode(1) )
+	case ADD:
+		if( !this->setMode(MODE_ADD) )
 			retstr = "CORE_FAILED";
 		break;
-	case 2: //SELECT
-		if( !this->setMode(2) )
+	case SELECT:
+		if( !this->setMode(MODE_SELECT) )
 			retstr = "CORE_FAILED";
 		break;
-	case 3:	//CHANGE_MODEL
+	case CHANGE_MODEL:
 		if( !this->setModel(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
-	case 4:	//CHANGE_DRAGGER
+	case CHANGE_DRAGGER:
 		if( !this->setDragger(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
-	case 5:	//CHANGE_BILLBOARD
+	case CHANGE_BILLBOARD:
 		if( !this->setBillBoardImageName(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
-	case 6: //COMMIT
+	case COMMIT:
 		if(_waitingCommit == true)
 			_commit = true;
 		break;
-	case 7:	//GET_MATRIX
-	retstr = this->getPoseMatrix();
+	case GET_MATRIX:
+		retstr = this->getPoseMatrix();
 		break;
 	default:
+		retstr = "UNKNOWN_ACTION";
 		break;
-
 	}
 	
 	return retstr;

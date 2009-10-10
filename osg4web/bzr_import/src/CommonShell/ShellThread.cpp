@@ -3,70 +3,108 @@
 #include <CommonShell/ShellThread.h>
 
 
-ShellThread::ShellThread() : mLock( PR_NewLock() ),
-	mThread(NULL),
-	mShutdown(false)
+
+ShellThread::ShellThread() : _Lock(NULL),
+	_CondVar(NULL),
+	_Thread(NULL),
+	_NeedWait(false),
+	_Shutdown(false)
 {
+	//Lock Creation
+	_Lock = PR_NewLock();
 	//Check di esistenza del lock
-	assert(mLock);
+	assert(_Lock);
 
-}
-
-ShellThread::ShellThread(void (PR_CALLBACK *callfunction)(void *arg)) : mLock( PR_NewLock() ),
-	mThread(NULL),
-	mShutdown(false)
-{
+	//Contion Variable creation. It will be asociated to the previous lock
+	_CondVar = PR_NewCondVar(_Lock);
 	//Check di esistenza del lock
-	assert(mLock);
+	assert(_CondVar);
 
-	this->createThread(callfunction);
-
+	//Thread creation
+	_Thread = PR_CreateThread(PR_USER_THREAD, ShellThread::threadCallBack, this, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
 	//Check di esistenza del thread
-	assert(mThread);
+	assert(_Thread);
 }
 
 ShellThread::~ShellThread()
 {
-	if (mThread)
-		this->joinThread();
+	this->joinThread();
+	//Clearing lock and condition
+	this->destroyCondition();
+	this->destroyLock(); 
+}
 
-	if (mLock)
+void ShellThread::destroyLock()
+{
+	if(_Lock)
 	{
-		PR_DestroyLock(mLock);
-		mLock = NULL;
+		PR_DestroyLock(_Lock);
+		_Lock = NULL;
 	}
 }
 
-bool ShellThread::createThread(void (PR_CALLBACK *callfunction)(void *arg))
+void ShellThread::destroyCondition()
 {
-	if(!mThread)
+	if(_CondVar)
 	{
-		mShutdown = false;
-		mThread = PR_CreateThread(PR_USER_THREAD, callfunction, this, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
-		//Check di esistenza del thread
-		if(!mThread)
-			return false;
-
-		return true;
+		PR_DestroyCondVar(_CondVar);
+		_CondVar = NULL;
 	}
-
-	return false;
 }
 
 bool ShellThread::joinThread()
 {
-	if(mThread)
+	if(_Thread)
 	{
-		mShutdown = true;
+		_Shutdown = true;
+		
+		this->notifyCondition();
 
-		PR_JoinThread(mThread);
-		PR_Sleep(JOIN_THREAD_DELAY);
+		PR_JoinThread(_Thread);
+		PR_Sleep( JOIN_THREAD_DELAY );
 
-		mShutdown = false;
-		mThread = NULL;
+		_Thread = NULL;
 
 		return true;
 	}
 
 	return false;
+}
+
+void ShellThread::waitCondition()
+{
+	this->Lock();
+	while(_NeedWait)
+		PR_WaitCondVar(_CondVar, PR_INTERVAL_MIN);
+
+	_NeedWait = true;
+}
+
+void ShellThread::notifyCondition()
+{
+	_NeedWait = false;
+	PR_NotifyCondVar(_CondVar);
+	this->unLock();
+}
+
+void ShellThread::Lock() 
+{
+	PR_Lock(_Lock);
+}
+
+void ShellThread::unLock() 
+{ 
+	PR_Unlock(_Lock); 
+}
+
+void ShellThread::threadCallBack(void* instance)
+{
+	ShellThread* shellinstance = (ShellThread*) instance;
+
+	if(instance)
+		shellinstance->doCallBack();
+	else
+	{
+		//TODO: ....
+	}
 }

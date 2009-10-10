@@ -22,51 +22,23 @@
 #include "nsIProperties.h"
 #include "npapi.h"
 
-//cURL downloading library
-#include <curl/curl.h>
-
 #include <npOSG4Web/npOSG4Web_Defines.h>
 #include <npOSG4Web/npOSG4Web_plugin.h>
 
-/////////////////////////////////////
-//
-// Global Structures
-//
 
-//Thread locking state
-static PRLock* s_ThreadLocking = NULL;
-
-//Downloading Core Thread locking state
-static PRLock* s_DlCoreThreadLocking = NULL;
-
-/////////////////////////////////////
-//
-// general initialization and shutdown
-//
+/***************************************************************************
+ *
+ * General initialization and shutdown
+ *
+ ***************************************************************************/
 NPError NS_PluginInitialize()
 {
-	s_ThreadLocking = PR_NewLock();
-	assert(s_ThreadLocking);
-
-	s_DlCoreThreadLocking = PR_NewLock();
-	assert(s_DlCoreThreadLocking);
-
   	return NPERR_NO_ERROR;
 }
 
 void NS_PluginShutdown()
 {
-	if (s_ThreadLocking)
-	{
-		PR_DestroyLock(s_ThreadLocking);
-		s_ThreadLocking = NULL;
-	}
 
-	if (s_DlCoreThreadLocking)
-	{
-		PR_DestroyLock(s_DlCoreThreadLocking);
-		s_DlCoreThreadLocking = NULL;
-	}
 }
 
 
@@ -105,10 +77,13 @@ NPError NS_PluginGetValue(NPPVariable aVariable, void *aValue)
 }
 #endif
 
-/////////////////////////////////////////////////////////////
-//
-// construction and destruction of our plugin instance object
-//
+
+/***************************************************************************
+ *
+ * Construction and destruction of our plugin instance object
+ *
+ ***************************************************************************/
+
 nsPluginInstanceBase * NS_NewPluginInstance(nsPluginCreateData * aCreateDataStruct)
 {
   	if(!aCreateDataStruct)
@@ -127,30 +102,26 @@ nsPluginInstanceBase * NS_NewPluginInstance(nsPluginCreateData * aCreateDataStru
   	return plugin;
 }
 
-//////////////////////////////////////
-//
-// destroy Plug-In Base
-//
 void NS_DestroyPluginInstance(nsPluginInstanceBase * aPlugin)
 {
   	if(aPlugin)
     		delete (nsPluginInstance *)aPlugin;
 }
 
-////////////////////////////////////////
-//
-// nsPluginInstance class implementation
-//
+
+
+/***************************************************************************
+ *
+ * nsPluginInstance class implementation
+ *
+ ***************************************************************************/
+
 nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
   	mInstance(aInstance),
   	mInitialized(false),
 	mInitOptionsSet(false),
 	mScriptablePeer(NULL),
-	mThread(NULL),
-	mShutdownThread(false),
-	mDlCoreThread(NULL),
-	mDlCoreShutdownThread(false),
-	mLoading(false),
+	mLoading(true),
 #if defined(WIN32)
 	lpOldProc(NULL),
   	mhWnd(NULL)
@@ -247,10 +218,7 @@ nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
 	mInitOptionsSet = mShellBase.configuringInitialOptions();
 }
 
-//////////////////////////////////////
-//
-// Plug-In instance distructor
-//
+//Distructor
 nsPluginInstance::~nsPluginInstance()
 {
   	mShellBase.sendNotifyMessage("nsPluginInstance::~nsPluginInstance -> default destructor");
@@ -271,11 +239,9 @@ static void xt_event_handler(Widget xtwidget, nsPluginInstance *plugin, XEvent *
 static void xt_timer_draw_proc(XtPointer clientdata, XtIntervalId* id);
 #endif
 
-//////////////////////////////////////
-//
+
 // Set Parameter from plug-In base. 
-// Estrapola la stringa contenente il nome del main model dai parametri iniziali
-//
+// Estract the plugins arguments from argx argv argn passed by firefox
 NPError nsPluginInstance::SetInitialData(PRUint16 argc, char* argn[], char* argv[])
 {
 	NPError rv = NPERR_NO_ERROR;
@@ -292,7 +258,7 @@ NPError nsPluginInstance::SetInitialData(PRUint16 argc, char* argn[], char* argv
 				if(argv[i] != NULL)
 				{
 					std::string value(argv[i]);
-					mShellBase.setObjectShellOption(command, value);
+					mShellBase.setObjectOption(command, value);
 				}
 			}
 		}
@@ -303,6 +269,7 @@ NPError nsPluginInstance::SetInitialData(PRUint16 argc, char* argn[], char* argv
 	return rv;
 }
 
+// Gets Proxy Parameters from Firefox Settings
 nsresult nsPluginInstance::getProxySettings(std::string &proxyhostname, std::string &port)
 {
 	nsresult rv;
@@ -386,10 +353,8 @@ nsresult nsPluginInstance::getProxySettings(std::string &proxyhostname, std::str
 	return rv;
 }
 
-//////////////////////////////////////
-//
-// return working plugin directory
-//
+
+// Return plugin current directory 
 nsresult nsPluginInstance::getCurrPlugDir(std::string* dir, const char* diropt)
 {
 	nsresult rv;
@@ -511,47 +476,19 @@ NPBool nsPluginInstance::init(NPWindow* aWindow)
 	mShellBase.setInstanceHandler( this );
 	mShellBase.setResetWindowHandler( &nsPluginInstance::callResetWindowHandler );
 	mShellBase.setTransportEventHandler( &nsPluginInstance::TransportEvent );
-	mShellBase.setRenderingHandler( &nsPluginInstance::callPrepareRendering, &nsPluginInstance::callCloseRendering );
-	mShellBase.setDownloadingCoreHandler( &nsPluginInstance::callRequestCoreDownloading );
 
 	return true;
 }
 
 NPBool nsPluginInstance::initLoadCore()
 {
-	mInitialized = true;
+	mInitialized = true; //FIXME: controllare se va messo a false in caso di errore 
 
 	mShellBase.sendNotifyMessage("nsPluginInstance::initLoadCore -> starting the Loading Core.");
 	if(!mShellBase.startLoadingBaseCore())
-	{
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> ") + mShellBase.getErrorString());
 		return false;
-	}
 
-	mShellBase.sendNotifyMessage("nsPluginInstance::initLoadCore -> configuring Object Core Options.");
-	if(!mShellBase.configuringObjectOptions())
-	{
-		//Setting Error Message
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Configuring Shell Options Failed!");
-
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::configuringObjectOptions -> Configuring Shell Options Failed!"));
-
-		return mInitialized;
-	}
-
-	//Return if CoreString is inizialized and SHA-1 isn't
-	std::string test;
-	if(mShellBase.getObjectShellOption(OBJECT_OPTION_ADVCORE, test) && !mShellBase.getObjectShellOption(OBJECT_OPTION_ADVCORESHA1, test))
-	{
-		//Setting Error Message
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Advanced Core SHA-1 HASH not set!");
-
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> Advanced Core SHA-1 HASH not set!"));
-
-		return mInitialized;
-	}
+	mLoading = false;
 
 	if(!mShellBase.initializeAdvancedCore())
 	{
@@ -562,74 +499,12 @@ NPBool nsPluginInstance::initLoadCore()
 			return false;
 		}
 
-		//Setting Error Message
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Initializing Advanced Core Failed!");
-
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> Initializing Advanced Core Failed!"));
 	}
 	
 	return mInitialized;
 }
 
-NPError nsPluginInstance::SendGetEvent(std::string evnt)
-{
-	NPError errcode;
-	std::string eventstr("javascript:eventCatcher(\"");
-	
-	eventstr +=  evnt + std::string("\")");
-
-	//Invio segnale al browser
-	errcode = NPN_GetURL(mInstance, eventstr.c_str(), "_self");
-
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::SendGetEvent -> Sending Message to JS"));
-
-	if(errcode != NPERR_NO_ERROR)
-	{
-		std::ostringstream convstream;
-		convstream << errcode << std::flush;
-
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::TransportEvent -> NPN_GetURL NPError code: ") + convstream.str());
-	}
-
-	return errcode;
-}
-
-std::string nsPluginInstance::loadingCoreCommand(std::string line )
-{
-	std::string ret;
-
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::loadingCoreCommand -> Sending Loading Core Command."));
-
-	//Richiedo CS sul Main Rendering Thread
-	PR_Lock(s_ThreadLocking);
-	ret = mShellBase.execCoreCommand(line);
-
-	//Esco CS
-	PR_Unlock(s_ThreadLocking);
-
-	return ret;
-}
-
-bool nsPluginInstance::TransportEvent(void* classptr, std::string eventstr)
-{
-	nsPluginInstance* ctrlptr = (nsPluginInstance*) classptr;
-
-	if(ctrlptr != NULL)
-	{
-		NPError error = ctrlptr->SendGetEvent(eventstr);
-		
-		if( error == NPERR_NO_ERROR)
-			return true;
-	}
-
-	return false;
-}
-
-void nsPluginInstance::sendWarnMessage(std::string message)
-{
-	mShellBase.sendWarnMessage(message);
-}
 
 //////////////////////////////////////
 //
@@ -641,7 +516,7 @@ void nsPluginInstance::shut()
 
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::shut -> Shutting down plugin instance"));
 
-	this->releaseDownloadCore();
+	mLoading = true;
 	
 	if(!mShellBase.closeAllLibraries())
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::shut -> Error closing all libraries."));
@@ -668,7 +543,7 @@ void nsPluginInstance::shut()
 }
 
 
-/*
+/* FUNZIONI PER GESTIRE IN MODALITA' WINDOWLESS
 NPError nsPluginInstance::SetWindow(NPWindow* aWindow)
 {
 	// keep window parameters
@@ -712,14 +587,6 @@ uint16 nsPluginInstance::HandleEvent(void* aEvent)
 }
 */
 
-//////////////////////////////////////
-//
-// Check if the instance is initialized
-//
-NPBool nsPluginInstance::isInitialized()
-{
-  return mInitialized;
-}
 
 // ==============================
 // ! Scriptability related code !
@@ -766,7 +633,7 @@ NPError	nsPluginInstance::GetValue(NPPVariable aVariable, void *aValue)
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-
+//FIXME: finire la gestione degli handler (forse togliere)
 
 bool nsPluginInstance::callResetWindowHandler(void* maininst)
 {
@@ -801,675 +668,6 @@ bool nsPluginInstance::resetWindowHandler()
 	//FIXME: da rifare completamente
 #endif
 
-	return true;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//		Funzioni di Rendering
-//
-//
-//////////////////////////////////////////////////////////////////////////////////////
-
-void nsPluginInstance::callRender(void* maininst)
-{
-	nsPluginInstance *instance = (nsPluginInstance *) maininst;
-
-	if(instance)
-		instance->doRender();
-	else
-		instance->sendWarnMessage(std::string("nsPluginInstance::callRender -> Instance seems not present."));
-}
-
-bool nsPluginInstance::callPrepareRendering(void* maininst)
-{
-	nsPluginInstance *instance = (nsPluginInstance *) maininst;
-
-	if(instance)
-		return instance->prepareRendering();
-	else
-		instance->sendWarnMessage(std::string("nsPluginInstance::callPrepareRendering -> Instance seems not present."));
-
-	return false;
-}
-	
-bool nsPluginInstance::callCloseRendering(void* maininst)
-{
-	nsPluginInstance *instance = (nsPluginInstance *) maininst;
-
-	if(instance)
-		return instance->closeRendering();
-	else
-		instance->sendWarnMessage(std::string("nsPluginInstance::callCloseRendering -> Instance seems not present."));
-
-	return false;
-}
-
-bool nsPluginInstance::prepareRendering()
-{
-	bool ret = false;
-
-	assert(this->getThread() == NULL);
-
-	mShutdownThread = false;
-
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::prepareRendering -> Start Rendering Thread."));
-
-	mThread = PR_CreateThread(PR_USER_THREAD, callRender, this,
-			      PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD,
-			      PR_JOINABLE_THREAD, 0);
-
-	if(mThread == NULL)
-	{
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::prepareRendering -> Rendering Thread isn't started."));
-		ret = false;
-	}
-	else
-	{
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::prepareRendering -> Rendering Thread is up and running."));
-		ret = true;
-	}
-
-	return ret;
-}
-
-bool nsPluginInstance::closeRendering()
-{
-	if (this->getThread())
-	{
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::closeRendering -> Join Rendering Thread."));
-
-		mShutdownThread = true;
-
-		PR_JoinThread(mThread);
-
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::closeRendering -> Delete Rendering Thread."));
-
-		PR_Sleep(EXIT_DELAY);
-
-		mShutdownThread = false;
-		mThread = NULL;
-	}
-	else
-		return false;
-
-	return true;
-}
-
-void nsPluginInstance::doRender()
-{
-	PR_Lock(s_ThreadLocking);
-
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doRender -> Render Started."));
-	
-	for (;;)
-	{
-		//TODO: aggiungere messaggi di errore 
-		mShellBase.doRendering();
-		
-		if (this->getThreadShutDown())
-			break;
-			
-		PR_Unlock(s_ThreadLocking);
-
-		PR_Sleep(RENDER_DELAY);
-
-		PR_Lock(s_ThreadLocking);
-	}
-
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doRender -> Render Finished."));
-	
-	PR_Unlock(s_ThreadLocking);
-	return;
-}
-
-void nsPluginInstance::doRenderFrame()
-{
-	mShellBase.doRendering();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-//
-//
-//		Funzioni Thread di Download
-//
-//
-//////////////////////////////////////////////////////////////////////////////////////
-
-bool nsPluginInstance::callRequestCoreDownloading(void* maininst)
-{
-	nsPluginInstance *instance = (nsPluginInstance *) maininst;
-
-	if(instance)
-		return instance->requestCoreDownloading();
-	else
-		instance->sendWarnMessage(std::string("nsPluginInstance::callRequestCoreDownloading -> Instance seems not present."));
-
-	return false;
-}
-
-bool nsPluginInstance::requestCoreDownloading()
-{
-	bool ret = true;
-
-	assert(this->getDlCoreThread() == NULL);
-
-	mDlCoreShutdownThread = false;
-
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::requestCoreDownloading -> Start Downloading Thread."));
-
-	mDlCoreThread = PR_CreateThread(PR_USER_THREAD, callDownloadCore, this,
-			      PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD,
-			      PR_JOINABLE_THREAD, 0);
-
-	if(mDlCoreThread == NULL)
-	{
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::requestCoreDownloading -> Downloading Thread is not started."));
-		ret = false;
-	}
-	else
-	{
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::requestCoreDownloading -> Downloading Thread is up and running."));
-		ret = true;
-	}
-
-	return ret;
-}
-
-void nsPluginInstance::callDownloadCore(void* maininst)
-{
-	nsPluginInstance *instance = (nsPluginInstance *) maininst;
-
-	if(instance)
-		instance->doDownloadCore();
-	else
-		instance->sendWarnMessage(std::string("nsPluginInstance::callDownloadCore -> Instance seems not present."));
-}
-
-bool nsPluginInstance::downloadUnpackPackage(std::string packagename)
-{
-	//TODO: finire il supporto al download di più pacchetti... mettere in env anche la directory del pacchetto di dipendenza
-
-	return false;
-}
-
-
-void nsPluginInstance::doDownloadCore()
-{
-	PR_Lock(s_DlCoreThreadLocking);
-
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Downloading Started."));
-
-	mLoading = true;
-
-	std::string coresha1str;
-	mShellBase.getObjectShellOption(OBJECT_OPTION_ADVCORESHA1, coresha1str); //FIXME: controllare se sono qua è certa la presenza di SHA1
-
-	std::string fdlcoreaddress = mShellBase.getAdvancedCoreAddress();
-	std::string fdlcorename = mShellBase.getAdvancedCoreFileName();
-	std::string tempdl; 
-	std::string tempdldir;
-	std::string tempheaderdl;
-
-	if(!mShellBase.getInitOption( INIT_OPTION_TEMPDIR , tempdldir))
-	{
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Creating Downloading Temp Directory Failed."));
-
-		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Temp Directory not Present!");
-
-		return;
-	}
-
-//TODO: rifare chiedendo a mSHellBase per compatilità di path con SO
-#if defined(WIN32)
-	#define PATH_SEP "\\"
-#else
-	#define PATH_SEP "/"
-#endif
-
-	
-	tempdldir = tempdldir + PATH_SEP + coresha1str;
-	tempdl = tempdldir + PATH_SEP + fdlcorename;
-	tempheaderdl = tempdldir + PATH_SEP + "headerdl.html";
-
-
-	CURL* curl;
-	CURLcode res;
-	FILE* outfile;
-	FILE* headerfile;
-
-	std::string proxy;
-
-	//Check Core Presence
-	if(mShellBase.checkAdvCorePresence())
-	{
-		PR_Sleep(500);
-
-		//Attivo status bar
-		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-		//Attivo il messaggio di Download del Core
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Core Found");
-
-		PR_Sleep(TIME_CORE_MESSAGES); //Delay per far visualizzare il messaggio //FIXME: mettere in define
-
-		//Attivo il messaggio di Download del Core
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Loading ...");
-
-		PR_Sleep(TIME_CORE_MESSAGES); //Delay per far visualizzare il messaggio //FIXME: mettere in define
-
-		//Loading Session
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Loading Unpacked Core"));
-
-		if(!mShellBase.startLoadingAdvancedCore()) //Start Advanced Core Loading
-		{
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Loading advanced core failed! Starting Loading Core"));
-
-			//Reload LoadCore
-			if(!mShellBase.startLoadingBaseCore())
-			{
-				mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Starting Loading Core failed... BYE BYE..."));
-				return;
-			}
-
-			//Setting Error Message
-			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-			this->loadingCoreCommand("LOADCORE SETMESSAGE Loading Advanced Core Failed!");
-		}
-		else
-			mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Advanced Core is up and running"));
-
-		PR_Unlock(s_DlCoreThreadLocking);
-
-		mLoading = false;
-
-		return;
-	}
-
-	//Downloading Session
-	if(!mShellBase.checkFileExistance(tempdl))
-	{
-		if(!mShellBase.checkOrCreateDirectory(tempdldir))
-		{
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Creating Downloading Temp Directory Failed."));
-
-			this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-			this->loadingCoreCommand("LOADCORE SETMESSAGE Creating Temp Directory Failed!");
-
-			PR_Unlock(s_DlCoreThreadLocking);
-			return;
-		}
-
-		curl = curl_easy_init();
-
-		if(curl)
-		{
-			mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Curl Session Initialized."));
-
-			outfile = fopen(tempdl.c_str(), "wb"); //FIXME: vedere se si possono usare gli stream
-			
-			if (outfile == NULL) 
-			{
-				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LOADCORE SETMESSAGE Opening temp file failed!");
-
-				curl_easy_cleanup(curl);
-
-				mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Error Opening Out File."));
-
-				PR_Unlock(s_DlCoreThreadLocking);
-				return;
-			}
-
-			headerfile = fopen(tempheaderdl.c_str(), "w");
-
-			if (headerfile == NULL) 
-			{
-				//TODO: aggiungere i messaggi di errore al core e gestirli con curl_info
-				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LOADCORE SETMESSAGE Opening temp file failed!");
-
-				curl_easy_cleanup(curl);
-
-				mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Error Opening Header File."));
-
-				fclose(outfile);
-				mShellBase.removingFile(tempdl);
-
-				PR_Unlock(s_DlCoreThreadLocking);
-				return;
-			}
-		
-			curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
-			//curl_easy_setopt(curl, CURLOPT_HEADER, 1);
-			curl_easy_setopt(curl, CURLOPT_URL, fdlcoreaddress.c_str());
-	
-			std::string purl, pport;
-			//Proxy Settings
-			if(mShellBase.getInitOption(INIT_OPTION_PROXYHNAME, purl))
-			{
-				proxy = purl;
-
-				if(mShellBase.getInitOption(INIT_OPTION_PROXYHPORT, pport))
-				{
-					proxy += ":";
-					proxy += pport;
-				}
-
-				curl_easy_setopt(curl, CURLOPT_PROXY, proxy.c_str()); 
-			}
-
-			//TODO: capire come fare per gestire user e password del proxy
-
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, outfile);
-			curl_easy_setopt(curl, CURLOPT_WRITEHEADER, headerfile);
-			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &nsPluginInstance::writeDLStream);
-			curl_easy_setopt(curl, CURLOPT_READFUNCTION, &nsPluginInstance::readDLStream);
-			curl_easy_setopt(curl, CURLOPT_NOPROGRESS, FALSE);
-			curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, &nsPluginInstance::callProgressDLStatus);
-			curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, this);
-
-			//Attivo status bar
-			this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY TRUE");
-			this->loadingCoreCommand("LOADCORE STATUSBAR_COLOR LC_OSG_BLUE");
-
-			//Attivo il messaggio di Download del Core
-			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
-			this->loadingCoreCommand("LOADCORE SETMESSAGE Downloading Core...");
-		
-			res = curl_easy_perform(curl);
-		
-			fclose(outfile);
-			fclose(headerfile);
-
-			if(res != CURLE_OK)
-			{
-				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LOADCORE SETMESSAGE Downloading Failed!");
-
-				curl_easy_cleanup(curl);
-
-				mShellBase.removingFile(tempdl);
-
-				mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Downloading Failed."));
-
-				PR_Unlock(s_DlCoreThreadLocking);
-				return;
-			}
-			
-			//Opening Header File and checking server response
-			std::string headline;
-			std::ifstream checkheaderfile(tempheaderdl.c_str());
-
-			if(checkheaderfile.is_open())
-			{
-				if (! checkheaderfile.eof() )
-				{
-					getline( checkheaderfile, headline );
-
-					std::string::size_type pos = headline.find("200");
-
-					if(pos == std::string::npos) //Error in Downloading
-					{
-						this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY=FALSE");
-
-						this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-						this->loadingCoreCommand("LOADCORE SETMESSAGE Server response: " + headline);
-
-						curl_easy_cleanup(curl);
-
-						mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Server Error: " + headline));
-
-						checkheaderfile.close();
-						mShellBase.removingFile(tempdl);
-
-						PR_Unlock(s_DlCoreThreadLocking);
-						return;
-					}
-				}
-				
-				checkheaderfile.close();
-			}
-			else
-			{
-				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LOADCORE SETMESSAGE Checking server response failed!");
-
-				curl_easy_cleanup(curl);
-				mShellBase.removingFile(tempdl);
-
-				mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Error Opening Header File. Checking server response failed"));
-
-				PR_Unlock(s_DlCoreThreadLocking);
-				return;
-			}
-
-			curl_easy_cleanup(curl);
-		}
-		else
-		{
-			this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-			this->loadingCoreCommand("LOADCORE SETMESSAGE Download Initialization Failed!");
-
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Curl initialization Failed."));
-			PR_Unlock(s_DlCoreThreadLocking);
-
-			return;
-		}
-	}
-	else
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Temporary package is present, Skipping Downloading."));
-
-	this->loadingCoreCommand("LOADCORE SETMESSAGE Checking Validity...");
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Check Package Validity."));
-
-	if(!mShellBase.checkFileValidity(tempdl, coresha1str))
-	{
-		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Validity Control Failed!");
-
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Validity Control Failed!"));
-
-		//Cleaning Archive List
-		mShellBase.freeCompressedCore();
-		PR_Unlock(s_DlCoreThreadLocking);
-
-		return;
-	}
-
-	//Unpacking Session
-	this->loadingCoreCommand("LOADCORE STATUSBAR_COLOR LC_OSG_GREEN");
-	this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY TRUE");
-	this->loadingCoreCommand("LOADCORE STATUSBARVALUE 0"); //Reset Status Bar Lenght
-	
-	//Attivo il messaggio di Unpack del Core
-	this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_GREEN");
-	this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Core...");
-
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Unpacking Core."));
-	
-	int filenumber = -1;
-	std::string unpackerr = mShellBase.unpackDownloadedCore(tempdl, filenumber);
-	if(!unpackerr.empty())
-	{
-		//TODO: messaggi di Errore
-		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking " + unpackerr);
-
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> " + unpackerr));
-
-		//Cleaning Archive List
-		mShellBase.freeCompressedCore();
-		PR_Unlock(s_DlCoreThreadLocking);
-
-		return;
-	}
-
-	int coreunpack = 0; //Condizione di decompressoine
-	unsigned int cicleno = 0;
-	while(coreunpack == 0)
-	{
-		coreunpack = mShellBase.unpackCompressedCoreFile();
-
-		//FIXME: cotrollare che non servano le CS 
-		std::string statmsg("LOADCORE STATUSBARVALUE ");
-
-		std::ostringstream convstream; //creates an ostringstream object
-		convstream << (cicleno * 300.0 / filenumber) << std::flush; //Uso la dimensione 3x
-		statmsg += convstream.str(); 
-
-		//mShellBase.execCoreCommand(statmsg); //Posso usare direttamente mShellBase per evitare il delay della CS. E' SAFE
-		this->loadingCoreCommand(statmsg);
-
-		cicleno++;
-
-		PR_Unlock(s_DlCoreThreadLocking);
-
-		if (this->getDlCoreThreadShutDown())
-			break;
-		
-		PR_Lock(s_DlCoreThreadLocking);
-	}
-
-	if(coreunpack < 0)
-	{
-		//TODO: messaggi di Errore
-		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Failed! Error during decompression");
-
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Unpacking Failed! Error during decompression"));
-
-		//Cleaning Archive List
-		mShellBase.freeCompressedCore();
-		PR_Unlock(s_DlCoreThreadLocking);
-
-		return;
-	}
-	
-	//Cleaning Archive List
-	mShellBase.freeCompressedCore();
-
-	//TODO: finire i messaggi e i timing (come in core found)
-
-	//Loading Session
-	this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-	this->loadingCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
-
-	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Loading Unpacked Core"));
-
-	if(!mShellBase.startLoadingAdvancedCore()) //Start Advanced Core Loading
-	{
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Loading advanced core failed! Starting Loading Core"));
-
-		//Reload LoadCore
-		if(!mShellBase.startLoadingBaseCore())
-		{
-			mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Starting Loading Core failed... BYE BYE..."));
-			return;
-		}
-
-		//Setting Error Message
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Loading Advanced Core Failed!");
-	}
-	else
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Advanced Core is up and running"));
-
-	mLoading = false;
-	
-	PR_Unlock(s_DlCoreThreadLocking);
-	return;
-}
-
-int nsPluginInstance::callProgressDLStatus(void* classptr, double downtot, double downnow, double ultotal, double ulnow)
-{
-	nsPluginInstance *instance = (nsPluginInstance *) classptr;
-
-
-	if(instance)
-		return instance->doProgressDLStatus(downtot, downnow, ultotal, ulnow);
-	else
-	{
-		instance->sendWarnMessage(std::string("nsPluginInstance::callProgressDLStatus -> Instance seems not present."));
-		return -1;
-	}
-}
-
-
-//FIXME: controllare questa funzione
-int nsPluginInstance::doProgressDLStatus(double downtot, double downnow, double ultotal, double ulnow)
-{
-	if(this->getDlCoreThreadShutDown())
-	{
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doProgressDLStatus -> Forcing Downloading Thread Exit."));
-		return 1; //Condizione di uscita per il thread di Download
-	}
-
-	//FIXME: cotrollare che non servano le CS 
-	std::string statmsg("LOADCORE STATUSBAR_VALUE ");
-
-	std::ostringstream convstream; //creates an ostringstream object
-	convstream << (downnow * 300.0 / downtot) << std::flush; //Uso la dimensione 3x
-	statmsg += convstream.str(); 
-
-	//mShellBase.execCoreCommand(statmsg); //Posso usare direttamente mShellBase per evitare il delay della CS. E' SAFE
-	this->loadingCoreCommand(statmsg);
-		
-	return 0;
-}
-
-size_t nsPluginInstance::writeDLStream(void *ptr, size_t size, size_t nmemb, FILE *stream)
-{
-	return fwrite(ptr, size, nmemb, stream);
-}
-
-size_t nsPluginInstance::readDLStream(void *ptr, size_t size, size_t nmemb, FILE *stream)
-{
-	return fread(ptr, size, nmemb, stream);
-}
-
-bool nsPluginInstance::releaseDownloadCore()
-{
-	if (this->getDlCoreThread())
-	{
-		mDlCoreShutdownThread = true;
-
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::releaseDownloadCore -> Join Downloading Thread."));
-
-		PR_JoinThread(mDlCoreThread);
-
-		PR_Sleep(EXITDLCORE_DELAY);
-
-		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::releaseDownloadCore -> Delete Downloading Thread."));
-
-		mDlCoreShutdownThread = false;
-		mDlCoreThread = NULL;
-	}
-	
 	return true;
 }
 
@@ -1517,11 +715,22 @@ LRESULT nsPluginInstance::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wP
 
 				return (0L);
 			}
+		//FIXME: finire la parte di request Explicit
+		//	else 
+		//		this->requestExplicitRendering(); 
+		}
+		break;
+	case WM_SIZE:
+		{
+		//	this->requestExplicitRendering();
 		}
 		break;
 	case WM_ERASEBKGND:
 		if(this->checkRunning()) //Corregge il problema di flickering durante il ridimensionamento e la selezione
+		{
+			//this->requestExplicitRendering();
 			return (0L); //Non passo l'erase signal
+		}
 		break;
 	default:
 		break;
@@ -1662,11 +871,14 @@ NPError nsPluginInstance::SetWindow(NPWindow* aWindow)
 	return true;
 }
 
-//////////////////////////////////////
-//
-// Start the SceneGraph rendering 
-//
 #endif
+
+
+/************************************************************************
+ *
+ *		Rendering auxiliar functions
+ *
+ ************************************************************************/
 
 bool nsPluginInstance::checkRunning()
 {
@@ -1676,19 +888,27 @@ bool nsPluginInstance::checkRunning()
 		return true;
 }
 
+void nsPluginInstance::requestExplicitRendering()
+{
+	mShellBase.requestExplicitRendering();
+}
+
 bool nsPluginInstance::showFatalCoreErrors()
 {
 	return ( mShellBase.isThereErrors() && !checkRunning());
 }
 
-// ==============================
-// ! Scriptability related code !
-// ==============================
 
-//////////////////////////////////////
-//
-// this method will return the scriptable object (and create it if necessary)
-//
+
+/*********************************************************************************
+ *
+ *		==============================
+ *		! Scriptability related code !
+ *		==============================
+ *
+ * this method will return the scriptable object (and create it if necessary)
+ *
+ *********************************************************************************/
 nsScriptablePeer* nsPluginInstance::getScriptablePeer()
 {
   	if (!mScriptablePeer) 
@@ -1706,11 +926,12 @@ nsScriptablePeer* nsPluginInstance::getScriptablePeer()
 }
 
 
+/******************************************************************************
+ *
+ * Funzione di trasporto dei comandi da JavaScript al ShellBase
+ *
+ ******************************************************************************/
 
-//////////////////////////////////////
-//
-// Funzione di trasporto dei comandi da JavaScript al Core
-//
 std::string nsPluginInstance::execShellCommand(std::string line )
 {
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::execShellCommand -> Sending Shell Command."));
@@ -1719,8 +940,6 @@ std::string nsPluginInstance::execShellCommand(std::string line )
 
 std::string nsPluginInstance::execCoreCommand(std::string line )
 {
-	std::string ret;
-
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::execCoreCommand -> Sending Core Command."));
 
 	//Return if loading is in progress
@@ -1730,12 +949,48 @@ std::string nsPluginInstance::execCoreCommand(std::string line )
 		return std::string("COMMAND_DISCARDED");
 	}
 
-	//Richiedo CS sul Main Rendering Thread
-	PR_Lock(s_ThreadLocking);
-	ret = mShellBase.execCoreCommand(line);
+	return mShellBase.execCoreCommand(line);
+}
 
-	//Esco CS
-	PR_Unlock(s_ThreadLocking);
 
-	return ret;
+//////////////////////////////////////
+//
+// Funzione di trasporto dei comandi da ShellBase  a Javascript
+//
+NPError nsPluginInstance::SendGetEvent(std::string evnt)
+{
+	NPError errcode;
+	std::string eventstr("javascript:eventCatcher(\"");
+	
+	eventstr +=  evnt + std::string("\")");
+
+	//Invio segnale al browser
+	errcode = NPN_GetURL(mInstance, eventstr.c_str(), "_self");
+
+	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::SendGetEvent -> Sending Message to JS"));
+
+	if(errcode != NPERR_NO_ERROR)
+	{
+		std::ostringstream convstream;
+		convstream << errcode << std::flush;
+
+		mShellBase.sendWarnMessage(std::string("nsPluginInstance::TransportEvent -> NPN_GetURL NPError code: ") + convstream.str());
+	}
+
+	return errcode;
+}
+
+bool nsPluginInstance::TransportEvent(void* classptr, std::string eventstr)
+{
+	nsPluginInstance* ctrlptr = (nsPluginInstance*) classptr;
+
+	if(ctrlptr != NULL)
+	{
+		NPError error = ctrlptr->SendGetEvent(eventstr);
+		
+		if( error == NPERR_NO_ERROR)
+			return true;
+	}
+
+	return false;
 }

@@ -26,7 +26,8 @@ class FunCore : public CoreBase
 public:
 
 	enum FunCoreActions	{
-		SETMAINSCENEGRAPH = 0,
+		UNKNOWN_ACTION = 0,
+		SETMAINSCENEGRAPH,
 		ADDFILETONODE,
 		CHECKNODEPRESENCE,
 		SETOPTIMIZATION,

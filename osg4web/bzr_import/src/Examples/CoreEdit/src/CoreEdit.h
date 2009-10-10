@@ -39,6 +39,12 @@ protected:
 class CoreEdit : public CoreBase
 {
 public:
+	enum CoreEditActions
+	{
+		UNKNOWN_ACTION = 0,
+		LOAD_TERRAIN
+	};
+
 	//Costruttore/Distruttore
 	CoreEdit(std::string corename = OSG4WEB_COREEDIT_NAME);
 	~CoreEdit();

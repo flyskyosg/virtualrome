@@ -15,7 +15,8 @@ namespace SceneHandlers
 	public:
 
 		enum AnimateViewActions{
-			GET_MATRIX = 0,
+			UNKNOWN_ACTION = 0,
+			GET_MATRIX,
 			SET_MATRIX,
 		};
 
