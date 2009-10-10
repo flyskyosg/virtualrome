@@ -164,7 +164,11 @@ bool ViroManipulator::handlePick(double dx,double dy, float A){
 
 		if (_Viewer->computeIntersections(dx,dy, pickList)){
 			for(osgUtil::LineSegmentIntersector::Intersections::iterator i=pickList.begin();i!=pickList.end();++i){
-				if( i->drawable.valid() /*&& ( i->drawable.get()->getParent(0)->getNodeMask() != NOT_SOLID_MASK ) (i->drawable.get()->getName() != "NOPICK") i->_geode.valid() && (i->_geode.get()->getName() != "NOPICK")*/ ){
+				if( i->drawable.valid() && (i->drawable.get()->getName()!="Contraint_OutBox_Geode") &&
+											(i->drawable.get()->getName()!="environment")
+					/*&& ( i->drawable.get()->getParent(0)->getNodeMask() != NOT_SOLID_MASK )
+					(i->drawable.get()->getName() != "NOPICK") i->_geode.valid() && (i->_geode.get()->getName() != "NOPICK")*/ ){
+					
 					osg::Vec3d pp = i->getWorldIntersectPoint();
 					osg::Vec3d pn = i->getWorldIntersectNormal();
 
@@ -1322,7 +1326,7 @@ bool ViroManipulator::Intersect(osg::Vec3d p1,osg::Vec3d p2, osg::Vec3d& vResult
 		osgUtil::IntersectVisitor::HitList& hitList = iv.getHitList(seg.get());
 		if (!hitList.empty()){
 			for(osgUtil::IntersectVisitor::HitList::iterator hitr=hitList.begin(); hitr!=hitList.end(); ++hitr){
-				if( hitr->_geode.valid() ){
+				if( hitr->_geode.valid() && (hitr->_geode.get()->getName()!="Contraint_OutBox_Geode") && (hitr->_geode.get()->getName()!="environment")){
 						osg::Vec3d ip = hitr->getWorldIntersectPoint();
 						osg::Vec3d in = hitr->getWorldIntersectNormal();
 
