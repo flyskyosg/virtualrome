@@ -35,12 +35,14 @@ void CoreAsyncLoad::AddStartOptions(std::string str, bool erase)
 {
 	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
 
+	this->setCommandScheduleName("ASYNCLOADER");
+
 	//Using: CAL_ADD_MODEL fileaddress (MULTIPLE)
-	this->setCommandAction("CAL_ADD_MODEL");
+	this->setCommandAction("ADD_MODEL");
 	//Using: CAL_ADD_MODEL_AND_CLEAN fileaddress (MULTIPLE)
-	this->setCommandAction("CAL_ADD_MODEL_AND_CLEAN");
+	this->setCommandAction("ADD_MODEL_AND_CLEAN");
 	//Using: CAL_ADD_MODEL_TO_NODE fileaddress parentname (MULTIPLE)
-	this->setCommandAction("CAL_ADD_MODEL_TO_NODE");
+	this->setCommandAction("ADD_MODEL_TO_NODE");
 
 	this->addCommandSchedule((CommandSchedule*) this);
 	
@@ -48,24 +50,26 @@ void CoreAsyncLoad::AddStartOptions(std::string str, bool erase)
 }
 
 /** Ridefinizione della funzione di Gestione Comandi per CommandSchedule "this" */
-std::string CoreAsyncLoad::handleAction(std::string action, std::string argument)
+std::string CoreAsyncLoad::handleAction(std::string argument)
 {
 	std::string retstr = "CORE_DONE";
+	std::string lcommand, rcommand;
 
 	this->sendNotifyMessage("handleAction -> Command Found");
+	this->splitActionCommand(argument, lcommand, rcommand);
 
-	switch(this->getCommandActionIndex(action))
+	switch(this->getCommandActionIndex(lcommand))
 	{
-	case 0: //CAL_ADD_MODEL
-		if( !this->loadModel(argument, false) )
+	case ADD_MODEL:
+		if( !this->loadModel(rcommand, false) )
 			retstr = "CORE_FAILED";
 		break;
-	case 1: //CAL_ADD_MODEL_AND_CLEAN
-		if( !this->loadModel(argument, true) )
+	case ADD_MODEL_AND_CLEAN: 
+		if( !this->loadModel(rcommand, true) )
 			retstr = "CORE_FAILED";
 		break;
-	case 2: //CAL_ADD_MODEL_TO_NODE
-		if( !this->loadModelToNode(argument) )
+	case ADD_MODEL_TO_NODE:
+		if( !this->loadModelToNode(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
 	default: //UNKNOWN_CORE_COMMAND

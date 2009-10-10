@@ -57,7 +57,7 @@ function ExecCoreCommand(command)
     <td width="27%" valign="top" class="Stile5">
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><a href="javascript:ExecCoreCommand('LC_LOAD_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a></td>
+    <td><a href="javascript:ExecCoreCommand('LOADCORE LOAD_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a></td>
   </tr>
   <tr>
     <td>&nbsp;</td>

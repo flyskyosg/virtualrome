@@ -752,8 +752,8 @@ NPBool nsPluginInstance::initLoadCore()
 	if(!mADVCore->empty() && mADVCoreSHA1Hash->empty())
 	{
 		//Setting Error Message
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Advanced Core SHA-1 HASH not set!");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Advanced Core SHA-1 HASH not set!");
 
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> Advanced Core SHA-1 HASH not set!"));
 
@@ -771,8 +771,8 @@ NPBool nsPluginInstance::initLoadCore()
 		}
 
 		//Setting Error Message
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Initializing Advanced Core Failed!");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Initializing Advanced Core Failed!");
 
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::initLoadCore -> Initializing Advanced Core Failed!"));
 	}
@@ -1266,17 +1266,17 @@ void nsPluginInstance::doDownloadCore()
 	if(mShellBase.checkAdvCorePresence())
 	{
 		//Attivo status bar
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
 		//Attivo il messaggio di Download del Core
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_BLUE");
-		this->loadingCoreCommand("LC_SETMESSAGE Core Found...");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Core Found...");
 
 		PR_Sleep(1000); //Delay per far visualizzare il messaggio //FIXME: mettere in define
 
 		//Loading Session
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
-		this->loadingCoreCommand("LC_SETMESSAGE "); //Spengo i messaggi
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
 
 		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Loading Unpacked Core"));
 
@@ -1293,8 +1293,8 @@ void nsPluginInstance::doDownloadCore()
 			}
 
 			//Setting Error Message
-			this->loadingCoreCommand("LC_SETMESSAGE_COLOR OSG_RED");
-			this->loadingCoreCommand("LC_SETMESSAGE Loading Advanced Core Failed!");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE Loading Advanced Core Failed!");
 		}
 		else
 			mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Advanced Core is up and running"));
@@ -1313,10 +1313,10 @@ void nsPluginInstance::doDownloadCore()
 		{
 			mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Creating Downloading Temp Directory Failed."));
 
-			this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+			this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-			this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-			this->loadingCoreCommand("LC_SETMESSAGE Creating Temp Directory Failed!");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE Creating Temp Directory Failed!");
 
 			PR_Unlock(s_DlCoreThreadLocking);
 			return;
@@ -1332,10 +1332,10 @@ void nsPluginInstance::doDownloadCore()
 			
 			if (outfile == NULL) 
 			{
-				this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-				this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LC_SETMESSAGE Opening temp file failed!");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE Opening temp file failed!");
 
 				curl_easy_cleanup(curl);
 
@@ -1350,10 +1350,10 @@ void nsPluginInstance::doDownloadCore()
 			if (headerfile == NULL) 
 			{
 				//TODO: aggiungere i messaggi di errore al core e gestirli con curl_info
-				this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-				this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LC_SETMESSAGE Opening temp file failed!");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE Opening temp file failed!");
 
 				curl_easy_cleanup(curl);
 
@@ -1395,12 +1395,12 @@ void nsPluginInstance::doDownloadCore()
 			curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, this);
 
 			//Attivo status bar
-			this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY TRUE");
-			this->loadingCoreCommand("LC_STATUSBAR_COLOR LC_OSG_BLUE");
+			this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY TRUE");
+			this->loadingCoreCommand("LOADCORE STATUSBAR_COLOR LC_OSG_BLUE");
 
 			//Attivo il messaggio di Download del Core
-			this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_BLUE");
-			this->loadingCoreCommand("LC_SETMESSAGE Downloading Core...");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_BLUE");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE Downloading Core...");
 		
 			res = curl_easy_perform(curl);
 		
@@ -1409,10 +1409,10 @@ void nsPluginInstance::doDownloadCore()
 
 			if(res != CURLE_OK)
 			{
-				this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-				this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LC_SETMESSAGE Downloading Failed!");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE Downloading Failed!");
 
 				curl_easy_cleanup(curl);
 
@@ -1438,10 +1438,10 @@ void nsPluginInstance::doDownloadCore()
 
 					if(pos == std::string::npos) //Error in Downloading
 					{
-						this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY=FALSE");
+						this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY=FALSE");
 
-						this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-						this->loadingCoreCommand("LC_SETMESSAGE Server response: " + headline);
+						this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+						this->loadingCoreCommand("LOADCORE SETMESSAGE Server response: " + headline);
 
 						curl_easy_cleanup(curl);
 
@@ -1459,10 +1459,10 @@ void nsPluginInstance::doDownloadCore()
 			}
 			else
 			{
-				this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+				this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-				this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-				this->loadingCoreCommand("LC_SETMESSAGE Checking server response failed!");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+				this->loadingCoreCommand("LOADCORE SETMESSAGE Checking server response failed!");
 
 				curl_easy_cleanup(curl);
 				mShellBase.removingFile(tempdl);
@@ -1477,10 +1477,10 @@ void nsPluginInstance::doDownloadCore()
 		}
 		else
 		{
-			this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+			this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-			this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-			this->loadingCoreCommand("LC_SETMESSAGE Download Initialization Failed!");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+			this->loadingCoreCommand("LOADCORE SETMESSAGE Download Initialization Failed!");
 
 			mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Curl initialization Failed."));
 			PR_Unlock(s_DlCoreThreadLocking);
@@ -1491,15 +1491,15 @@ void nsPluginInstance::doDownloadCore()
 	else
 		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Temporary package is present, Skipping Downloading."));
 
-	this->loadingCoreCommand("LC_SETMESSAGE Checking Validity...");
+	this->loadingCoreCommand("LOADCORE SETMESSAGE Checking Validity...");
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Check Package Validity."));
 
 	if(!mShellBase.checkFileValidity(tempdl, *mADVCoreSHA1Hash))
 	{
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Validity Control Failed!");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Validity Control Failed!");
 
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Validity Control Failed!"));
 
@@ -1511,13 +1511,13 @@ void nsPluginInstance::doDownloadCore()
 	}
 
 	//Unpacking Session
-	this->loadingCoreCommand("LC_STATUSBAR_COLOR LC_OSG_GREEN");
-	this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY TRUE");
-	this->loadingCoreCommand("LC_STATUSBARVALUE 0"); //Reset Status Bar Lenght
+	this->loadingCoreCommand("LOADCORE STATUSBAR_COLOR LC_OSG_GREEN");
+	this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY TRUE");
+	this->loadingCoreCommand("LOADCORE STATUSBARVALUE 0"); //Reset Status Bar Lenght
 	
 	//Attivo il messaggio di Download del Core
-	this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_GREEN");
-	this->loadingCoreCommand("LC_SETMESSAGE Unpacking Core...");
+	this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_GREEN");
+	this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Core...");
 
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Unpacking Core."));
 	
@@ -1529,10 +1529,10 @@ void nsPluginInstance::doDownloadCore()
 	if(filenumber < 0)
 	{
 		//TODO: messaggi di Errore
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Unpacking Failed! Error opening archive");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Failed! Error opening archive");
 
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Unpacking Failed! Error opening archive"));
 
@@ -1546,10 +1546,10 @@ void nsPluginInstance::doDownloadCore()
 	if(filenumber == 0)
 	{
 		//TODO: messaggi di Errore
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Unpacking Failed! Empty archive");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Failed! Empty archive");
 
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Unpacking Failed! Empty archive"));
 
@@ -1566,7 +1566,7 @@ void nsPluginInstance::doDownloadCore()
 		coreunpack = mShellBase.unpackCompressedCoreFile();
 
 		//FIXME: cotrollare che non servano le CS 
-		std::string statmsg("LC_STATUSBARVALUE ");
+		std::string statmsg("LOADCORE STATUSBARVALUE ");
 
 		std::ostringstream convstream; //creates an ostringstream object
 		convstream << (cicleno * 300.0 / filenumber) << std::flush; //Uso la dimensione 3x
@@ -1588,10 +1588,10 @@ void nsPluginInstance::doDownloadCore()
 	if(coreunpack < 0)
 	{
 		//TODO: messaggi di Errore
-		this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
+		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Unpacking Failed! Error during decompression");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Failed! Error during decompression");
 
 		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Unpacking Failed! Error during decompression"));
 
@@ -1606,8 +1606,8 @@ void nsPluginInstance::doDownloadCore()
 	mShellBase.freeCompressedCore();
 
 	//Loading Session
-	this->loadingCoreCommand("LC_STATUSBAR_VISIBILITY FALSE");
-	this->loadingCoreCommand("LC_SETMESSAGE "); //Spengo i messaggi
+	this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
+	this->loadingCoreCommand("LOADCORE SETMESSAGE "); //Spengo i messaggi
 
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Loading Unpacked Core"));
 
@@ -1624,8 +1624,8 @@ void nsPluginInstance::doDownloadCore()
 		}
 
 		//Setting Error Message
-		this->loadingCoreCommand("LC_SETMESSAGE_COLOR OSG_RED");
-		this->loadingCoreCommand("LC_SETMESSAGE Loading Advanced Core Failed!");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Loading Advanced Core Failed!");
 	}
 	else
 		mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Advanced Core is up and running"));
@@ -1661,7 +1661,7 @@ int nsPluginInstance::doProgressDLStatus(double downtot, double downnow, double 
 	}
 
 	//FIXME: cotrollare che non servano le CS 
-	std::string statmsg("LC_STATUSBAR_VALUE ");
+	std::string statmsg("LOADCORE STATUSBAR_VALUE ");
 
 	std::ostringstream convstream; //creates an ostringstream object
 	convstream << (downnow * 300.0 / downtot) << std::flush; //Uso la dimensione 3x

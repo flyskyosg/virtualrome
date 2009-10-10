@@ -18,6 +18,13 @@ using namespace OSG4WebCC;
 class CoreAsyncLoad : public CoreBase
 {
 public:
+	enum AsyncLoadActions
+	{
+		ADD_MODEL = 0,
+		ADD_MODEL_AND_CLEAN,
+		ADD_MODEL_TO_NODE
+	};
+
 	//Costruttore/Distruttore
 	CoreAsyncLoad(std::string corename = OSG4WEB_COREASYNCLOAD_NAME);
 	~CoreAsyncLoad();
@@ -31,7 +38,7 @@ public:
 	virtual void AddStartOptions(std::string str, bool erase = true);
 
 	//Ridefinizioni del Gestore dei Comandi
-	virtual std::string handleAction(std::string action, std::string argument);
+	virtual std::string handleAction(std::string argument);
 
 protected:
 	//Rinizializzo la scena

@@ -529,11 +529,14 @@ bool PickEditHandler::setDragger(std::string dragger)
 
 
 // Ridefinisco la funzione che gestisce i comandi
-std::string PickEditHandler::handleAction(std::string action, std::string argument)
+std::string PickEditHandler::handleAction(std::string argument)
 {
 	std::string retstr = "CORE_DONE";
+	std::string lcommand, rcommand;
 
-	switch(this->getCommandActionIndex(action))
+	this->splitActionCommand(argument, lcommand, rcommand);
+
+	switch(this->getCommandActionIndex(lcommand))
 	{
 	case 0: //VIEW
 		if( !this->setMode(0) )
@@ -548,15 +551,15 @@ std::string PickEditHandler::handleAction(std::string action, std::string argume
 			retstr = "CORE_FAILED";
 		break;
 	case 3:	//CHANGE_MODEL
-		if( !this->setModel(argument) )
+		if( !this->setModel(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
 	case 4:	//CHANGE_DRAGGER
-		if( !this->setDragger(argument) )
+		if( !this->setDragger(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
 	case 5:	//CHANGE_BILLBOARD
-		if( !this->setBillBoardImageName(argument) )
+		if( !this->setBillBoardImageName(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
 	case 6: //COMMIT

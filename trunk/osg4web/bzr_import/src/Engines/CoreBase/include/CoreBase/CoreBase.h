@@ -22,7 +22,7 @@
 //TODO: linux
 #endif
 
-
+#include <map>
 
 using namespace OSG4WebCC;
 
@@ -54,7 +54,7 @@ public:
 	virtual void AddStartOptions(std::string str, bool erase = true);
 
 	//Gestore dei Comandi pubblicati nel RegistryComandi
-	virtual std::string handleAction(std::string action, std::string argument);
+	virtual std::string handleAction(std::string argument);
 	
 	//Gestisce i comandi dalla Shell e Javascript
 	std::string DoCommand(std::string command);			//FIXME: togliere virtual
@@ -103,7 +103,7 @@ protected:
 
 private:
 	//Registry dei Comandi 
-	std::vector< CommandSchedule* > _CommandRegistry;
+	std::map<std::string, CommandSchedule*> _CommandRegistry;
 
 	//Strutture di inizializzazione scena
 	osg::ref_ptr<osg::Referenced> _WinData;

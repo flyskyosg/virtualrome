@@ -12,7 +12,11 @@ using namespace OSG4WebCC;
 
 
 //FunCore Costruttore
-FunCore::FunCore(std::string corename) : CoreBase(corename)
+FunCore::FunCore(std::string corename) : CoreBase(corename),
+	_SceneModifier( new SceneHandlers::SceneModifier ),
+	_WalkManip( new Manipulators::walkManipulator ),
+	_AnimateHandler( NULL ),
+	_MainNode( new osg::Group )
 {
 	this->sendNotifyMessage("FunCore -> Costructing FunCore Instance.");
 }
@@ -28,56 +32,65 @@ void FunCore::AddStartOptions(std::string str, bool erase)
 {
 	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
 /*
-	this->setCommandAction("LC_LOAD_MODEL");
-	this->setCommandAction("LC_STATUSBAR_VALUE");
-	this->setCommandAction("LC_STATUSBAR_COLOR");
-	this->setCommandAction("LC_STATUSBAR_VISIBILITY");
-	this->setCommandAction("LC_SETMESSAGE");
-	this->setCommandAction("LC_SETMESSAGE_COLOR");
+	this->setCommandAction("LOAD_MODEL");
+	this->setCommandAction("STATUSBAR_VALUE");
+	this->setCommandAction("STATUSBAR_COLOR");
+	this->setCommandAction("STATUSBAR_VISIBILITY");
+	this->setCommandAction("SETMESSAGE");
+	this->setCommandAction("SETMESSAGE_COLOR");
 
 	this->addCommandSchedule((CommandSchedule*) this);
 */
 }
 
-/** Ridefinizione della funzione di Gestione Comandi per CommandSchedule "this" */
-/*
-std::string LoadCore::handleAction(std::string action, std::string argument)
+//Ridefinizione dell'albero di scena
+bool FunCore::initSceneData()
 {
-	std::string retstr = "CORE_DONE";
+	_AnimateHandler = new SceneHandlers::AnimateViewHandler(_Viewer.get());
 
-	this->sendNotifyMessage("handleAction -> Command Found");
+	_MainNode->setName("MainNode");
 
-	switch(this->getCommandActionIndex( action ))
-	{
-	case LOAD_MODEL: //LC_LOAD_MODEL
-		if( !this->loadModel( argument, false ) )
-			retstr = "CORE_FAILED";
-		break;
-	case STATUSBAR_VALUE: //LC_STATUSBAR_VALUE
-		if( !this->refreshStatusBarValue( argument ) )
-			retstr = "CORE_FAILED";
-		break;
-	case STATUSBAR_COLOR: //LC_STATUSBAR_COLOR
-		if( !this->setStatusBarColor( argument ) )
-			retstr = "CORE_FAILED";
-		break;
-	case STATUSBAR_VISIBILITY: //LC_STATUSBAR_VISIBILITY
-		if( !this->setStatusBarVisibility( argument ) )
-			retstr = "CORE_FAILED";
-		break;
-	case SETMESSAGE: //LC_SETMESSAGE
-		if( !this->setHUDMessage( argument ) )
-			retstr = "CORE_FAILED";
-		break;
-	case SETMESSAGE_COLOR: //LC_SETMESSAGE_COLOR
-		if( !this->setHUDMessageColor( argument ) )
-			retstr = "CORE_FAILED";
-		break;
-	default: //UNKNOWN_CORE_COMMAND
-		retstr = "UNKNOWN_CORE_COMMAND";
-		break;
-	}
+	this->buildMainScene();
+
+	this->addCommandSchedule((CommandSchedule*) _SceneModifier.get());
+	this->addCommandSchedule((CommandSchedule*) _AnimateHandler.get());
+
+	_Viewer->addEventHandler(_AnimateHandler.get());
 	
-	return retstr;
+	_SceneModifier->setSceneData(_MainNode.get());
+	_Viewer->setSceneData(_LocalSceneGraph.get());
+
+	return true;
 }
-*/
+
+
+bool FunCore::initManipulators()
+{
+	this->sendNotifyMessage("initManipulators -> Initializing Manipulators.");
+
+	_WalkManip->setNode(_LocalSceneGraph.get());
+	_WalkManip->setViewer( _Viewer.get(), "", "" );
+	
+	//Aggiungere dopo l'inizializzazione
+	_WalkManip->searchDefaultPos();
+
+	//Attacca al Command Registry il Manipolator CommandSchedule
+	this->addCommandSchedule((CommandSchedule*) _WalkManip.get());
+
+	_KeySwitchManipulator->addMatrixManipulator( '1', "WalkManipulator", _WalkManip.get());
+    _KeySwitchManipulator->selectMatrixManipulator(0);
+  
+	return true;
+}
+
+
+bool FunCore::buildMainScene()
+{
+	_LocalSceneGraph->setName("LoadedNode");
+	_MainNode->addChild(_LocalSceneGraph.get());
+
+
+	//TODO:
+
+	return true;
+}

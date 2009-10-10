@@ -38,7 +38,7 @@ namespace SceneHandlers
 			};
 	        
 	        
-			PickEditHandler(osg::Group* nd):
+			PickEditHandler(osg::Group* nd): CommandSchedule("PICKEDIT"),
 				_mode(VIEW),
 				_model("http://localhost/osg4webtest/cow.ive"),
 				_bbimagename("http://localhost/osg4webtest/bb/olmo2.png"),
@@ -55,21 +55,21 @@ namespace SceneHandlers
 				_added_models(nd)
 				{
 					//aggiungo i comandi per cambio modalità
-					this->setCommandAction("CEM_VIEW");						//0
-					this->setCommandAction("CEM_ADD");						//1
-					this->setCommandAction("CEM_SELECT");					//2
+					this->setCommandAction("VIEW");						//0
+					this->setCommandAction("ADD");						//1
+					this->setCommandAction("SELECT");					//2
 
 					//comando per scelta modello da caricare con la ADD
-					this->setCommandAction("CEM_CHANGE_MODEL");				//3
+					this->setCommandAction("CHANGE_MODEL");				//3
 
 					//comando per scelta dragger da usare
-					this->setCommandAction("CEM_CHANGE_DRAGGER");			//4
+					this->setCommandAction("CHANGE_DRAGGER");			//4
 
 					//comando per scelta modello da caricare con la ADD
-					this->setCommandAction("CEM_CHANGE_BILLBOARD");			//5
+					this->setCommandAction("CHANGE_BILLBOARD");			//5
 
 					//comando per staccare il gizmo
-					this->setCommandAction("CEM_COMMIT");					//6
+					this->setCommandAction("COMMIT");					//6
 				
 				}   
 
@@ -125,7 +125,7 @@ namespace SceneHandlers
 			void handleSceneGraph(); //MODIF CARLO: handle della scena da preFrameUpdate
 
 			//virtual void AddStartOptions(std::string str, bool erase = true);
-			virtual std::string handleAction(std::string action, std::string argument);
+			virtual std::string handleAction(std::string argument);
 
 	private:	
 			

@@ -14,9 +14,9 @@ namespace SceneHandlers
 	{
 	public:
 
-		enum CAV_Actions{
-			CAV_GET_ACTION = 0,
-			CAV_SET_ACTION,
+		enum AnimateViewActions{
+			GET_MATRIX = 0,
+			SET_MATRIX,
 		};
 
 		AnimateViewHandler(osgViewer::Viewer* viewer);
@@ -30,7 +30,7 @@ namespace SceneHandlers
 		bool handle(const osgGA::GUIEventAdapter& ea,osgGA::GUIActionAdapter& aa);
 
 		//Ridefinizioni del Gestore dei Comandi
-		virtual std::string handleAction(std::string action, std::string argument);
+		virtual std::string handleAction(std::string argument);
 	    
 	protected:
 

@@ -250,15 +250,15 @@ std::string ShellBase::execShellCommand(std::string str)
 						}
 
 						//Setting Error Message
-						this->execCoreCommand("LC_SETMESSAGE_COLOR OSG_RED");
-						this->execCoreCommand("LC_SETMESSAGE Initialize Advanced Core Failed!");
+						this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+						this->execCoreCommand("LOADCORE SETMESSAGE Initialize Advanced Core Failed!");
 					}
 				}
 				else
 				{
 					//Setting Error Message
-					this->execCoreCommand("LC_SETMESSAGE_COLOR OSG_RED");
-					this->execCoreCommand("LC_SETMESSAGE Advanced Core SHA-1 HASH not set!");
+					this->execCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
+					this->execCoreCommand("LOADCORE SETMESSAGE Advanced Core SHA-1 HASH not set!");
 				}
 
 				retstr = "DONE";

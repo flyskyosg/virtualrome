@@ -15,7 +15,7 @@ using namespace OSG4WebCC;
 
 
 //CoreBase Costruttore
-CoreBase::CoreBase(std::string corename) : CoreInterface(corename),
+CoreBase::CoreBase(std::string corename) : CoreInterface(corename), CommandSchedule("COREBASE"),
 		_Viewer(new osgViewer::Viewer),
 		_Traits(new osg::GraphicsContext::Traits),
 		_MainCamera(new osg::Camera),
@@ -95,7 +95,7 @@ void CoreBase::clearCommandRegistry()
 
 void CoreBase::addCommandSchedule(CommandSchedule* cschedule) 
 { 
-	_CommandRegistry.push_back(cschedule); 
+	_CommandRegistry[cschedule->getCommandScheduleName()] = cschedule;
 }
 
 
@@ -211,14 +211,14 @@ void CoreBase::AddStartOptions(std::string str, bool erase)
 {
 	this->sendNotifyMessage("AddStartOptions -> Adding Starting Options.");
 
-	//Using: CB_ADD_MODEL fileaddress
-	this->setCommandAction("CB_ADD_MODEL");
-	//Using: CB_ADDCLEAN_MODEL fileaddress
-	this->setCommandAction("CB_ADDCLEAN_MODEL");
-	//Using: CB_ADDSINGLE_MODEL fileaddress
-	this->setCommandAction("CB_ADDSINGLE_MODEL");
-	//Using: CB_VIEW_HOME
-	this->setCommandAction("CB_VIEW_HOME");
+	//Using: ADD_MODEL fileaddress
+	this->setCommandAction("ADD_MODEL");
+	//Using: ADDCLEAN_MODEL fileaddress
+	this->setCommandAction("ADDCLEAN_MODEL");
+	//Using: ADDSINGLE_MODEL fileaddress
+	this->setCommandAction("ADDSINGLE_MODEL");
+	//Using: VIEW_HOME
+	this->setCommandAction("VIEW_HOME");
 
 	this->addCommandSchedule((CommandSchedule*) this);
 	
@@ -268,7 +268,6 @@ bool CoreBase::initCameraConfig()
 	_Viewer->addEventHandler(new osgViewer::StatsHandler);
 	_Viewer->addSlave(_MainCamera.get());
 	_Viewer->setCameraManipulator(_KeySwitchManipulator.get());
-	//_Viewer->setThreadingModel(osgViewer::Viewer::SingleThreaded);
 
 	return true;
 }
@@ -391,38 +390,38 @@ std::string CoreBase::DoCommand(std::string command)
 	this->sendNotifyMessage("DoCommand -> Core Command: " + command);
 	this->splitActionCommand(command, lcommand, rcommand);
 
-	std::vector< CommandSchedule* >::iterator itr;
-	for( itr = _CommandRegistry.begin(); itr != _CommandRegistry.end() ; itr++ )
-	{
-		if((*itr)->isMineCommandAction(lcommand))
-			return (*itr)->handleAction(lcommand, rcommand);
-	}
-
+	CommandSchedule* cs = _CommandRegistry[lcommand];
+	
+	if(cs)
+		return cs->handleAction(rcommand);
+	
 	this->sendWarnMessage("DoCommand -> Command not Handled: " + lcommand + " Argument: " + rcommand);
 	return "CORE_BADCOMMAND";
 }
 
-std::string CoreBase::handleAction(std::string action, std::string argument)
+std::string CoreBase::handleAction(std::string argument)
 {
 	std::string retstr = "CORE_DONE";
+	std::string lcommand, rcommand;
 
+	this->splitActionCommand(argument, lcommand, rcommand);
 	this->sendNotifyMessage("handleAction -> Command Found");
 
-	switch(this->getCommandActionIndex(action))
+	switch(this->getCommandActionIndex(lcommand))
 	{
-	case 0: //CB_ADD_MODEL fileaddress
-		if( !this->loadModel(argument, false) )
+	case 0: //ADD_MODEL fileaddress
+		if( !this->loadModel(rcommand, false) )
 			retstr = "CORE_FAILED";
 		break;
-	case 1: //CB_ADDCLEAN_MODEL fileaddress
-		if( !this->loadModel(argument, true) )
+	case 1: //ADDCLEAN_MODEL fileaddress
+		if( !this->loadModel(rcommand, true) )
 			retstr = "CORE_FAILED";
 		break;
-	case 2: //CB_ADDSINGLE_MODEL fileaddress
-		if( !this->loadModel(argument) )
+	case 2: //ADDSINGLE_MODEL fileaddress
+		if( !this->loadModel(rcommand) )
 			retstr = "CORE_FAILED";
 		break;
-	case 3: //CB_VIEW_HOME
+	case 3: //VIEW_HOME
 			_Viewer->home();
 		break;
 	default: //UNKNOWN_CORE_COMMAND

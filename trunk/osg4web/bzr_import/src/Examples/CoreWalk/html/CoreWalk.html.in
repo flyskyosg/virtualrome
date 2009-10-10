@@ -40,7 +40,7 @@
       <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="500" height="500" type="application/osg4web-plugin" >
 	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
 	<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
-	<param name="ADVCoreStartOptions" value="CB_ADDSINGLE_MODEL http://3d.cineca.it/storage/terrain/demo/out_run_2/demo2.ive"> 
+	<param name="ADVCoreStartOptions" value="COREBASE ADDSINGLE_MODEL http://3d.cineca.it/storage/terrain/demo/out_run_2/demo2.ive"> 
 <!--	<param name="ADVCoreInitOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
 <!--	<param name="LoadCoreOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
       </object>
@@ -60,44 +60,44 @@ function ExecCoreCommand(command)
     <td width="27%" valign="top" class="Stile5">
 	    <p> 
 	    
-	    <a href="javascript:ExecCoreCommand('CB_ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a>
-	    <a href="javascript:ExecCoreCommand('CB_ADDSINGLE_MODEL  http://3d.cineca.it/storage/terrain/demo_virtualrome/out_run_2/demo2.ive')">Carica Terreno</a>
-	    <a href="javascript:ExecCoreCommand('CB_ADDSINGLE_MODEL  http://3d.cineca.it/storage/terrain/demo_virtualrome/modelli/esterni/esterni.osg')">Carica Villa ext</a>
-	    <a href="javascript:ExecCoreCommand('CB_ADDSINGLE_MODEL  http://3d.cineca.it/storage/terrain/demo_virtualrome/modelli/interni/area_E.ive')">Carica Villa int</a>
+	    <a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a>
+	    <a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://3d.cineca.it/storage/terrain/demo_virtualrome/out_run_2/demo2.ive')">Carica Terreno</a>
+	    <a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://3d.cineca.it/storage/terrain/demo_virtualrome/modelli/esterni/esterni.osg')">Carica Villa ext</a>
+	    <a href="javascript:ExecCoreCommand('COREBASE ADDSINGLE_MODEL http://3d.cineca.it/storage/terrain/demo_virtualrome/modelli/interni/area_E.ive')">Carica Villa int</a>
 	    
 	    </p>
               <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td width="27%"><div align="center">
-              	<a onMouseDown="javascript:ExecCoreCommand('WALK_MANIP YAW LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK_MANIP STOP')" href="javascript:void(0)">YAW LEFT</a>
+              	<a onMouseDown="javascript:ExecCoreCommand('WALK YAW LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW LEFT</a>
                 </div></td>
-              <td width="14%"><div align="center"><a onMouseDown="javascript:ExecCoreCommand('WALK_MANIP FORWARD UP')" onMouseUp="javascript:ExecCoreCommand('WALK_MANIP STOP')" href="javascript:void(0)">FORWARD UP</a></div></td>
+              <td width="14%"><div align="center"><a onMouseDown="javascript:ExecCoreCommand('WALK FORWARD UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD UP</a></div></td>
               <td width="29%"><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK_MANIP YAW RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK_MANIP STOP')" href="javascript:void(0)">YAW RIGHT</a>
+              <a onMouseDown="javascript:ExecCoreCommand('WALK YAW RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">YAW RIGHT</a>
               </div></td>
               <td width="3%"><div align="center"></div></td>
               <td width="27%"><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK_MANIP PITCH UP')" onMouseUp="javascript:ExecCoreCommand('WALK_MANIP STOP')" href="javascript:void(0)">PITCH UP</a>
+              <a onMouseDown="javascript:ExecCoreCommand('WALK PITCH UP')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH UP</a>
               </div></td>
             </tr>
             <tr>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK_MANIP STRAFE LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK_MANIP STOP')" href="javascript:void(0)">STRAFE LEFT</a>
+              <a onMouseDown="javascript:ExecCoreCommand('WALK STRAFE LEFT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE LEFT</a>
               </div></td>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK_MANIP FORWARD DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK_MANIP STOP')" href="javascript:void(0)">FORWARD DOWN</a>
+              <a onMouseDown="javascript:ExecCoreCommand('WALK FORWARD DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">FORWARD DOWN</a>
               </div></td>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK_MANIP STRAFE RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK_MANIP STOP')" href="javascript:void(0)">STRAFE RIGHT</a>
+              <a onMouseDown="javascript:ExecCoreCommand('WALK STRAFE RIGHT')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">STRAFE RIGHT</a>
               </div></td>
               <td><div align="center"></div></td>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK_MANIP PITCH DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK_MANIP STOP')" href="javascript:void(0)">PITCH DOWN</a>
+              <a onMouseDown="javascript:ExecCoreCommand('WALK PITCH DOWN')" onMouseUp="javascript:ExecCoreCommand('WALK STOP')" href="javascript:void(0)">PITCH DOWN</a>
               </div></td>
             </tr>
             <tr>
               <td><div align="center">
-              <a onMouseDown="javascript:ExecCoreCommand('WALK_MANIP SETSTEPS 10.0 10.0'); javascript:ExecCoreCommand('WALK_MANIP GOTO 292498.22775 4653219.68388 200.0 0.0 0.0 0.0');" href="javascript:void(0)">GOTO position</a>
+              <a onMouseDown="javascript:ExecCoreCommand('WALK SETSTEPS 10.0 10.0'); javascript:ExecCoreCommand('WALK GOTO 292498.22775 4653219.68388 200.0 0.0 0.0 0.0');" href="javascript:void(0)">GOTO position</a>
               </div></td>
             </tr>
         </table>

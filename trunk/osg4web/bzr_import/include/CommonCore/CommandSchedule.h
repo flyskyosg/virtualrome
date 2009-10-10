@@ -13,6 +13,13 @@
 class CommandSchedule
 {
 public:
+	//Costruttore
+	CommandSchedule(std::string name) : _cschedulename(name) { }
+
+	//Set Get CommandSchedule Name
+	std::string getCommandScheduleName() { return _cschedulename; }
+	void setCommandScheduleName(std::string name) { _cschedulename = name; }
+
 	//Definizione di CommandActions
 	typedef std::vector<std::string> CommandActions;
 
@@ -21,6 +28,9 @@ public:
 	
 	//Aggiunge un azione a questo Schedule
 	void setCommandAction(std::string caction) { _commandactions.push_back(caction); }
+
+	//Clear della Command Action List
+	void clearCommandActions() { _commandactions.clear(); }
 
 	//Ritorna l'indice del vettore di comando
 	unsigned int getCommandActionIndex(std::string caction)
@@ -58,12 +68,15 @@ public:
 	}
 
 	//Funzione virtuale di gestione dei comandi accettati
-	virtual std::string handleAction(std::string action, std::string argument) = 0;
+	//virtual std::string handleAction(std::string action, std::string argument) = 0;
+	virtual std::string handleAction(std::string argument) = 0;
 
 private:
 
 	//Contenitore dei Command Actions accettati dallo Scheduler
 	CommandActions _commandactions;
+	//Nome della classe
+	std::string _cschedulename;
 };
 
 

@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2007/12/11 15:28:18 $
-Version:   $Revision: 1.1 $
+Date:      $Date: 2007/12/12 16:53:30 $
+Version:   $Revision: 1.2 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -42,7 +42,8 @@ double ToRad = osg::PI / 180.0;
 
 
 //--------------------------------------------------------------------
-walkManipulator::walkManipulator() : _yaw( 0.0f ),
+walkManipulator::walkManipulator() : CommandSchedule("WALK"),
+	_yaw( 0.0f ),
    _pitch( 0.0f ),
    _roll( 0.0f ),
    _position( osg::Vec3d(0,0,0) ),
@@ -1078,14 +1079,12 @@ void walkManipulator::moveLights(osg::Light **Sun, osg::LightSource **Sun_ls, fl
 }
 
 /** Ridefinisco la funzione che gestisce i comandi */
-std::string walkManipulator::handleAction(std::string action, std::string argument)
+std::string walkManipulator::handleAction(std::string argument)
 {
 	std::string retstr = "CORE_DONE";
-
 	std::string lcommand, rcommand;
 
 	this->splitActionCommand(argument, lcommand, rcommand);
-	
 	retstr = this->ExecCommand(lcommand, rcommand);
 		
 	return retstr;

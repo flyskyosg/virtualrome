@@ -40,7 +40,7 @@
       <object name="OSG" id="@www.vhlab.itabc.cnr.it/osg4web,version=1.0.0.0" width="500" height="500" type="application/osg4web-plugin" >
 	<param name="ADVCore" value="http://localhost/osg4webtest/corebase.rar">
 	<param name="ADVCoreSHA1" value="@DUMMY_SHA1@">
-	<param name="ADVCoreStartOptions" value="CB_ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> 
+	<param name="ADVCoreStartOptions" value="COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive"> 
 <!--	<param name="ADVCoreInitOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
 <!--	<param name="LoadCoreOptions" value="useOriginalExternalReferences noLoadExternalReferenceFiles"> -->
       </object>
@@ -50,24 +50,24 @@
 	{
 		compcommand;
 		if(createtype == 0)
-			compcommand = 'SMODIF_CREATE_GROUP  MAINSCENENODE ' + name;
+			compcommand = 'SCENEMODIFIER CREATE_GROUP  MAINSCENENODE ' + name;
 		else if(createtype == 1)
-			compcommand = 'SMODIF_CREATE_SWITCH  MAINSCENENODE ' + name;
-		else compcommand = 'SMODIF_CREATE_MATRIXTRANSFORM  MAINSCENENODE ' + name;
+			compcommand = 'SCENEMODIFIER CREATE_SWITCH  MAINSCENENODE ' + name;
+		else compcommand = 'SCENEMODIFIER CREATE_MATRIXTRANSFORM  MAINSCENENODE ' + name;
 
 		
 		result = ExecCoreCommand(compcommand);
 
-		if( result != 'SMODIF_COMMAND_OK')
+		if( result != 'COMMAND_OK')
 			alert(result);
 	}
 
 	function moveNode(nodetomove, newparentnode) 
 	{
-		compcommand = 'SMODIF_MOVE_NODE ' + nodetomove + ' ' + newparentnode;
+		compcommand = 'SCENEMODIFIER MOVE_NODE ' + nodetomove + ' ' + newparentnode;
 		result = ExecCoreCommand(compcommand);
 
-		if( result != 'SMODIF_COMMAND_OK')
+		if( result != 'COMMAND_OK')
 			alert(result);
 	}
 
@@ -85,17 +85,17 @@
 
 	function createSwitchedCow()
 	{
-		result = ExecCoreCommand('SMODIF_CREATE_SWITCH MAINSCENENODE CowSwitch');
+		result = ExecCoreCommand('SCENEMODIFIER CREATE_SWITCH MAINSCENENODE CowSwitch');
 
-		if( result != 'SMODIF_COMMAND_OK')
+		if( result != 'COMMAND_OK')
 		{
 			alert(result);
 			return
 		}
 
-		result = ExecCoreCommand('SMODIF_MOVE_NODE http://localhost/osg4webtest/cow.ive CowSwitch');
+		result = ExecCoreCommand('SCENEMODIFIER MOVE_NODE http://localhost/osg4webtest/cow.ive CowSwitch');
 
-		if( result != 'SMODIF_COMMAND_OK')
+		if( result != 'COMMAND_OK')
 		{
 			alert(result);
 			return
@@ -104,9 +104,9 @@
 
 	function switchCow()
 	{
-		result = ExecCoreCommand('SMODIF_SWITCH_ALL_CHILD CowSwitch');
+		result = ExecCoreCommand('SCENEMODIFIER SWITCH_ALL_CHILD CowSwitch');
 
-		if( result != 'SMODIF_COMMAND_OK')
+		if( result != 'COMMAND_OK')
 		{
 			alert(result);
 			return
@@ -119,10 +119,10 @@
     <td width="27%" valign="top" class="Stile5">
 	<table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><a href="javascript:ExecCoreCommandNoReturn('CB_ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a></td>
+    <td><a href="javascript:ExecCoreCommandNoReturn('COREBASE ADDSINGLE_MODEL http://localhost/osg4webtest/cow.ive')">Carica Mucca</a></td>
   </tr>
   <tr>
-    <td><a href="javascript:ExecCoreCommandNoReturn('CB_VIEW_HOME')">Posizione Iniziale</a></td>
+    <td><a href="javascript:ExecCoreCommandNoReturn('COREBASE VIEW_HOME')">Posizione Iniziale</a></td>
   </tr>
   <tr>
 	  <td>&nbsp;</td>

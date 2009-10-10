@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.h,v $
 Language:  C++
-Date:      $Date: 2007/12/11 15:27:57 $
-Version:   $Revision: 1.1 $
+Date:      $Date: 2007/12/12 16:53:28 $
+Version:   $Revision: 1.2 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -105,7 +105,7 @@ namespace Manipulators
 		std::string ExecCommand(std::string lcommand, std::string rcommand);
 
 		//Ridefinizioni del Gestore dei Comandi
-		virtual std::string handleAction(std::string action, std::string argument);
+		virtual std::string handleAction(std::string argument);
 
 	  protected:
 		virtual ~walkManipulator();
