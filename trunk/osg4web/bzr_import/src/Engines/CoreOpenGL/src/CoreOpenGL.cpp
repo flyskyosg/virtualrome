@@ -3,19 +3,22 @@
 
 #include <CoreOpenGL/CoreOpenGL.h>
 
+
 #include <gl/gl.h>
+#include <gl/glu.h>
 
 using namespace CommonCore;
 
-
 //CoreOpenGL Costruttore
 CoreOpenGL::CoreOpenGL(std::string corename) : CoreInterface(corename),
-		_CurrWidth(550), 
-		_CurrHeight(550),
-		_hWnd(NULL),
-		_hRC(NULL),
-		_hDC(NULL),
-		_theta(0.0f),
+#if defined(WIN32)
+		WindowWin32(), //Costruttore di WindowWin32
+#else
+		//TODO: Linux...
+#endif
+		_needresize(true),
+		_openglinit(false),
+		_theta(0.0),
 		_done(false)
 {
 #if defined(_DEBUG)
@@ -36,75 +39,43 @@ CoreOpenGL::~CoreOpenGL()
 {
 	this->sendNotifyMessage("~CoreOpenGL -> Destructing CoreOpenGL Instance.");
 
-#if defined(WIN32)
-	wglMakeCurrent( NULL, NULL );
-	wglDeleteContext( _hRC );
-	ReleaseDC( _hWnd, _hDC );
-#else
-	//TODO: Linux
-#endif
-
-	_hRC = NULL;
-	_hDC = NULL;
-	_hWnd = NULL;
+	_done = true;
 
 	this->sendNotifyMessage("~CoreOpenGL -> Stopping Log Redirection if Present.");
 
 	if(this->isLogMessagesInitialized())
 		if(! this->restoreLogMessages() )
-			this->sendWarnMessage("~CoreOpenGL -> Error closing messages redirection."); 
-
+			this->sendWarnMessage("~CoreOpenGL -> Error closing messages redirection.");
 }
 
 #if defined(WIN32)
 bool CoreOpenGL::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string options) 
 {
 	_InstDir = instdir; //Directory di installazione del Core attuale
-	_hWnd = mhWnd;
-
-	this->sendNotifyMessage("InitCore -> Starting Core Initialization.");
-
-	// Local Variable to hold window size data
-	RECT rect;
-	// Get the current window size
-	::GetWindowRect(_hWnd, &rect);
 	
-	int ww, hh;
-	ww = rect.right - rect.left; 
-	hh = rect.bottom - rect.top;
-
-	if(ww != 0)
-		_CurrWidth = ww;
-
-	if(hh != 0)
-		_CurrHeight = hh;
-
-
-	PIXELFORMATDESCRIPTOR pfd;
-	int format;
-	
-	// get the device context (DC)
-	_hDC = GetDC( _hWnd );
-	
-	// set the pixel format for the DC
-	ZeroMemory( &pfd, sizeof( pfd ) );
-	pfd.nSize = sizeof( pfd );
-	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = 24;
-	pfd.cDepthBits = 16;
-	pfd.iLayerType = PFD_MAIN_PLANE;
-	format = ChoosePixelFormat( _hDC, &pfd );
-	SetPixelFormat( _hDC, format, &pfd );
-	
-	// create and enable the render context (RC)
-	_hRC = wglCreateContext( _hDC );
-	wglMakeCurrent( _hDC, _hRC );
-
-	 
-	return true;
+	return this->initializeWindow(mhWnd);
 }
+
+LRESULT CoreOpenGL::handleNativeWindowWin32Event(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (eventmsg) 
+	{
+	case WM_MOVE:
+	case WM_SIZE:
+	{	
+		this->refreshWindowDimensions();
+		_needresize = true;
+	}
+		break;
+	case WM_ERASEBKGND:
+		return (0L);
+	default:
+		break;
+	}
+
+	return ::DefWindowProc(hWnd, eventmsg, wParam, lParam);
+}
+
 #else //Linux... TODO:
 bool CoreOpenGL::InitCore(Display*, WINDOWIDTYPE, std::string, std::string)
 {
@@ -112,30 +83,39 @@ bool CoreOpenGL::InitCore(Display*, WINDOWIDTYPE, std::string, std::string)
 
 	return false;
 }
+
+//FIXME: finire x linux. Intestazione sbagliata
+bool CoreOpenGL::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wParam, LPARAM lParam)
+{
+
+	return true;
+}
+
 #endif
+
 
 //Passata di Rendering
 bool CoreOpenGL::RenderScene()
 {
 	if(!this->isDone())
 	{
-		// OpenGL animation code goes here
-			
-		glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-		glClear( GL_COLOR_BUFFER_BIT );
-			
-		glPushMatrix();
-		glRotatef( _theta, 0.0f, 0.0f, 1.0f );
-		glBegin( GL_TRIANGLES );
-		glColor3f( 1.0f, 0.0f, 0.0f ); glVertex2f( 0.0f, 1.0f );
-		glColor3f( 0.0f, 1.0f, 0.0f ); glVertex2f( 0.87f, -0.5f );
-		glColor3f( 0.0f, 0.0f, 1.0f ); glVertex2f( -0.87f, -0.5f );
-		glEnd();
-		glPopMatrix();
-			
-		SwapBuffers( _hDC );
-			
-		_theta += 1.0f;
+		//IMPORTANTE:	ricordarsi sempre di tenere le direttive OGL sempre all'interno del thread chiamante altrimenti 
+		//				gli stati si corrompono e vengono ignorati
+		if(!_openglinit)
+		{
+			this->makeCurrentImplementation();
+			this->initializeOpenGL();
+			_openglinit = true;
+		}
+
+		if(_needresize)
+		{
+			this->windowResize(this->getWindowsX(), this->getWindowsY(), this->getWindowsWidth(), this->getWindowsHeight());
+			_needresize = false;
+		}
+
+		this->renderImplementation();
+		this->swapBuffersImplementation();
 	}
 	else
 	{
@@ -146,3 +126,88 @@ bool CoreOpenGL::RenderScene()
 	return true;
 }
 
+bool CoreOpenGL::renderImplementation()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+	
+	gluLookAt(0.0, 2.5, -11.0, 0.0, 0.75, -5.0, 0.0, 1.0, 0.0);
+	
+	glPushMatrix();
+	glRotatef( _theta, 0.0f, 1.0f, 0.0f );
+	for(float i = -500; i <= 500; i += 5)
+	{
+		glBegin(GL_LINES);
+			glColor3ub(150, 190, 150);						
+			glVertex3f(-500, 0, i);					
+			glVertex3f(500, 0, i);
+			glVertex3f(i, 0,-500);							
+			glVertex3f(i, 0, 500);
+		glEnd();
+	}
+	
+	glTranslatef(0,1.0f,0);
+	glBegin(GL_QUADS);						
+		glColor3f(0.0f,1.0f,0.0f);			
+		glVertex3f( 1.0f, 1.0f,-1.0f);		
+		glVertex3f(-1.0f, 1.0f,-1.0f);		
+		glVertex3f(-1.0f, 1.0f, 1.0f);		
+		glVertex3f( 1.0f, 1.0f, 1.0f);		
+		glColor3f(1.0f,0.5f,0.0f);			
+		glVertex3f( 1.0f,-1.0f, 1.0f);		
+		glVertex3f(-1.0f,-1.0f, 1.0f);		
+		glVertex3f(-1.0f,-1.0f,-1.0f);		
+		glVertex3f( 1.0f,-1.0f,-1.0f);
+		glColor3f(1.0f,0.0f,0.0f);			
+		glVertex3f( 1.0f, 1.0f, 1.0f);		
+		glVertex3f(-1.0f, 1.0f, 1.0f);		
+		glVertex3f(-1.0f,-1.0f, 1.0f);		
+		glVertex3f( 1.0f,-1.0f, 1.0f);		
+		glColor3f(1.0f,1.0f,0.0f);			
+		glVertex3f( 1.0f,-1.0f,-1.0f);		
+		glVertex3f(-1.0f,-1.0f,-1.0f);		
+		glVertex3f(-1.0f, 1.0f,-1.0f);		
+		glVertex3f( 1.0f, 1.0f,-1.0f);		
+		glColor3f(0.0f,0.0f,1.0f);			
+		glVertex3f(-1.0f, 1.0f, 1.0f);		
+		glVertex3f(-1.0f, 1.0f,-1.0f);		
+		glVertex3f(-1.0f,-1.0f,-1.0f);		
+		glVertex3f(-1.0f,-1.0f, 1.0f);		
+		glColor3f(1.0f,0.0f,1.0f);			
+		glVertex3f( 1.0f, 1.0f,-1.0f);		
+		glVertex3f( 1.0f, 1.0f, 1.0f);		
+		glVertex3f( 1.0f,-1.0f, 1.0f);		
+		glVertex3f( 1.0f,-1.0f,-1.0f);		
+	glEnd();
+	glPopMatrix();
+
+	_theta += 0.75f;
+
+	return true;
+}
+
+bool CoreOpenGL::windowResize(int windowX, int windowY, int windowWidth, int windowHeight)
+{
+	glViewport(0, 0, (GLsizei) windowWidth, (GLsizei) windowHeight);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	gluPerspective(45.0f,(GLfloat)windowWidth/(GLfloat)windowHeight,0.1f,100.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	return true;
+}
+
+void CoreOpenGL::initializeOpenGL()
+{
+	glShadeModel(GL_SMOOTH);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
+	glClearDepth(1.0f);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+}
+
+//TODO: fare gli eventi tastiera e mouse
