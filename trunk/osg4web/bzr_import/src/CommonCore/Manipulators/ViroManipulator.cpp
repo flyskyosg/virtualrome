@@ -43,7 +43,7 @@ ViroManipulator::ViroManipulator() : CommandSchedule("WALK") {
 	TracerFrustum.set( 0.1, 0.05 );		// A default for Size & Shape of Ray-Frustum
 
 	GravityAcceleration      = 6.0;
-	SurfaceAdhesion	         = 0.999;	// % of speed conservation when boost impacts
+	SurfaceAdhesion	         = 0.999;	// % of speed conservation when it impacts
 	SurfaceAdaption          = 0.4;		// % of surface adaption
 
 	FlyToDurationTime      = 2.0;		// Duration of Fly-To, in seconds
@@ -179,7 +179,8 @@ bool ViroManipulator::handlePick(double dx,double dy, float A){
 	// We found (h)it !!!
 	if ( found ){
 			#define MAX_PICK_DISTANCE_MULT	4.0
-			if ( Vec3d(_vEye - pickedPoint).length() < (BumpDistance*MAX_PICK_DISTANCE_MULT)) return false;	// too near
+			double D = max(BumpDistance,GroundDistance);
+			if ( Vec3d(_vEye - pickedPoint).length() < (D*MAX_PICK_DISTANCE_MULT)) return false;	// too near
 			/*
 			if ( isEnabled(HOTSPOT_REACTION) ){
 				if ( isEnabled(GLASS_PRISON) && !_GlassPrison.contains(pickedPoint) ) return false;
@@ -477,18 +478,23 @@ void ViroManipulator::FlyTo(double callTime){
 		}
 }
 
-// Provides a smooth Self-Correction of the Boost Position, ensuring that 
+// Provides a smooth Self-Correction of Position, ensuring that 
 // StrafeVector lies on XY-Plane + Automatic-Avoidance + Collision Detection.
 void ViroManipulator::AutoControl(double callTime){
 	if (bAutoControlLock) return;
 
+	_bImpact        = false;
+	_bAvoidanceZone = false;
+	
 	// Collision Detection & Avoidance
 	if (isEnabled(COLLISIONS) && _bIntersect){
 		double impactDistance = Vec3d(_vEye - _vIpoint).length();
 
 		if ((_speed != 0.0) && (impactDistance < AvoidanceDistance)){
 			_tLastAvoidanceWarn = callTime;
-			_speed *= 0.6;
+			_speed *= 0.3;
+			//_speed = 0.0;
+			_bAvoidanceZone = true;
 /*			
 			osg::Vec3d vBump = VecBump(_vInormal, _vLook);
 			osg::Vec3d vImpactStrafe = vBump ^ _vLook;
@@ -499,8 +505,9 @@ void ViroManipulator::AutoControl(double callTime){
 			double correctionAngle =  _AvoidanceReaction * impactAngle * s;
 			if (impactAngle > 85.0) correctionAngle = 0.0;
 */
-			// In this case the Boost crashed. Totally disable user-control.
+			// In this case we crashed. Totally disable user-control.
 			if (impactDistance <= BumpDistance){
+				_bImpact = true;
 				//osg::notify(DEBUG_INFO)<<"Impact !! Sorry that was too hard to avoid...\n";
 				//osg::Vec3d E = (vBump*BumpDistance) + _vIpoint;
 				_vInormal.normalize();
@@ -514,34 +521,36 @@ void ViroManipulator::AutoControl(double callTime){
 				}
 
 			// ...Else try to avoid surfaces...
-			else if ( isEnabled(AVOIDANCE) ){
-				osg::Vec3d vBump = VecBump(_vInormal, _vLook);
-				osg::Vec3d vImpactStrafe = vBump ^ _vLook;
+			else {
+				if ( isEnabled(AVOIDANCE) ){
+					osg::Vec3d vBump = VecBump(_vInormal, _vLook);
+					osg::Vec3d vImpactStrafe = vBump ^ _vLook;
 
-				osg::Quat qAvoidanceCorrection;
-				double impactAngle = (90.0 - VecAngle(-_vLook,_vInormal));
-				double s = (_speed*_modelScale*0.0001);
-				double correctionAngle =  _AvoidanceReaction * impactAngle * s;
-				if (impactAngle > 85.0) correctionAngle = 0.0;
+					osg::Quat qAvoidanceCorrection;
+					double impactAngle = (90.0 - VecAngle(-_vLook,_vInormal));
+					double s = (_speed*_modelScale*0.0001);
+					double correctionAngle =  _AvoidanceReaction * impactAngle * s;
+					if (impactAngle > 85.0) correctionAngle = 0.0;
 
-				double dd = (AvoidanceDistance - BumpDistance);
-				_UserControlPercentage = (impactDistance - BumpDistance) / dd;
-				osg::notify(DEBUG_INFO)<<"You are about to Crash. Please correct. Control Percentage = "<<(_UserControlPercentage*100.0)<<"\n";
+					double dd = (AvoidanceDistance - BumpDistance);
+					_UserControlPercentage = (impactDistance - BumpDistance) / dd;
+					osg::notify(DEBUG_INFO)<<"You are about to Crash. Please correct. Control Percentage = "<<(_UserControlPercentage*100.0)<<"\n";
 				
-				// If Boost is approaching surface, enable interpolated speed limiter
-				double revLimiter = _Mix.interpolate(_UserControlPercentage,SurfaceSpeedLimiter,_speed);
-				if (_speed > revLimiter) _speed = revLimiter;
+					// If we are approaching surface, enable interpolated speed limiter
+					double revLimiter = _Mix.interpolate(_UserControlPercentage,SurfaceSpeedLimiter,_speed);
+					if (_speed > revLimiter) _speed = revLimiter;
 
-				// Calculate the right correction angle step
-				correctionAngle = _Mix.interpolate(_UserControlPercentage,correctionAngle,0.0f);
-				
+					// Calculate the right correction angle step
+					correctionAngle = _Mix.interpolate(_UserControlPercentage,correctionAngle,0.0f);
 
-			//_speed *= _Mix.interpolate(_UserControlPercentage,0.0,(impactAngle/90.0));
 
-			qAvoidanceCorrection.makeRotate(-correctionAngle, vImpactStrafe);
+					//_speed *= _Mix.interpolate(_UserControlPercentage,0.0,(impactAngle/90.0));
 
-			// Apply correction to current quat.
-			_qRotation = _qRotation * qAvoidanceCorrection;
+					qAvoidanceCorrection.makeRotate(-correctionAngle, vImpactStrafe);
+
+					// Apply correction to current quat.
+					_qRotation = _qRotation * qAvoidanceCorrection;
+					}
 				}
 			}
 
@@ -558,7 +567,7 @@ void ViroManipulator::AutoControl(double callTime){
 				}
 			}
 		}
-	
+
 	// Apply Gravity
 	if ( isEnabled(GRAVITY) ){
 		osg::Vec3d P,N;
@@ -580,7 +589,7 @@ void ViroManipulator::AutoControl(double callTime){
 				/*
 				if ( _vUp.z() > 0.0 ){
 					osg::Quat qFall;
-					// ----------------------- Front : Rear Boost-weights
+					// ----------------------- Front : Rear weights
 					double r = (_speed >=0.0)? -0.05 : 0.02;
 					qFall.makeRotate((r * _vUp.z()), _vStrafe );
 					_qRotation = _Mix.interpolate(0.4,_qRotation,_qRotation*qFall);
@@ -670,6 +679,16 @@ void ViroManipulator::AutoControl(double callTime){
 			}
 		}
 
+	// Wall Reaction
+	if ( isEnabled(COLLISIONS) && (_bImpact || _bAvoidanceZone) ){
+		osg::Vec3d R(_vInormal);
+		
+		R.normalize();
+		R *= 0.1;
+		_vEye    += R;
+		_vTarget += R;
+		}
+
 	if ( isEnabled(GLASS_PRISON) ){
 		bool impact = false;
 		if (_vEye.x() > _GlassPrison.xMax()){ _vEye = Vec3d(_GlassPrison.xMax(),_vEye.y(),_vEye.z()); impact=true; }
@@ -718,7 +737,7 @@ void ViroManipulator::init(const GUIEventAdapter& ,GUIActionAdapter& ){
 	flushMouseEventStack();
 	_FrameDT       = 0.0;
 	_lastFrameTime = 0.0;
-	osg::notify(ALWAYS)<<"Boost Manipulator initialized.\n";
+	osg::notify(ALWAYS)<<"ViRo-Manipulator initialized.\n";
 }
 
 bool ViroManipulator::MouseListener(){
@@ -783,7 +802,7 @@ bool ViroManipulator::MouseListener(){
 			EventCaptured = true;
 			}
 	}
-	// Update some Boost data
+	// Update some data
 	SyncData();
 
 	if (EventCaptured) _bNeedUpdateTrace = true;
@@ -927,7 +946,7 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				osg::notify(DEBUG_INFO)<<"Mid-Mouse pressed.\n";
 				//_bSatMode = false;
 				
-				// During a Boost-To, stop flying...
+				// During a Fly-To, stop flying...
 				if (_bFlying){
 					_speed     = 0.0;
 					_bFlying   = false;
@@ -960,7 +979,7 @@ bool ViroManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us){
 				// Single Click
 				/* else */ {
 					osg::notify(DEBUG_INFO)<<"Left Button pressed.\n";
-					// During a Boost-To, stop flying...
+					// During a Fly-To, stop flying...
 					if (_bFlying){
 						_bFlying   = false;
 						//Disable(PERIPHERAL_LOCK);
@@ -1409,11 +1428,10 @@ bool ViroManipulator::Trace(){
 
 void ViroManipulator::getUsage(osg::ApplicationUsage& usage) const
 {
-	usage.addKeyboardMouseBinding("Boost: Mouse Wheel","Accelerate / Decelerate");
-	usage.addKeyboardMouseBinding("Boost: Left-Button","Stop the Boost");
-	usage.addKeyboardMouseBinding("Boost: Right-Button","Lock Boost direction");
-	usage.addKeyboardMouseBinding("Boost: Left Double-Click","Fly-To picked point - APPROACH");
-	usage.addKeyboardMouseBinding("Boost: Mid-Button","Fly-To picked point - SATELLITE");
+	usage.addKeyboardMouseBinding("ViRo: Mouse Wheel","Accelerate / Decelerate");
+	usage.addKeyboardMouseBinding("ViRo: Left-Button","Stop");
+	usage.addKeyboardMouseBinding("ViRo: Right-Button","Press and Turn - Hold CTRL for Slide/Height");
+	usage.addKeyboardMouseBinding("ViRo: Mid-Button","Fly-To picked point - Hold CTRL for Satellite Picking");
 }
 
 std::string ViroManipulator::handleAction(std::string argument)
