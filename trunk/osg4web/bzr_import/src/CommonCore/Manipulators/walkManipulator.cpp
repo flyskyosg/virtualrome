@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2007/12/16 15:35:16 $
-Version:   $Revision: 1.4 $
+Date:      $Date: 2007/12/17 17:26:24 $
+Version:   $Revision: 1.5 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -29,6 +29,7 @@ CINECA - Interuniversity Consortium (www.cineca.it)
 #include <osg/io_utils>
 #include <osgUtil/IntersectVisitor>
 #include <osg/Geode>
+
 
 using namespace osg;
 using namespace osgGA;
@@ -655,7 +656,13 @@ void walkManipulator::moveVertically(double amount)
   }
 
   _ground_distance += amount;
-  IntersectTerrain();
+  if (!_ground_collision_on)
+  {
+    _position[2] += amount;
+    return;
+  }
+  else
+    IntersectTerrain();
 }
 
 //--------------------------------------------------------------------
@@ -1168,6 +1175,10 @@ std::string walkManipulator::ExecCommand(std::string lcommand, std::string rcomm
 		this->go_lift(false);
 	else if ((lcommand.compare("LIFT") == 0)&& (rcommand.compare("DOWN") == 0))
 		this->go_lower(false);
+  else if ((lcommand.compare("SET_GROUND_COLLISION") == 0)&& (rcommand.compare("ON") == 0))
+    this->setGroundCollisionOnOff(true);
+  else if ((lcommand.compare("SET_GROUND_COLLISION") == 0)&& (rcommand.compare("OFF") == 0))
+    this->setGroundCollisionOnOff(false);
   else if (lcommand.compare("GOTO") == 0)
   {
     CameraData CP;
