@@ -173,6 +173,27 @@ FIND_LIBRARY(GeckoSDK_NSPR4_LIBRARY
         /usr/freeware/lib64
     )
 
+FIND_LIBRARY(GeckoSDK_XPCOM_GLUE_S_LIBRARY
+        NAMES xpcomglue_s
+        PATHS
+				${GeckoSDK_ROOT}/lib
+        $ENV{GECKOSDK_DIR}/lib
+        $ENV{GECKOSDK_DIR}
+        $ENV{GECKOSDKDIR}/lib
+        $ENV{GECKOSDKDIR}
+        $ENV{GECKOSDK_ROOT}/lib
+        ~/Library/Frameworks
+        /Library/Frameworks
+        /usr/local/lib
+        /usr/lib
+        /sw/lib
+        /opt/local/lib
+        /opt/csw/lib
+        /opt/lib
+        [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session\ Manager\\Environment;GECKOSDK_ROOT]/lib
+        /usr/freeware/lib64
+    )
+
 MARK_AS_ADVANCED(GeckoSDK_NSPR4_LIBRARY  GeckoSDK_PLDS4_LIBRARY GeckoSDK_PLC4_LIBRARY GeckoSDK_XPCOM_LIBRARY GeckoSDK_INCLUDE_DIR GeckoSDK_IDL_DIR )
 
 SET(GeckoSDK_FOUND "NO")
