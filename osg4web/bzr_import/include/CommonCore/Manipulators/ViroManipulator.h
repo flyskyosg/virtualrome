@@ -210,15 +210,15 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		bool isEnabled(unsigned short B){ return bool(ViroOptions & B); };
 		void Invert(unsigned short B){ ViroOptions ^= B; };
 
-		double	Acceleration;			// Boost Acceleration
+		double	Acceleration;			// Acceleration
 		double	BumpDistance;			// Surface Hard-Collision distance
 		double  GroundDistance;
 		double	AvoidanceDistance;		// Surface Distance to apply Avoidance-Correction
-		double	RollAutoCorrection;		// Boost Auto-Correction factor
+		double	RollAutoCorrection;		// Auto-Correction factor
 		double	RollWithYaw;			// Roll with Yaw factor
 		double	SurfaceAdhesion;		// Surface Adhesion factor
 		double	SurfaceSpeedLimiter;	// The Max Speed on Surface
-		double	FlyToDurationTime;	// Boost-To Duration Time (in seconds). must be > 0
+		double	FlyToDurationTime;		// Fly-To Duration Time (in seconds). must be > 0
 		int NumTracerSamplers;			// Num. of Samplers (Note: This influences performance)
 		osg::Vec2d TracerFrustum;		// Size & shape of ray-shooter (in MultiSampling)
 		double GravityAcceleration;
@@ -287,7 +287,7 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		double		_tLastImpact;
 		double		_tFallTimer;
 
-		double		_speed;							// Current Boost-Speed
+		double		_speed;							// Current Speed
 		double		_AvoidanceReaction;				// Collision-Avoidance reaction factor
 		double		_UserControlPercentage;			// User Control (0 = None, 1 = Full)
 		double		_CurrentGravityAcceleration;	// UNUSED
@@ -302,13 +302,14 @@ class ViroManipulator : public MatrixManipulator, public CommandSchedule {
 		// Bool
 		bool _bNeedUpdateTrace;				// Tracer needs to be called
 		bool _bIntersect;					// True if Tracer found intersection...
-		bool _bFlying;						// The Boost is performing a Fly-To
+		bool _bFlying;						// Performing a Fly-To
 		bool _bSatMode;						// Satellite mode
 		bool _bHoldCTRL;
-		bool _bSurfaceImpact;				// Boost impacted surface (when GRAVITY = ON)
+		bool _bSurfaceImpact;				// Impact with surface (when GRAVITY = ON)
+		bool _bImpact;
+		bool _bAvoidanceZone;
 		bool _bReqHome;
 
-		// Boost-To Parameters
 		double _FlyToCallTime;
 
 		// Scaling-Sensible safe parameters
