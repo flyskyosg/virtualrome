@@ -4,6 +4,8 @@
 
 
 #include <osg/MatrixTransform>
+#include <osg/Fog>
+#include <osg/LightSource>
 
 #include <osgDB/FileNameUtils>
 #include <osgDB/Registry>
@@ -389,6 +391,28 @@ void FunCore::handleEnvironment()
 
 	_ModiSceneGraph->addChild(transform.get());
 
+	//--- Environment Fog and Light
+	
+	osg::ref_ptr<osg::Group> EnvNode = new osg::Group;
+	osg::ref_ptr<osg::Fog> EnvFog = new osg::Fog;
+	osg::ref_ptr<osg::StateSet> EnvSS;
+	osg::ref_ptr<osg::LightSource> EnvSun;
+
+	EnvSS = EnvNode->getOrCreateStateSet();
+	
+	EnvFog->setColor( osg::Vec4f(0.9,1.0,1.0, 1.0) );
+	EnvFog->setDensity( 0.0005 );
+	EnvFog->setMode(osg::Fog::EXP);
+
+	EnvSS->setAttributeAndModes( EnvFog.get() );
+	//EnvSS->setMode(GL_CULL_FACE,osg::StateAttribute::ON);
+
+	EnvSun = new osg::LightSource;
+	EnvSun->getLight()->setPosition( osg::Vec4(0.0,0.0,20000, 0.0) );
+	EnvSun->getLight()->setLightNum(0);
+	EnvNode->addChild( EnvSun.get() );
+	//---
+
 	osg::ref_ptr<osg::StateSet> stateset = skyboxgeode->getStateSet();
 	if(stateset.valid())
 	{
@@ -400,6 +424,12 @@ void FunCore::handleEnvironment()
 			clearNode->addChild(skyboxgeode.get());
 			skyboxgeode->setName("ATTACHED_Skybox_Geode_To_Attach");
 		}
+	}
+
+	if (_MainNode.get() ){
+		_MainNode->addChild( EnvNode.get() );
+		EnvFog->setDensity( 500.0 / _MainNode.get()->getBound().radius() );			// Formula da testare con differenti modelli
+		_MainNode->getOrCreateStateSet()->setAttributeAndModes( EnvFog.get() );
 	}
 }
 
