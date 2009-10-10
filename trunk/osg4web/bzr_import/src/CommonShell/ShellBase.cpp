@@ -537,6 +537,12 @@ std::string ShellBase::getAdvancedCoreDirectory()
 	return m_advancedcoredir;
 }
 
+void ShellBase::setAdvancedCoreDirectory(std::string dir)
+{
+	this->setObjectShellOption(INIT_OPTION_COREINSTDIR, dir);
+	m_advancedcoredir = dir;
+}
+
 bool ShellBase::startLoadingBaseCore()
 {
 	if(m_loadcorename.empty())
@@ -622,8 +628,51 @@ bool ShellBase::checkAdvCorePresence()
 			));
 	
 	//Check library presence
-	if(!Utilities::FileUtils::fileExists(libraryfullpath)) //FIXME: cambiare in modo da usare la dir plugin
-		return false;
+	if(!Utilities::FileUtils::fileExists(libraryfullpath))
+	{
+		//Non c'è in User Space, cerco anche nell'installazione locale
+		this->sendNotifyMessage( "ShellBase::checkAdvCorePresence-> Advanced library is not present in user osg4web dir. Serching in firefox local install dir." );
+
+		std::string coredirectory;
+		getInitOption(INIT_OPTION_LOCALINSTDIR, coredirectory); //FIXME: controllare se fare i test
+		coredirectory = Utilities::FileUtils::convertFileNameToNativeStyle(coredirectory + "/" + this->getAdvancedCoreSHA1());
+
+		//Check library presence
+		std::string s = Utilities::FileUtils::convertFileNameToNativeStyle(
+						coredirectory + 
+						"/" + 
+						m_advancedcore + 
+						DEBUGAPPEND + 
+						DynamicLoad::getLibraryExtension()
+						);
+
+		if(!Utilities::FileUtils::fileExists(s))
+		{
+			//Non c'è in Firefox Local, cerco nell'installazione principale
+			this->sendNotifyMessage( "ShellBase::checkAdvCorePresence-> Advanced library is not present in local install dir. Serching in base install dir." );
+
+			getInitOption(INIT_OPTION_INSTALLDIR , coredirectory); //FIXME: controllare se fare i test
+			coredirectory = Utilities::FileUtils::convertFileNameToNativeStyle(coredirectory + "/" + this->getAdvancedCoreSHA1());
+
+			//Check library presence
+			s = Utilities::FileUtils::convertFileNameToNativeStyle(
+							coredirectory + 
+							"/" + 
+							m_advancedcore + 
+							DEBUGAPPEND + 
+							DynamicLoad::getLibraryExtension()
+							);
+
+			if(!Utilities::FileUtils::fileExists(s))
+			{
+				this->sendNotifyMessage( "ShellBase::checkAdvCorePresence-> Advanced library not found!" );
+				return false;
+			}
+		
+		}
+
+		this->setAdvancedCoreDirectory(coredirectory);
+	}
 	
 	return true;
 }

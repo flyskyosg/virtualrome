@@ -105,6 +105,8 @@ protected:
 	std::string getInitAdvancedCoreOptions();
 	std::string generateAdvancedCoreDirectory();
 
+	void setAdvancedCoreDirectory(std::string dir);
+
 	//Return Shell Version
 	std::string getShellVersion();
 

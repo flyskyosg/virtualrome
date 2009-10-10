@@ -562,8 +562,6 @@ NPBool nsPluginInstance::initLoadCore()
 		return mInitialized;
 	}
 
-	//TODO: finire da qui 
-
 	if(!mShellBase.initializeAdvancedCore())
 	{
 		//Reload LoadCore

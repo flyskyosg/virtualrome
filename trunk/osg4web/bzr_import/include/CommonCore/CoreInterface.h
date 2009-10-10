@@ -38,7 +38,6 @@ namespace OSG4WebCC
 			_fout(NULL),
 			_EventFPtr(NULL),
 			_ClassEPtr(NULL)
-
 		{ }
 
 		//Distruttore dell Core Interface

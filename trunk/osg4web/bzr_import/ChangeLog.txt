@@ -4,6 +4,11 @@ Change Log
 06/02/2008
 - Riscritta la parte di gestione dei parametri di init della shell e dei parametri da object
 - Finita implementazione dei log forzati su file da parametri Object
+- Caricamento Core Advanced anche dentro Local Firefox e Main FIrefox
+
+04/02/2008
+- Minor bug fix
+- Aggiunta define per settaare directory core o User space o FIrefox Plugin
 
 29/01/2008
 - Finita la release per nposg e core
