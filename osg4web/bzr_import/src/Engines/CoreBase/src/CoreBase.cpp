@@ -108,24 +108,18 @@ bool CoreBase::InitCore(WINDOWIDTYPE mhWnd, std::string instdir, std::string opt
 
 	this->sendNotifyMessage("InitCore -> Starting Core Initialization.");
 
-	//Descrivo il Pixel Format
-	PIXELFORMATDESCRIPTOR pixelFormat =
-	{
-	    sizeof(PIXELFORMATDESCRIPTOR),
-		1,
-		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, 
-		PFD_TYPE_RGBA,    
-		24,
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0,
-		24,
-		0,
-		0,
-		PFD_MAIN_PLANE,
-		0,
-		0, 0, 0
-	};
+	PIXELFORMATDESCRIPTOR pixelFormat;
 
+	ZeroMemory( &pixelFormat, sizeof( pixelFormat ) );
+
+	pixelFormat.nSize = sizeof( pixelFormat );
+	pixelFormat.nVersion = 1;
+	pixelFormat.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	pixelFormat.iPixelType = PFD_TYPE_RGBA;
+	pixelFormat.cColorBits = 24;
+	pixelFormat.cDepthBits = 16;
+	pixelFormat.iLayerType = PFD_MAIN_PLANE;
+	
 	//Retrieve DC Context
 	HDC hdc = ::GetDC(mhWnd);
     if (hdc==0)
@@ -364,22 +358,17 @@ bool CoreBase::setupWindow(osg::Referenced* wd)
 	// Setup the traits parameters
 	_Traits->x = 0;
 	_Traits->y = 0;
-
-	//FIXME: così sarebbe corretto. Mi sfancula le proporzioni... sistemare
 	
 	_Traits->width = _WinRect[1] - _WinRect[0];
 	_Traits->height = _WinRect[2] - _WinRect[3];
 	
-
-	//_Traits->width = 800;
-	//_Traits->height = 600;
-
 	_Traits->windowDecoration = false;
 	_Traits->doubleBuffer = true;
 	_Traits->vsync = true;
 	_Traits->sharedContext = 0;
 	_Traits->setInheritedWindowPixelFormat = true;
 	_Traits->inheritedWindowData = _WinData;
+	//_Traits->pbuffer = true;
 
 	return true;
 }

@@ -72,7 +72,7 @@ function ExecCoreCommand(command)
     frm.models.disabled=true;
   }
   
-  if(command == 'CEM_COMMIT')
+  if(command == 'PICKEDIT COMMIT')
   {
     var frm = document.forms[0];
     
