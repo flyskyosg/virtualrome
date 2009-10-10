@@ -28,6 +28,9 @@ namespace EnvUtils
 
 		std::string composeDirectory(std::string directory, std::string adder);
 		std::string composeVariable(std::string varname, std::string argument);
+
+		std::string getEnvironmentVariable(std::string var);
+		bool setEnvironmentVariable(std::string var, std::string arg);
 		
 	private:
 		std::string _initpath;

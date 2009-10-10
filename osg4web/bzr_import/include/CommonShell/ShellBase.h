@@ -61,10 +61,11 @@ public:
 	bool checkFileValidity(std::string fname, std::string hexhash);
 	bool checkAdvCorePresence();	
 
+
 	//UnPacking Functions
-	int openCompressedCore(std::string filename);
-	int unpackCompressedCoreFile();
-	void freeCompressedCore();
+	std::string unpackDownloadedCore(std::string ofname, int& fno);
+	
+	
 
 	//Debugging redirection
 	void initializeLog(std::string logname);
@@ -90,6 +91,12 @@ public:
 	//Funzione di configurazione dei parametri provenienti da Object
 	bool configuringObjectOptions();
 	
+	//TODO: spostare in protected
+	//UnPacking Functions
+	int openCompressedCore(std::string filename);
+	int unpackCompressedCoreFile();
+	void freeCompressedCore();
+
 protected:
 	bool initializeLogMessages(std::string logname);
 	void initializeErrorMessages();

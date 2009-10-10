@@ -263,9 +263,61 @@ bool CoreBase::initSceneData()
 //Inizializzo le opzioni del core
 bool CoreBase::initSetupOptions(std::string options, bool erase)
 {
-	//FIXME: finire le options... (Provare ad usare readNodeFunc in modo da non passare dal Registry)
-	this->sendNotifyMessage("initSetupOptions -> setting init OSG Registry Options " + options);
+	this->sendNotifyMessage("initSetupOptions -> setting up init Core Option");
 
+	if(!options.empty())
+	{
+		this->sendNotifyMessage("initSetupOptions -> setting init OSG Registry Options " + options);
+
+		std::string left, var, args, right = options;
+
+		do
+		{
+			//Split left right
+			std::string::size_type pos = right.find( ' ' );
+
+			if(pos == std::string::npos)
+			{
+				left = right;
+				right.clear();
+			}
+			else
+			{
+				left = right.substr(0, pos);
+				right = right.substr(pos + 1, right.size() - 1);
+			}
+
+			//Split var args
+			pos = left.find( '=' );
+			if(pos != std::string::npos)
+			{
+				var = left.substr(0, pos);
+				args = left.substr(pos + 1, left.size() - 1);
+
+				if(var == "PROXY_HOSTNAME")
+				{
+					this->sendNotifyMessage("initSetupOptions -> proxy hostname found!");
+
+					if( !(putenv((char*) (std::string("OSG_PROXY_HOST=") + args).c_str())))
+						this->sendWarnMessage("initSetupOptions -> Can't set OSG_PROXY_HOST env variable");
+					}
+				else if(var == "PROXY_PORT")
+				{
+					this->sendNotifyMessage("initSetupOptions -> proxy port found!");
+
+					if( !(putenv((char*) (std::string("OSG_PROXY_PORT=") + args).c_str())))
+						this->sendWarnMessage("initSetupOptions -> Can't set OSG_PROXY_PORT env variable ");
+				}
+			}
+		} while( !right.empty() );
+	}
+	
+	//TODO:
+
+	return true;
+
+
+	//FIXME: finire le options... (Provare ad usare readNodeFunc in modo da non passare dal Registry)
 	/*
 	osg::ref_ptr<osgDB::ReaderWriter::Options> opt = osgDB::Registry::instance()->getOptions();
 	if(!opt.valid())
@@ -290,10 +342,7 @@ bool CoreBase::initSetupOptions(std::string options, bool erase)
 	}
 	
 	osgDB::Registry::instance()->setOptions(opt.get()); 
-
 	*/
-	
-	return true;
 }
 
 //Carica un modello nella scena. 

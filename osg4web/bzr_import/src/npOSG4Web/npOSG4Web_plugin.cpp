@@ -1302,26 +1302,23 @@ void nsPluginInstance::doDownloadCore()
 	this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY TRUE");
 	this->loadingCoreCommand("LOADCORE STATUSBARVALUE 0"); //Reset Status Bar Lenght
 	
-	//Attivo il messaggio di Download del Core
+	//Attivo il messaggio di Unpack del Core
 	this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_GREEN");
 	this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Core...");
 
 	mShellBase.sendNotifyMessage(std::string("nsPluginInstance::doDownloadCore -> Unpacking Core."));
 	
-	int coreunpack = 0; //Condizione di loading
-
-	//Opening Archive List
-	int filenumber = mShellBase.openCompressedCore(tempdl);
-
-	if(filenumber < 0)
+	int filenumber = -1;
+	std::string unpackerr = mShellBase.unpackDownloadedCore(tempdl, filenumber);
+	if(!unpackerr.empty())
 	{
 		//TODO: messaggi di Errore
 		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
 
 		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Failed! Error opening archive");
+		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking " + unpackerr);
 
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Unpacking Failed! Error opening archive"));
+		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> " + unpackerr));
 
 		//Cleaning Archive List
 		mShellBase.freeCompressedCore();
@@ -1330,23 +1327,7 @@ void nsPluginInstance::doDownloadCore()
 		return;
 	}
 
-	if(filenumber == 0)
-	{
-		//TODO: messaggi di Errore
-		this->loadingCoreCommand("LOADCORE STATUSBAR_VISIBILITY FALSE");
-
-		this->loadingCoreCommand("LOADCORE SETMESSAGE_COLOR LC_OSG_RED");
-		this->loadingCoreCommand("LOADCORE SETMESSAGE Unpacking Failed! Empty archive");
-
-		mShellBase.sendWarnMessage(std::string("nsPluginInstance::doDownloadCore -> Unpacking Failed! Empty archive"));
-
-		//Cleaning Archive List
-		mShellBase.freeCompressedCore();
-		PR_Unlock(s_DlCoreThreadLocking);
-
-		return;
-	}
-	
+	int coreunpack = 0; //Condizione di decompressoine
 	unsigned int cicleno = 0;
 	while(coreunpack == 0)
 	{

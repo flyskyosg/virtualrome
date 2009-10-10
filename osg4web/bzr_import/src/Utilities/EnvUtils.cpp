@@ -12,18 +12,18 @@ using namespace EnvUtils;
 
 Environment::Environment()
 {
-	std::string envpath(getenv( "PATH" ));
+	std::string envpath(getEnvironmentVariable( "PATH" ));
 
 #if defined(WIN32)
-	std::string envtmp(getenv( "TEMP" ));
-	std::string envapp(getenv( "APPDATA" ));
+	std::string envtmp(getEnvironmentVariable( "TEMP" ));
+	std::string envapp(getEnvironmentVariable( "APPDATA" ));
 
 	if(envtmp.empty())
-		envtmp = getenv( "TMP" );
+		envtmp = getEnvironmentVariable( "TMP" );
 #else
 	//TODO:
-	std::string envtmp(getenv( "tmp" ));
-	std::string envapp(getenv( "APPDATA" )); 
+	std::string envtmp(getEnvironmentVariable( "tmp" ));
+	std::string envapp(getEnvironmentVariable( "APPDATA" )); 
 #endif
 
 	if( envtmp.empty() )
@@ -57,7 +57,7 @@ bool Environment::restoreOriginalPath()
 {
 	_path = _initpath;
 
-	return (putenv((char*) this->composeVariable("PATH",_initpath).c_str()) >= 0);
+	return setEnvironmentVariable("PATH",_initpath);
 }
 
 bool Environment::addDirectoryToPath(std::string directory, std::string adder)
@@ -76,7 +76,7 @@ bool Environment::addDirectoryToPath(std::string directory, std::string adder)
 
 	_path = newpath;
 
-	return (putenv((char*) this->composeVariable("PATH",_path).c_str()) >= 0);
+	return setEnvironmentVariable("PATH",_path);
 }
 
 std::string Environment::composeVariable(std::string varname, std::string argument)
@@ -136,5 +136,18 @@ std::string Environment::beginAddDirectoryToDirList(std::string dirlist, std::st
 	retstr += dirlist;
 		
 	return retstr;
+}
+
+std::string Environment::getEnvironmentVariable(std::string var)
+{
+	return std::string( getenv( var.c_str() ) );
+}
+		
+bool Environment::setEnvironmentVariable(std::string var, std::string arg)
+{
+	if( var.empty() )
+		return false;
+
+	return (putenv((char*) this->composeVariable(var,arg).c_str()) >= 0);
 }
 
