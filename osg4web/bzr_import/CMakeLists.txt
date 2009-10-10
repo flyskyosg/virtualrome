@@ -46,6 +46,31 @@ ENDIF(USER_DEFINED_MODULE_PATH)
 
 ############################################################
 #
+# Specific Compiler Properties
+#
+############################################################
+
+IF(MSVC)
+	OPTION(MSVC_DEBUG_INCREMENTAL_LINK "Set to OFF to build OSG4Web without incremental linking in debug" OFF)
+	MARK_AS_ADVANCED(MSVC_DEBUG_INCREMENTAL_LINK)
+	IF(NOT MSVC_DEBUG_INCREMENTAL_LINK)
+		SET(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+		SET(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+		SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+	ENDIF(NOT MSVC_DEBUG_INCREMENTAL_LINK)
+ENDIF(MSVC)
+
+IF(MSVC80)
+	OPTION(MSVC_GENERATE_MANIFESTS "Set to OFF to build OSG4Web without Visual Studio 8 manifests (Don't turn off if you intend to compile ieOSG4Web)" ON)
+	MARK_AS_ADVANCED(MSVC_GENERATE_MANIFESTS)
+	IF(NOT MSVC_GENERATE_MANIFESTS)
+	       	SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /MANIFEST:NO")
+	ENDIF(NOT MSVC_GENERATE_MANIFESTS)
+ENDIF(MSVC80)
+
+
+############################################################
+#
 # Configuring VSStart from CTest
 #
 ############################################################
