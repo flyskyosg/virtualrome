@@ -285,15 +285,25 @@ bool CoreBase::initSetupOptions(std::string options, bool erase)
 				{
 					this->sendNotifyMessage("initSetupOptions -> proxy hostname found!");
 
+//this env var is for net plugin
 					if( !(putenv((char*) (std::string("OSG_PROXY_HOST=") + args).c_str())))
 						this->sendWarnMessage("initSetupOptions -> Can't set OSG_PROXY_HOST env variable");
-					}
+
+//this env var is for curl plugin
+					if( !(putenv((char*) (std::string("OSG_CURL_PROXY=") + args).c_str())))
+						this->sendWarnMessage("initSetupOptions -> Can't set OSG_CURL_PROXY env variable");
+				}
 				else if(var == "PROXY_PORT")
 				{
 					this->sendNotifyMessage("initSetupOptions -> proxy port found!");
 
+//this env var is for net plugin
 					if( !(putenv((char*) (std::string("OSG_PROXY_PORT=") + args).c_str())))
 						this->sendWarnMessage("initSetupOptions -> Can't set OSG_PROXY_PORT env variable ");
+
+//this env var is for curl plugin
+					if( !(putenv((char*) (std::string("OSG_CURL_PROXYPORT=") + args).c_str())))
+						this->sendWarnMessage("initSetupOptions -> Can't set OSG_CURL_PROXYPORT env variable ");
 				}
 			}
 		} while( !right.empty() );
