@@ -172,6 +172,7 @@ bool FunCore::initManipulators()
 			//| _ViRoMan->MULTISAMPLING
 			//| _ViRoMan->SURFACE_ADAPTION
 			| _ViRoMan->AUTO_SCALE_STEP
+			| _ViRoMan->Z_LOCK
 			);
 
 	// distanza di impatto da superfici (es. muri)
@@ -510,7 +511,7 @@ void FunCore::handleEnvironment()
 	EnvNode->addChild( EnvCL.get() );
 
 	// Water
-	/*
+/*	
 	#define WATER_H		30.0
 
 	osg::Geometry* water = new osg::Geometry;
@@ -534,7 +535,7 @@ void FunCore::handleEnvironment()
     water->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS,0,4));
 	osg::ref_ptr<osg::Geode> WaterNode = new osg::Geode;
 	WaterNode.get()->addDrawable( water );
-	*/
+*/
 
 	/////////////////////////////////////////////////////////////////////
 
