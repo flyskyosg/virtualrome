@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2007/12/19 04:34:23 $
-Version:   $Revision: 1.7 $
+Date:      $Date: 2008/03/07 18:23:29 $
+Version:   $Revision: 1.8 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -48,7 +48,7 @@ walkManipulator::walkManipulator() : CommandSchedule("WALK"),
    _pitch( 0.0f ),
    _roll( 0.0f ),
    _position( osg::Vec3d(0,0,0) ),
-   _ground_distance( 1 ),
+   _ground_distance( 100 ),
    _step_h( 1 ),
    _step_v( 1 ),
    _rstep( 1.5 ),
@@ -58,7 +58,7 @@ walkManipulator::walkManipulator() : CommandSchedule("WALK"),
    _going_left( 0 ),
    _going_up( 0 ),
    _calc_ground_distance( false ),
-   _ground_collision_on( true ),
+   _ground_collision_on( false ),
    _segmult1(4.0),
    _segmult2(3.0),
 #if _USE_VISMAN_
@@ -472,6 +472,7 @@ bool walkManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
 
         case(GUIEventAdapter::FRAME): //chiamato ad ogni Render
           {
+            _roll = 0.0f;
             handleRotation();
             if (_calc_ground_distance)
             {
@@ -840,10 +841,11 @@ void walkManipulator::Render(void)
 void walkManipulator::flytoScenePick(float mouse_x, float mouse_y)
 //--------------------------------------------------------------------
 {
-  //osgUtil::IntersectVisitor::HitList hlist;
   osgUtil::LineSegmentIntersector::Intersections hlist;
-  osg::LineSegment *seg;
-  osg::Matrixd matrix;
+  double old_near, old_far;
+  float new_step;
+  CameraData *Point1, *Point2;
+  CameraPoints *CP;
 
   if (!_viewer) return;
 
@@ -855,12 +857,40 @@ void walkManipulator::flytoScenePick(float mouse_x, float mouse_y)
       //if (hitr->drawable->getParent(0)->valid())
       {
         osg::Vec3 p = hitr->getWorldIntersectPoint();
-        seg = new osg::LineSegment(p, _position);
-        matrix.makeScale(0.8, 0.8, 1.0);
+        //seg = new osg::LineSegment(p, _position);
+        osg::Vec3 new_camera_point = p - ((p - _position) * 0.1);
         // shorten the segment
-        seg->mult(*seg, matrix);
+        //seg->mult(*seg, matrix);
         // the new position is the shortened start
-        _position = seg->start();
+        //_position = new_camera_point;
+        Point1 = new CameraData();
+        Point1->Camera_X = _position[0];
+			  Point1->Camera_Y = _position[1];
+			  Point1->Camera_Z = _position[2];
+			  Point1->Camera_Yaw = _yaw;
+			  Point1->Camera_Pitch = _pitch;
+			  Point1->Camera_Roll = _roll;
+        Point2 = new CameraData();
+        Point2->Camera_X = new_camera_point[0];
+			  Point2->Camera_Y = new_camera_point[1];
+			  Point2->Camera_Z = new_camera_point[2];
+			  Point2->Camera_Yaw = _yaw;
+			  Point2->Camera_Pitch = _pitch;
+			  Point2->Camera_Roll = _roll;
+        Point1->point_name = NULL;
+        Point2->point_name = NULL;
+        CP = new CameraPoints();
+        CP->AddCameraPoint(Point1);
+        CP->AddCameraPoint(Point2);
+        bool keep_on = true;
+        new_step = (p - _position).length() * 0.05f;
+        setStepAmount(new_step, new_step);
+        loopCameraPoints(&keep_on, CP);
+        delete CP;
+        new_step = (p - _position).length() * 0.01f;
+        setStepAmount(new_step, new_step);
+        getNearFar(&old_near, &old_far);
+        setNearFar(new_step / 2, old_far);
         _calc_ground_distance = true;
         return;
       }
@@ -1113,6 +1143,16 @@ double walkManipulator::calcNextAngle(double StartingAngle, double *phi, double 
       Angle = StartingAngle + step;
   }
   return Angle;
+}
+
+//--------------------------------------------------------------------
+void walkManipulator::getNearFar(double *Near, double *Far)
+//--------------------------------------------------------------------
+{
+  double lensaspect, fovy, oldnear, oldfar;
+  _viewer->getCamera()->getProjectionMatrixAsPerspective(fovy, lensaspect, oldnear, oldfar);
+  *Near = oldnear;
+  *Far = oldfar;
 }
 
 //--------------------------------------------------------------------
