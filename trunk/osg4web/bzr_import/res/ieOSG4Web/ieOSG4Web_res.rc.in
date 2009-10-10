@@ -69,13 +69,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "TODO: <Company name>"
-            VALUE "FileDescription", "TODO: <File description>"
+            VALUE "CompanyName", "CNR ITABC - CINECA"
+            VALUE "FileDescription", "OSG4Web Plugin - ActiveX"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "ieOSG4Web.dll"
-            VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
-            VALUE "OriginalFilename", "ieOSG4Web.dll"
-            VALUE "ProductName", "TODO: <Product name>"
+            VALUE "InternalName", "ieOSG4Web.ocx"
+            VALUE "LegalCopyright", "(c) CNR ITABC - CINECA.  All rights reserved."
+            VALUE "OriginalFilename", "ieOSG4Web.ocx"
+            VALUE "ProductName", "OSG4Web Plugin - ActiveX"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END
