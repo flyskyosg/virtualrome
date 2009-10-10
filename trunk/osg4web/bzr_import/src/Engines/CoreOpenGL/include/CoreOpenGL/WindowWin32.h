@@ -169,7 +169,7 @@ protected:
 	            ::wglDeleteContext(_hglrc);
 	            _hglrc = 0;
 	        }
-
+			
 		    ::ReleaseDC(_hwnd, _hdc);
 		    _hdc = 0;
 		}
@@ -250,8 +250,13 @@ protected:
 			return false;
 		}
 
-		if(_current)
-			return true;
+		_holddc = ::wglGetCurrentDC();
+		_holdrc = ::wglGetCurrentContext();
+
+		//if(_current)
+		//	return true;
+
+		//TODO: controllare mi rallenta tutto da paura
 
 		if (!::wglMakeCurrent(_hdc, _hglrc))
 		{
@@ -260,6 +265,15 @@ protected:
 		}
 
 		_current = true;
+
+		return true;
+	}
+
+	//Ripristina il contesto precedente
+	bool restoreCurrentImplementation()
+	{
+		::wglMakeCurrent( _holddc, _holdrc );
+		_current = false;
 
 		return true;
 	}
@@ -407,10 +421,11 @@ private:
 	WindowExtra::WindowDimension _windowDimension;
 
 	HWND _hwnd;
-	HDC _hdc;
-	HGLRC _hglrc;
+	HDC _hdc, _holddc;
+	HGLRC _hglrc, _holdrc;
 	HCURSOR _currentCursor;
 	WNDPROC _windowProcedure;
+
 };
 
 

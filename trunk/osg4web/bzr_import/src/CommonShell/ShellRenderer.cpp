@@ -4,7 +4,8 @@
 #include <CommonShell/ShellBase.h>
 
 
-ShellRenderer::ShellRenderer(ShellBase* rbase) : _rStubb(rbase)
+ShellRenderer::ShellRenderer(ShellBase* rbase) :  ShellThread(PR_PRIORITY_HIGH),
+	_rStubb(rbase)
 {
 	//Check ShellBase existance
 	assert(_rStubb);
@@ -43,10 +44,13 @@ bool ShellRenderer::doCallBack()
 		if( this->isBusy() && !this->isShuttingDown())
 			this->waitCondition();
 			
-		if( !_rStubb->doRenderingBridge() && !this->isShuttingDown())
+		if( !this->isShuttingDown() && !this->isPaused() )
 		{
-			this->notifyCondition();
-			break;
+			if(!_rStubb->doRenderingBridge())
+			{
+				this->notifyCondition();
+				break;
+			}
 		}
 				
 		if( this->isShuttingDown() )
@@ -55,7 +59,7 @@ bool ShellRenderer::doCallBack()
 		this->unLock();
 
 		if(!this->isShuttingDown())
-			this->makeSleep( RENDER_DELAY );
+			this->makeSleep( this->getThreadDelay() );
 
 		this->Lock();
 	}

@@ -722,16 +722,16 @@ LRESULT nsPluginInstance::handleWindowEvents(HWND hWnd, UINT eventmsg, WPARAM wP
 
 				return (0L);
 			}
-		//FIXME: finire la parte di request Explicit
-		//	else 
-		//		this->requestExplicitRendering(); 
+// FIXME: finire la parte di request Explicit
+//			else 
+//				this->requestExplicitRendering(); 
 		}
 		break;
-	case WM_SIZE:
-		{
-		//	this->requestExplicitRendering();
-		}
-		break;
+//	case WM_SIZE:
+//		{
+//			this->requestExplicitRendering();
+//		}
+//		break;
 	case WM_ERASEBKGND:
 		if(this->checkRunning()) //Corregge il problema di flickering durante il ridimensionamento e la selezione
 		{

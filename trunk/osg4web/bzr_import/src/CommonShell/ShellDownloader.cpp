@@ -14,7 +14,8 @@
  *
  *********************************************************************************/
 
-ShellDownloader::ShellDownloader(ShellBase* rbase) : _proxyhost(""),
+ShellDownloader::ShellDownloader(ShellBase* rbase) : ShellThread(PR_PRIORITY_NORMAL),
+	_proxyhost(""),
 	_proxyport("8080"),
 	_curlctr(NULL),
 	_isLoading(false),

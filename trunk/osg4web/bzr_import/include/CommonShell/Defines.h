@@ -47,7 +47,7 @@
 #define LOADING_CORE_MESSAGES_MAX			5000
 
 //Rendering Sleep Time
-#define		RENDER_DELAY					10
+#define		THREAD_DELAY					17 //circa 60 fps
 
 //ShellThread Defines
 #define		JOIN_THREAD_DELAY				1000
