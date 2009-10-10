@@ -495,14 +495,18 @@ bool ShellBase::startLoadingBaseCore()
 	std::string coredirectory(getLoadCoreDirectory());
 
 	//Check library presence
-	if(!Utilities::FileUtils::fileExists(
-					Utilities::FileUtils::convertFileNameToNativeStyle(
+
+	std::string s=		Utilities::FileUtils::convertFileNameToNativeStyle(
 						coredirectory + "/" + 
 						m_loadcorename + DEBUGAPPEND + 
 						DynamicLoad::getLibraryExtension()
-						)))
+						);
+	if(!Utilities::FileUtils::fileExists(s))
 	{
 		this->sendWarnMessage( "ShellBase::startLoadingBaseCore-> LoadCore library not present!" );
+		FILE *f = fopen("pippo_log","w");
+		fprintf(f,"carico dll -->%s<--",s.c_str());
+		fclose(f);
 		m_errorcode = 4;
 		return false;
 	}
