@@ -59,6 +59,7 @@ FunCore::FunCore(std::string corename) : CoreBase(corename),
 	this->setCommandAction("ACTIVATE_JSMAP_MESSAGES");
 	this->setCommandAction("DEACTIVATE_JSMAP_MESSAGES");
 	this->setCommandAction("GET_JSMAP_COORDINATES");
+	this->setCommandAction("SETHOMEPOSITION");
 
 	this->addCommandSchedule((CommandSchedule*) this);
 }
@@ -295,6 +296,13 @@ std::string FunCore::handleAction(std::string argument)
 			retstr = this->getJSMapCoordinates();
 		}
 		break;
+
+	case SETHOMEPOSITION:
+		{
+			if ( this->setHomePosition( rcommand ) ) retstr = "HOME_SET";
+			else retstr = "HOME_NOT_SET";
+		}
+		break;
 	default: //UNKNOWN_ACTION
 		retstr = "UNKNOWN_ACTION";
 		break;
@@ -338,7 +346,6 @@ bool FunCore::loadModelToNode(std::string arguments)
 	return _LoaderThreadHandler->requestLoading(nodename, newargs); //FIXME: ritorna false se il nodo è già in coda di caricamento
 }
 
-
 void FunCore::preFrameUpdate()
 {
 	this->handleLoadingThreads();
@@ -377,6 +384,17 @@ std::string FunCore::getJSMapCoordinates()
 		" UP " + Utilities::StringUtils::numToString(up.x()) + " " + Utilities::StringUtils::numToString(up.y()) + " " + Utilities::StringUtils::numToString(up.z());
 
 	return jsmapcoordstring;
+}
+
+bool FunCore::setHomePosition( std::string arguments ){
+	if (_Viewer.get() ){
+		double x,y,z, tx,ty,tz;
+		if (_Viewer.get()->getCameraManipulator() && ( sscanf(arguments.c_str(), "%lf %lf %lf %lf %lf %lf", &x,&y,&z,&tx,&ty,&tz) == 6) ){
+			_Viewer.get()->getCameraManipulator()->setHomePosition( osg::Vec3d(x,y,z), osg::Vec3d(tx,ty,tz), osg::Z_AXIS );
+			return true;
+			}
+		}
+	return false;
 }
 
 void FunCore::handleTooltips()
