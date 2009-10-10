@@ -1,6 +1,13 @@
 
 Change Log
 
+28/02/2008
+- Riscritta la parte di parsing dei nodi
+- Riscritto la metodologia di picking
+- Riconfigurazione del Tooltips 
+- FunCore allineato
+- Aggiunta del CoreJSExample
+
 06/02/2008
 - Riscritta la parte di gestione dei parametri di init della shell e dei parametri da object
 - Finita implementazione dei log forzati su file da parametri Object

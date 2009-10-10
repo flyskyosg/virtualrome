@@ -1,6 +1,6 @@
 
 
-#include <CommonCore/Scenehandlers/TooltipHandler.h>
+#include <CommonCore/Scenehandlers/TooltipsSceneModifier.h>
 
 #include <vector>
 
@@ -43,7 +43,7 @@ TooltipsSceneModifier::~TooltipsSceneModifier()
 
 osg::Node* TooltipsSceneModifier::createTooltipHUD()
 {
-	_hudgrp->setName("TooltipHandler_HUD_Group");
+	_hudgrp->setName("TooltipsSceneModifier_HUD_Group");
 	_hudgrp->setNodeMask(_negatemask);
 
 	this->createTooltipCamera2D();
@@ -55,7 +55,7 @@ void TooltipsSceneModifier::createTooltipSceneGraph()
 {
 	//Inizializzo la Matrice di Posizionamento del Tooltip nella screen 2D
 	_matrtrans->setMatrix(osg::Matrix::identity());
-	_matrtrans->setName("Tooltip_Matrice_di_Traslazione");
+	_matrtrans->setName("Tooltips_Matrice_di_Traslazione");
 
 	//Inizializzo il testo
 	_textnd->setName("Tooltip_Testo");

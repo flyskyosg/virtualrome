@@ -9,7 +9,7 @@
 #include <CommonCore/SceneHandlers/AnimateViewHandler.h>
 #include <CommonCore/SceneHandlers/SceneModifier.h>
 #include <CommonCore/SceneHandlers/LoadThreadsHandler.h>
-#include <CommonCore/SceneHandlers/TooltipHandler.h>
+#include <CommonCore/SceneHandlers/TooltipsSceneModifier.h>
 
 #include <CommonCore/Manipulators/walkManipulator.h>
 
@@ -61,7 +61,7 @@ protected:
 
 	void handleLoadingThreads();
 	void handleEnvironment();
-
+	void handleTooltips();
 
 	//Manipolatori
 	osg::ref_ptr<Manipulators::walkManipulator> _WalkManip;
@@ -70,8 +70,8 @@ protected:
 	osg::ref_ptr<SceneHandlers::AnimateViewHandler> _AnimateHandler;
 	osg::ref_ptr<SceneHandlers::SceneModifier> _SceneModifier;
 	osg::ref_ptr<SceneHandlers::LoadThreadsHandler> _LoaderThreadHandler;
-	osg::ref_ptr<SceneHandlers::TooltipHandler> _TooltipHandler;
-
+	osg::ref_ptr<SceneHandlers::TooltipsSceneModifier> _TooltipsSceneModifier;
+	osg::ref_ptr<SceneHandlers::NodeParserHandler> _TooltipsParserHandler;
 
 	//Main Node
 	osg::ref_ptr<osg::Group> _MainNode;

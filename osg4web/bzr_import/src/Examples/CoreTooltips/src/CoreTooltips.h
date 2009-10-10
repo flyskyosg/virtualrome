@@ -2,7 +2,7 @@
 #define __OSG4WEB_CORETOOLTIPS__ 1
 
 #include <CoreBase/CoreBase.h>
-#include <CommonCore/SceneHandlers/TooltipHandler.h>
+#include <CommonCore/SceneHandlers/TooltipsSceneModifier.h>
 #include <Defines.h>
 
 using namespace OSG4WebCC;
