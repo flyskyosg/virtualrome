@@ -13,9 +13,10 @@ using namespace OSG4WebCC;
 
 //FunCore Costruttore
 FunCore::FunCore(std::string corename) : CoreBase(corename),
+	_LoaderThreadHandler( new SceneHandlers::LoadThreadsHandler() ),
 	_SceneModifier( new SceneHandlers::SceneModifier ),
+	_TooltipHandler( NULL ),
 	_WalkManip( new Manipulators::walkManipulator ),
-	_LoaderThreadHandler(new SceneHandlers::LoadThreadsHandler()),
 	_AnimateHandler( NULL ),
 	_MainNode( new osg::Group ),
 	_ModiSceneGraph( new osg::Group ),
@@ -59,6 +60,9 @@ FunCore::~FunCore()
 	if(_AnimateHandler.valid())
 		_AnimateHandler = NULL;
 
+	if(_TooltipHandler.valid())
+		_TooltipHandler = NULL;
+
 	this->sendNotifyMessage("~FunCore -> Destructing FunCore Instance.");
 }
 
@@ -73,6 +77,7 @@ void FunCore::AddStartOptions(std::string str, bool erase)
 //Ridefinizione dell'albero di scena
 bool FunCore::initSceneData()
 {
+	_TooltipHandler = new SceneHandlers::TooltipHandler();
 	_AnimateHandler = new SceneHandlers::AnimateViewHandler(_Viewer.get());
 
 	this->buildMainScene();
@@ -81,6 +86,7 @@ bool FunCore::initSceneData()
 	this->addCommandSchedule((CommandSchedule*) _AnimateHandler.get());
 
 	_Viewer->addEventHandler(_AnimateHandler.get());
+	_Viewer->addEventHandler(_TooltipHandler.get());
 	
 	_SceneModifier->setSceneData(_ModiSceneGraph.get());
 	_Viewer->setSceneData(_MainNode.get());
@@ -109,16 +115,23 @@ bool FunCore::initManipulators()
 
 bool FunCore::buildMainScene()
 {
+	osg::ref_ptr<osg::Node> loadinghud = _LoaderThreadHandler->createLoadingHUD();
+	osg::ref_ptr<osg::Node> tooltiphud = _TooltipHandler->createTooltipHUD();
+
+	//Setto i nomi dei nodi
+	_MainNode->setName("Super_Group_Node");
 	_ModiSceneGraph->setName("Modi_Scene_Graph");
 
-	_MainNode->setName("Super_Group_Node");
+	//Attacco gli HUD 
+	_MainNode->addChild(loadinghud.get());
+	_MainNode->addChild(tooltiphud.get());
+
+	//Attacco Nodi
 	_MainNode->addChild(_ModiSceneGraph.get());
-	_MainNode->addChild(_LoaderThreadHandler->createLoadingHUD()); //ATTACCO HUD DI LOAD
 
 	//Passo il nodo di scena al quale è possibile aggiungere figli
 	_LoaderThreadHandler->setNode(_ModiSceneGraph.get());
-
-
+	
 	//TODO:
 
 	return true;

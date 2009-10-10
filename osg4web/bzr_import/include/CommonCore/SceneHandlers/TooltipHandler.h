@@ -21,11 +21,13 @@ namespace SceneHandlers
 	{
 	public:
 		//Costruttore 
-		TooltipHandler(osg::Node::NodeMask nm = 0xffffff);
-		TooltipHandler(osg::Group* hudgrp, osg::Node::NodeMask nm = 0xffffff);
+		TooltipHandler(osg::Node::NodeMask allowmask = 0x0000001);
 		
 		//Setta il nodo di scena globale nel Tooltip
 		void setMainSceneNode(osg::Node* node);
+
+		//Ritorna il tooltip HUD da attaccare allo ScenaGraph generale 
+		osg::Node* createTooltipHUD(osg::Node::NodeMask negatemask = 0xfffffffe);
 
 		//Metodo di gestione del FRAME event
 		virtual void callmethodqueue(osgViewer::Viewer* viewer, const osgGA::GUIEventAdapter& ea);

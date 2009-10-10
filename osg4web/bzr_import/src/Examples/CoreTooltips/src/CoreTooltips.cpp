@@ -47,28 +47,19 @@ bool CoreTooltips::initSceneData()
 {
 	this->sendNotifyMessage("initSceneData -> Building the SceneGraph.");
 
+	//Creo il Tooltip Handler
+	_TooltipsHandler = new SceneHandlers::TooltipHandler();
+
 	// add the HUD subgraph.
 	osg::ref_ptr<osg::Group> parent = new osg::Group;
-	osg::ref_ptr<osg::Group> tooltipnode = new osg::Group;
+	osg::ref_ptr<osg::Node> tooltipnode = _TooltipsHandler->createTooltipHUD();
 
-	tooltipnode->setName("SubRoot: No Intersection SceneGraph");
-
-	osg::Node::NodeMask allowPickTM = 0x00000001; //Allow Picking
-	osg::Node::NodeMask negatePickTM = 0xfffffffe; //Negate Picking
-
-	//Setto NodeMask differente i modo da non far attraversare dal Tooltip Handler questa parte di scenegraph
-	tooltipnode->setNodeMask(negatePickTM);
-	//_LocalSceneGraph->setNodeMask(allowPickTM);
-
-	//Creo il Tooltip Handler
-	_TooltipsHandler = new SceneHandlers::TooltipHandler(allowPickTM);
-
-	parent->setName("Root SceneGraph Node");
+	parent->setName("Root_SceneGraph_Node");
 	parent->addChild(_LocalSceneGraph.get());
 	parent->addChild(tooltipnode.get());
 
 	//Creo i modelli geometrici della scena
-	_LocalSceneGraph->setName("SubRoot: Models SceneGraph");
+	_LocalSceneGraph->setName("SubRoot_Models_SceneGraph");
 	_LocalSceneGraph->addChild( (osg::Group*) createScene() );
 
     /***************************************************************
@@ -76,8 +67,7 @@ bool CoreTooltips::initSceneData()
 	 * ATTACCO IL TOOLTIP HANDLER
 	 */
 	
-	_TooltipsHandler->setMainSceneNode(tooltipnode.get());
-	_Viewer->addEventHandler(_TooltipsHandler.get()); //_LocalSceneGraph.get()));
+	_Viewer->addEventHandler(_TooltipsHandler.get());
 
 	_Viewer->setSceneData(parent.get());
 
@@ -127,18 +117,18 @@ osg::Node* CoreTooltips::createScene()
 	shpdrwcyl->setColor(osg::Vec4(1.0f,0.12f * 4,0.06f,1.0f));
 	shpdrwcapsule->setColor(osg::Vec4(1.0f,0.12f * 5,0.06f,1.0f));
     
-	geodesphere->setName("Geode Sphere");
+	geodesphere->setName("Geode_Sphere");
     geodesphere->addDrawable( shpdrwsphere.get() );
-	geodebox->setName("Geode Box");
+	geodebox->setName("Geode_Box");
     geodebox->addDrawable( shpdrwbox.get() );
-	geodecone->setName("Geode Cone");
+	geodecone->setName("Geode_Cone");
     geodecone->addDrawable( shpdrwcone.get() );
-	geodecyl->setName("Geode Cylinder");
+	geodecyl->setName("Geode_Cylinder");
     geodecyl->addDrawable( shpdrwcyl.get() );
-	geodecapsule->setName("Geode Big Cylinder");
+	geodecapsule->setName("Geode_Big_Cylinder");
     geodecapsule->addDrawable( shpdrwcapsule.get() );
 
-	grp->setName("Models Group");
+	grp->setName("Models_Group");
 
 	/***********************************************************************************
 	 * Inizializzo i nodi per essere utilizzati dal Tooltip Handler

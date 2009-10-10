@@ -9,6 +9,7 @@
 #include <CommonCore/SceneHandlers/AnimateViewHandler.h>
 #include <CommonCore/SceneHandlers/SceneModifier.h>
 #include <CommonCore/SceneHandlers/LoadThreadsHandler.h>
+#include <CommonCore/SceneHandlers/TooltipHandler.h>
 
 #include <CommonCore/Manipulators/walkManipulator.h>
 
@@ -66,6 +67,7 @@ protected:
 	osg::ref_ptr<SceneHandlers::AnimateViewHandler> _AnimateHandler;
 	osg::ref_ptr<SceneHandlers::SceneModifier> _SceneModifier;
 	osg::ref_ptr<SceneHandlers::LoadThreadsHandler> _LoaderThreadHandler;
+	osg::ref_ptr<SceneHandlers::TooltipHandler> _TooltipHandler;
 
 
 	//Main Node
