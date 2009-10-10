@@ -2,6 +2,7 @@
 #define __NPOSG4WEB_PLUGIN_H__ 1
 
 
+#include "xpcom-config.h"
 #include "nspr.h"
 #include <npOSG4Web/npOSG4Web_pluginbase.h>
 #include <npOSG4Web/npOSG4Web_nsScriptablePeer.h>
