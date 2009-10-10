@@ -33,7 +33,7 @@ TooltipsSceneModifier::TooltipsSceneModifier(float initx, float inity) : Command
 	_negatemask(0xfffffffe),
 	_allowmask(0x0000001),
 	_startTime(0),
-	_maxTime(500.0) //TODO:
+	_maxTime(1000.0) //TODO:
 {
 	this->createTooltipSceneGraph();
 }

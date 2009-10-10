@@ -2,8 +2,8 @@
 Program:   Multimod Application Framework
 Module:    $RCSfile: walkManipulator.cpp,v $
 Language:  C++
-Date:      $Date: 2008/03/07 18:23:29 $
-Version:   $Revision: 1.8 $
+Date:      $Date: 2008/03/12 02:23:27 $
+Version:   $Revision: 1.9 $
 Authors:   Tiziano Diamanti
 ==========================================================================
 Copyright (c) 2001/2005 
@@ -250,7 +250,8 @@ bool walkManipulator::handle(const GUIEventAdapter& ea,GUIActionAdapter& us)
                                                   //          neanche con us.RequestContinousUpdate(true);
                                                   //          Pero' arrivano le FRAME ...
           if( ea.getButton() == GUIEventAdapter::LEFT_MOUSE_BUTTON)
-            go_upward(false);
+			  return false;
+        //    go_upward(false);
           #if _USE_VISMAN_
             _visman->setFocusOnGLCanvas();
           #endif

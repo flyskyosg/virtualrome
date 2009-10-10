@@ -20,7 +20,7 @@ using namespace CommonCore;
 FunCore::FunCore(std::string corename) : CoreBase(corename),
 	_LoaderThreadHandler( NULL ),
 	_SceneModifier( new SceneHandlers::SceneModifier ),
-	_StandardNodeParserHandler( new SceneHandlers::NodeParserHandler ),
+	_StandardNodeParserHandler( NULL ),
 	_TooltipsParserHandler( NULL ),
 	_TooltipsSceneModifier( NULL ),
 	_WalkManip( new Manipulators::walkManipulator ),
@@ -114,8 +114,11 @@ bool FunCore::initSceneHandlers()
 
 	_LoaderThreadHandler = new SceneHandlers::LoadThreadsHandler(_Traits->width, _Traits->height);
 
+	_StandardNodeParserHandler = new SceneHandlers::NodeParserHandler( 0x00000001 ); //TODO: fare in modo che venga da GetBackHandler
+
 	_GetBackHandler = new SceneHandlers::GetBackHandler((CommonCore::RaiseEventInterface*) this);
 	_StandardNodeParserHandler->addCommand( osgGA::GUIEventAdapter::PUSH, _GetBackHandler.get());
+	_StandardNodeParserHandler->setTraversalNodeMask(0x01);
 	
 	_TooltipsSceneModifier = new SceneHandlers::TooltipsSceneModifier(_Traits->width, _Traits->height);
 	_TooltipsParserHandler = new SceneHandlers::NodeParserHandler;
