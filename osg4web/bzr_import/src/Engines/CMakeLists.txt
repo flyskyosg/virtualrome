@@ -4,6 +4,10 @@
 #
 ############################################################
 
+SUBDIRS(
+	CoreOpenGL
+	)
+
 IF(OSG_FOUND)
 	SUBDIRS(
 		CoreBase
