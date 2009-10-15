@@ -48,8 +48,9 @@ class Visitor(VisitorBase):
         self.visited = {}  
         self.verbose=True
         
+    def apply_Node(self, node):
+        return self.apply(node)
     def apply(self, node):
-
         if self.alreadyVisited( node ):
             return # cosi non visita neanche il sottoalbero
 
