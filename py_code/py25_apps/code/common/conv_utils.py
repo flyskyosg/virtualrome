@@ -298,8 +298,8 @@ class FileWriter(BaseOsgFileTranslator):
                         return False
             
             current_dir = os.path.abspath(os.curdir)        
-            #os.chdir(self.basepath)
-            os.chdir(os.path.join(self.basepath,self.rel_imgdir))
+            os.chdir(self.basepath)
+            #boh#os.chdir(os.path.join(self.basepath,self.rel_imgdir))
             ret=osgDB.writeNodeFile_s(node, outfile, self.optionstring )  
             os.chdir(current_dir)     
             if(ret):
@@ -819,10 +819,10 @@ class ListFileComponents(BaseOsgFileTranslator,Visitor):
                 if(image_handler):
                     image_handler(i,self.images[i],im)
                 else:
-                    print "   ",i,nref,dx,dy,num_bands,filesize
+                    if(self.verbose): print "   ",i,nref,dx,dy,num_bands,filesize
             else:
-                print "MISS",i,nref,dx,dy
-        print "total img sz: ", self.imagesize_single , self.imagesize_repeat
+                print "MISS",i,nref,dx,dy,"-->",fullpath
+        if(self.verbose): print "total img sz: ", self.imagesize_single , self.imagesize_repeat
             
     def GetRefFileList(self):
         flist=[]
@@ -1064,11 +1064,14 @@ class BaseCopyHandler(BaseHandler,FileSizer):
             
 
 
-    def file_loader(self,file):
+    def file_loader(self,file,ChangeBasepath=False):
         ff = os.path.join(self.basepath,file)
         if os.path.exists(ff):
-            #print "loading-->" , ff
-            node = osgDB.readNodeFile(ff)
+            #print "loading-->" , ff            
+            if(ChangeBasepath):
+                node=self.LoadFile(ff)
+            else:
+                node = osgDB.readNodeFile(ff)
             self.opt.optimize(node,self.optimization_flags)
             return node
         else:
