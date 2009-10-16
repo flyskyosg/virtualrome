@@ -5,7 +5,7 @@
 import os
 import wx
 import  wx.lib.scrolledpanel as scrolled
-import wx.propgrid as wxpg
+#import wx.propgrid as wxpg
 import wx.stc
 import osg
         
@@ -323,8 +323,8 @@ class App(wx.App):
     def OnInit(self):
         f = wx.Frame(None)
         
-        #o = TestObject()
-        o = osg.MatrixTransform()
+        o = TestObject()
+        #o = osg.MatrixTransform()
 
         g = GuiHolder(f)
         g.SetObj(o)
