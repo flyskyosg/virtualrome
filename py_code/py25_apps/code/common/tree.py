@@ -2,6 +2,11 @@
 
 """
 import wx
+import os
+
+sourcedir = os.path.dirname(__file__)
+picdir    = os.path.abspath(   os.path.join( sourcedir, "../pic") )
+
 
 #-----------------------------------------------------------------------------
 
@@ -18,7 +23,7 @@ class TreeBase( wx.Panel ) :
         self.dont_notify_selection = 0
 
         self.il     = wx.ImageList(15,15)
-        self.i_root = self.il.Add( wx.Bitmap('pic/tree_folder.png'    ) )
+        self.i_root = self.il.Add( wx.Bitmap(os.path.join( picdir, 'tree_folder.png'   ) ) )
         self.num_icons = 1
 
         # wx.TR_MULTIPLE | wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS
@@ -208,17 +213,17 @@ class Tree( TreeBase ) :
         # non puoi cambiare/aggiungere icone a run-time
         
         self.il = il   = wx.ImageList(15,15)
-        self.ifolder   = il.Add( wx.Bitmap('pic/tree_folder.png'    ) )
-        self.ifile     = il.Add( wx.Bitmap('pic/tree_file.png'      ) )
-        self.isettings = il.Add( wx.Bitmap('pic/tree_settings4.png'  ) )
-        self.iN        = il.Add( wx.Bitmap('pic/tree_node.png'      ) )
-        self.iT        = il.Add( wx.Bitmap('pic/tree_transform.png' ) )
-        self.iG        = il.Add( wx.Bitmap('pic/tree_geode.png'     ) )
-        self.iGr       = il.Add( wx.Bitmap('pic/tree_group.png'     ) )
-        self.iD        = il.Add( wx.Bitmap('pic/tree_drawable.png'  ) )
-        self.iP        = il.Add( wx.Bitmap('pic/tree_property.png'  ) )
-        self.iS        = il.Add( wx.Bitmap('pic/tree_stateset.png'  ) )
-        self.iO        = il.Add( wx.Bitmap('pic/tree_object.png'    ) )
+        self.ifolder   = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_folder.png'    ) ) )
+        self.ifile     = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_file.png'      ) ) )
+        self.isettings = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_settings4.png' ) ) )
+        self.iN        = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_node.png'      ) ) )
+        self.iT        = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_transform.png' ) ) )
+        self.iG        = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_geode.png'     ) ) )
+        self.iGr       = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_group.png'     ) ) )
+        self.iD        = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_drawable.png'  ) ) )
+        self.iP        = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_property.png'  ) ) )
+        self.iS        = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_stateset.png'  ) ) )
+        self.iO        = il.Add( wx.Bitmap(os.path.join( picdir, 'tree_object.png'    ) ) )
         self.SetImageList(il, 11)
 
     def AddNode(self, parent, node, label="", icon=0  ):
