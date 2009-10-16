@@ -9,6 +9,13 @@ From Silvano Imboden --- CINECA
 import wx
 import wx.py 
 import wx.glcanvas
+import os,sys
+
+##import sys
+##sys.path.append('D:\\devel\\vrome_devel\\virtualrome\\py_code\\py25_apps\\PyPackages\\osg');
+##import os
+##os.environ['PATH']='D:\\devel\\vrome_devel\\virtualrome\\py_code\\py25_apps\\PyPackages\\osg'+os.pathsep+os.environ['PATH']
+
 
 import osg
 import osgDB
@@ -42,13 +49,21 @@ class Canvas(wx.glcanvas.GLCanvas):
         ss = self.viewer.getCamera().getOrCreateStateSet()
         self.viewer.addEventHandler( osgGA.StateSetManipulator(ss) )
 
+
         self.root = osg.Group()
         self.viewer.setSceneData(self.root)
 
-        self.cow = osgDB.readNodeFile("cow.osg")
+
+        (dir,scriptname) = os.path.split(os.path.abspath(os.path.realpath( __file__ )))
+        print dir
+
+
+        self.cow = osgDB.readNodeFile(os.path.join(dir,'teapot.ive'))
+        #self.cow = osgDB.readNodeFile("P:\\devel\\dowloads\\collada\\data\\Dining Room\\diningroomC.dae")
+        #self.cow = osgDB.readNodeFile("http://3d.cineca.it/storage/osg4web/htdocs/virtual_data/projects/6/terreni/romano/vrome_final_02/noveg.ive")
         if not self.cow:
             print "could not find any cow --- please set the OSG_FILE_PATH env var"
-        self.root.addChild( self.cow )
+            self.root.addChild( self.cow )
 
         # --- Bindings ---------------------------------
         self.Bind(wx.EVT_TIMER,             self.onTimer, id=self.timer.GetId() )
@@ -177,6 +192,7 @@ class App(wx.App):
 #--------------------------------------------------------------------------
 if __name__ == "__main__":
 
+    print "OSG version: ",osg.osgGetVersion()
     app = App()  
     viewer = app.getViewer()
     app.MainLoop()
